@@ -6,9 +6,10 @@ services:
     depends_on:
       - db  
     volumes:
-      - ./backend:/usr/app
+      - ./backend:/app
       - /usr/app/node_modules
-   
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     ports:
       - '8080:3000'
   db:
@@ -19,8 +20,11 @@ services:
     container_name: frontend
     build:
       context: ./frontend
+      target: dev
     volumes:
       - ./frontend:/app
       - /app/node_modules
     ports:
       - '3000:80'
+    environment:
+      - CHOKIDAR_USEPOLLING=true     
