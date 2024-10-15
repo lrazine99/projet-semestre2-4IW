@@ -26,6 +26,6 @@ RUN npm run build
 # it's a good idea to pin this, but for demo purposes we'll leave it as is
 FROM nginx:latest as prod
 
-COPY --from=prod-builder /usr/src/app/dist /usr/share/nginx/html
+COPY --from=prod-builder /app/dist /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]

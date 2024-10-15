@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -14,11 +13,10 @@ export default defineConfig({
     }
   },
   server: {
-    host: '0.0.0.0',  // Ensure Vite binds to all interfaces
-    port: 80,       // Match the port with Docker
+    host: '0.0.0.0', // Ensure Vite binds to all interfaces
+    port: 80, // Match the port with Docker
     watch: {
-      usePolling: true,  // Helps with file watching in Docker
-    },
-  },
-
+      usePolling: true // Helps with file watching in Docker
+    }
+  }
 })
