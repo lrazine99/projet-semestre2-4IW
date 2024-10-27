@@ -7,6 +7,7 @@ import ProductRoutes from "./routes/product";
 // @ts-ignore
 import { xss } from "express-xss-sanitizer";
 import connectDB from "./helpers/database";
+import errorHandler from "./middlewares/errorHandler"; // Import the error handler middleware
 
 const app = express();
 
@@ -26,9 +27,11 @@ app.all("*", (req: Request, res: Response) => {
   res.status(404).send("Page introuvable");
 });
 
+app.use(errorHandler);
+
 const startServer = async () => {
   try {
-    await connectDB(); // Establish the database connection
+    await connectDB();
 
     // @ts-ignore
     const PORT = process.env.SERVER_PORT || 8080;
@@ -38,7 +41,7 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error("Failed to start server:", error);
-    process.exit(1); // Exit the process with failure
+    process.exit(1);
   }
 };
 

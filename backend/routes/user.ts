@@ -44,10 +44,10 @@ router.post("/user/signup", async (req, res) => {
   }
 });
 
-/*
+
 router.post("/user/login", async (req, res) => {
   try {
-    const userFound = await User.findOne({ username: req?.body?.username });
+    const userFound = await User.findOne({ username: req?.body?.email });
 
     if (userFound) {
       const generatedHash = SHA256(
@@ -60,7 +60,7 @@ router.post("/user/login", async (req, res) => {
       ) {
         res.status(200).json({
           _id: userFound._id,
-          username: userFound.username,
+          email: userFound.email,
           token: userFound.token,
         });
       } else {
@@ -80,6 +80,5 @@ router.post("/user/login", async (req, res) => {
   }
 });
 
-*/
 
 export default router;

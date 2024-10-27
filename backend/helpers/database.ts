@@ -10,16 +10,20 @@ const connectDB = async () => {
 
   try {
     console.log("Connecting to MongoDB...");
-    // @ts-ignore 
-    await mongoose.connect(process.env.BDD_ENDPOINT, {
-      dbName: "gameShop",
-    });
+    // @ts-ignore
+    await mongoose.connect(
+      process.env.BDD_ENDPOINT || "mongodb://root:example@db:27017/gameShop",
+      {
+        dbName: "gameShop",
+      }
+    );
 
-    isConnected = true; 
+    isConnected = true;
+
     console.log("Connected to MongoDB");
   } catch (error) {
     console.error("Error connecting to MongoDB: ", error);
-    throw error; 
+    throw error;
   }
 };
 

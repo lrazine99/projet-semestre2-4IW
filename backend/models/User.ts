@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
-import { Address, AddressSchema } from "./Address"; 
-
+import { AddressSchema } from "./Address";
+import { IAddress } from "../types/Address.interface";
 enum UserRole {
   USER = "user",
   ADMIN = "admin",
@@ -11,7 +11,7 @@ interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
-  address?: Address; 
+  address?: IAddress;
   token: string;
   hash: string;
   salt: string;
@@ -35,7 +35,7 @@ const UserSchema = new Schema<IUser>({
     type: AddressSchema,
     required: false,
   },
-  role: { type: String, enum: Object.values(UserRole), default: UserRole.USER }, 
+  role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
   birthDate: { type: Date, required: true },
 });
 

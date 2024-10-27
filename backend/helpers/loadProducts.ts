@@ -1,31 +1,13 @@
 import Product from "../models/Product";
 import Platform from "../models/Platform";
 import { IPlatform } from "../types/Platform.interface";
+import mongoose from "mongoose";
+import connectDB from "./database";
 
-export async function loadPlatforms() {
-  const platforms = [
-    { name: "PlayStation 5" },
-    { name: "Xbox Series X" },
-    { name: "Nintendo Switch" },
-    { name: "PC" },
-  ];
+async function loadProducts() {
+  await connectDB();
 
-  try {
-    await Platform.insertMany(platforms);
-    console.log("Platforms inserted successfully");
-  } catch (error) {
-    console.error("Error inserting platforms:", error);
-  }
-}
-
-loadPlatforms;
-
-export async function loadProducts() {
   const platforms: IPlatform[] = await Platform.find();
-  const platformMap = platforms.reduce((map, platform: IPlatform) => {
-    map[platform.name] = platform._id.toString();
-    return map;
-  }, {} as Record<string, string>);
 
   const games = [
     {
@@ -66,6 +48,8 @@ export async function loadProducts() {
 
   try {
     await Product.insertMany(games);
+    await mongoose.disconnect();
+
     console.log("20 games inserted successfully");
   } catch (error) {
     console.error("Error inserting games:", error);
