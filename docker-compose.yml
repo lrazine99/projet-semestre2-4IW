@@ -13,6 +13,7 @@ services:
       - /usr/app/node_modules
       - ./backend/nodemon.json:/app/nodemon.json
     environment:
+      - BDD_ENDPOINT=${BDD_ENDPOINT:-mongodb://root:example@db:27017/gameShop?authSource=admin}
       - SERVER_PORT=${SERVER_PORT:-3000}
       - CHOKIDAR_USEPOLLING=true
     ports:
