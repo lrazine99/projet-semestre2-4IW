@@ -1,9 +1,18 @@
+<script setup>
+import HeaderComponent from './components/HeaderComponent.vue'
+import FooterComponent from './components/FooterComponent.vue'
+</script>
+
 <template>
-  <header>
-    <div class="wrapper">
-      <h1 class="text-3xl font-bold underline">
-        Hello world!
-      </h1>
+  <div id="app">
+    <div class="flex flex-col h-screen bg-gray-200">
+      <HeaderComponent />
+
+      <div class="flex justify-center items-center flex-grow flex-col bg-gray-200">
+        <router-view />
+      </div>
+
+      <FooterComponent />
     </div>
-  </header>
+  </div>
 </template>
