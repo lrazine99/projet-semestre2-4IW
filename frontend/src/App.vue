@@ -15,13 +15,14 @@ import FooterComponent from './components/FooterComponent.vue'
       <button @click="fetchData">Fetch Dataj</button>
       <div v-if="error">{{ error }}</div>
       <div v-if="data">{{ data }}</div>
-
       <FooterComponent />
+    </div>
+  </div>  
 </template>
 
 <script>
-import axios from 'axios';
-
+/* import axios from 'axios';
+ */
 export default {
     name: 'App',
     data() {
@@ -51,6 +52,5 @@ export default {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     text-align: center;
     color: #2c3e50;
-    margin-top: 60px;
 }
 </style>
