@@ -4,15 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon --watch \"./**\" --ext \"js\" --exec \"node index.js\""
+    "start": "NODE_PATH=./build node build/index.js",
+    "build": "tsc -p .",
+    "dev": "nodemon --watch \"./**\" --ext ts,js,json --exec \"ts-node index.ts\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
   }
 }
