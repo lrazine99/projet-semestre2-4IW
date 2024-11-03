@@ -4,9 +4,10 @@
   titre="Bienvenue sur GameMarket"
   paragraphe="Découvrez nos jeux vidéo, plus de 1000 produits, pour toutes plateformes !"
   btnText="Découvrir maintenant"
-  class="mb-16"
   />
   <div class="container mx-auto p-6">    
+    <IdentityComponent 
+    />
     <section class="mb-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <CardProductComponent
@@ -79,11 +80,14 @@
 <script>
 import BannerComponent from '../components/BannerComponent.vue';
 import CardProductComponent from '../components/CardProductComponent.vue';
+import IdentityComponent from '../components/IdentityComponent.vue';
+
 
 export default {
   components: {
     BannerComponent,
     CardProductComponent,
+    IdentityComponent
   },
 };
 </script>

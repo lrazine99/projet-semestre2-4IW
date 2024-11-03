@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50">
+  <header class="fixed top-0 z-50 w-full">
     <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5">
       <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-2xl">
         <a href="/" class="flex items-center">
@@ -44,7 +44,7 @@
               <a href="/" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">Accueil</a>
             </li>
             <li>
-              <a href="/products" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">Produits</a>
+              <a href="/product" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">Produits</a>
             </li>
             <li>
               <a href="/about" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">Histoire</a>
