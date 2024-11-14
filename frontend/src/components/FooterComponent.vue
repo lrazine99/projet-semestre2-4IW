@@ -48,70 +48,41 @@
           </ul>
         </div>
         <div class="text-center">
-          <h2 class="mb-6 text-sm font-semibold text-white uppercase">Téléchargements</h2>
+          <h2 class="mb-6 text-sm font-semibold text-white uppercase">Mentions</h2>
           <ul class="font-medium text-center">
             <li class="mb-4">
               <LinkComponent
-                to=""
+              to=""
               >
-                IOS
+              Mentions Légales
               </LinkComponent>
             </li>
             <li class="mb-4">
               <LinkComponent
-                to=""
+              to=""
               >
-                Android
+              Conditions générales de ventes (CGV)
               </LinkComponent>
             </li>
             <li class="mb-4">
               <LinkComponent
-                to=""
+              to=""
               >
-                Windows
+              Conditions générales d'utilisations (CGU)
               </LinkComponent>
             </li>
             <li class="mb-4">
               <LinkComponent
-                to=""
+              to=""
               >
-                MacOS
-              </LinkComponent>
+              Politique de Confidentialité
+              </LinkComponent> 
             </li>
           </ul>
         </div>
       </div>
       <div class="px-4 py-6 bg-slate-900 md:flex md:items-center md:justify-between shadow-2xl shadow-gray-500">
         <span class="text-sm text-gray-300 sm:text-center">© 2024 Louafi et Paul. Tous droits réservés.</span>
-        <span class="text-sm text-gray-300 sm:text-center">
-          <LinkComponent
-          to=""
-          font-weight="font-light"
-          >
-          Mentions Légales
-          </LinkComponent>
-          <span> | </span>
-          <LinkComponent
-          to=""
-          font-weight="font-light"
-          >
-          Conditions générales de ventes (CGV)
-          </LinkComponent>
-          <span> | </span>
-          <LinkComponent
-          to=""
-          font-weight="font-light"
-          >
-          Conditions générales d'utilisations (CGU)
-          </LinkComponent>
-          <span> | </span>
-          <LinkComponent
-          to=""
-          font-weight="font-light"
-          >
-          Politique de Confidentialité
-          </LinkComponent> 
-        </span>
       </div>
     </div>
   </footer>
