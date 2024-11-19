@@ -18,7 +18,6 @@
           />
         </div>
 
-        <!-- Filtres par genre -->
         <div class="mb-6">
           <h4 class="font-medium text-gray-600 mb-6 cursor-pointer flex items-center justify-between" @click="toggleGenreFilter">
             Genres
@@ -26,19 +25,23 @@
           </h4>
           <hr class="border-t border-gray-300 mb-2" />
           <ul v-show="isGenreOpen">
-            <li v-for="genre in genres" :key="genre" class="flex items-center space-x-2 mb-2">
+            <li 
+              v-for="genre in genres" 
+              :key="genre" 
+              class="flex items-center space-x-2 mb-2 cursor-pointer"
+              @click="toggleSelection(selectedGenres, genre)"
+            >
               <input 
                 type="checkbox" 
                 v-model="selectedGenres" 
                 :value="genre" 
-                class="form-checkbox text-blue-500 focus:ring-0" 
+                class="form-checkbox text-blue-500 focus:ring-0 pointer-events-none" 
               />
               <span class="text-gray-700">{{ genre }}</span>
             </li>
           </ul>
         </div>
 
-        <!-- Filtres par plateforme -->
         <div class="mb-6">
           <h4 class="font-medium text-gray-600 mb-6 cursor-pointer flex items-center justify-between" @click="togglePlatformFilter">
             Plateformes
@@ -46,12 +49,17 @@
           </h4>
           <hr class="border-t border-gray-300 mb-2" />
           <ul v-show="isPlatformOpen">
-            <li v-for="platform in platforms" :key="platform" class="flex items-center space-x-2 mb-2">
+            <li 
+              v-for="platform in platforms" 
+              :key="platform" 
+              class="flex items-center space-x-2 mb-2 cursor-pointer"
+              @click="toggleSelection(selectedPlatforms, platform)"
+            >
               <input 
                 type="checkbox" 
                 v-model="selectedPlatforms" 
                 :value="platform" 
-                class="form-checkbox text-green-500 focus:ring-0" 
+                class="form-checkbox text-green-500 focus:ring-0 pointer-events-none" 
               />
               <span class="text-gray-700">{{ platform }}</span>
             </li>
@@ -96,16 +104,6 @@
             <option value="nameAsc">Nom : A - Z</option>
             <option value="nameDesc">Nom : Z - A</option>
           </select>
-        </div>
-
-        <!-- Bouton de validation des filtres -->
-        <div class="mt-6">
-          <button 
-            @click="applyFilters"
-            class="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"
-          >
-            Appliquer les filtres
-          </button>
         </div>
 
         <!-- Bouton de réinitialisation des filtres -->
@@ -161,148 +159,171 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import axios from 'axios';
-import CardProductComponent from '../components/CardProductComponent.vue';
+<script setup lang="ts">
+  import { ref, computed, onMounted } from 'vue';
+  import axios from 'axios';
+  import CardProductComponent from '../components/CardProductComponent.vue';
 
-export default defineComponent({
-  components: { CardProductComponent },
-  data() {
-    return {
-      allVariants: [],
-      genres: [],
-      platforms: [],
-      selectedPlatforms: [],
-      selectedGenres: [],
-      priceRange: { min: 0, max: 100 },
-      loading: true,
-      maxPrice: 100,
-      searchQuery: '',
-      displayedVariants: [],
-      sortOrder: 'dateDesc', 
-      isGenreOpen: false, 
-      isPlatformOpen: false, 
-      currentPage: 1,
-      productsPerPage: 15,
-    };
-  },
-  computed: {
-    filteredVariantsComputed() {
-      let variants = [...this.allVariants];
+  // Références réactives
+  const allVariants = ref([]); // Tous les produits
+  const genres = ref([]); // Genres extraits dynamiquement
+  const platforms = ref([]); // Plateformes extraites dynamiquement
+  const selectedGenres = ref([]); // Genres sélectionnés
+  const selectedPlatforms = ref([]); // Plateformes sélectionnées
+  const priceRange = ref({ min: 0, max: 100 }); // Plage de prix
+  const searchQuery = ref(''); // Texte de recherche
+  const displayedVariants = ref([]); // Liste des produits affichés
+  const currentPage = ref(1); // Page actuelle de la pagination
+  const itemsPerPage = ref(12); // Nombre d'éléments par page
+  const totalPages = ref(1); // Nombre total de pages pour la pagination
+  const maxPrice = ref(100); // Valeur maximum du prix pour le slider
+  const sortOrder = ref('dateDesc'); // Ordre de tri sélectionné
+  const isGenreOpen = ref(false); // Pour afficher ou masquer la section genres
+  const isPlatformOpen = ref(false); // Pour afficher ou masquer la section plateformes
 
-      if (this.searchQuery) {
-        variants = variants.filter(product =>
-          product.productName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
-
-      if (this.selectedGenres.length) {
-        variants = variants.filter(product => 
-          this.selectedGenres.some(genre => product.genres.includes(genre))
-        );
-      }
-
-      if (this.selectedPlatforms.length) {
-        variants = variants.filter(product => 
-          this.selectedPlatforms.includes(product.platform.name)
-        );
-      }
-
-      variants = variants.filter(product => 
-        product.price <= this.priceRange.max
-      );
-
-      switch (this.sortOrder) {
-        case 'dateDesc':
-          variants.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime());
-          break;
-        case 'dateAsc':
-          variants.sort((a, b) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime());
-          break;
-        case 'priceAsc':
-          variants.sort((a, b) => a.price - b.price);
-          break;
-        case 'priceDesc':
-          variants.sort((a, b) => b.price - a.price);
-          break;
-        case 'nameAsc':
-          variants.sort((a, b) => a.productName.localeCompare(b.productName));
-          break;
-        case 'nameDesc':
-          variants.sort((a, b) => b.productName.localeCompare(a.productName));
-          break;
-      }
-
-      return variants;
-    },
-
-    totalPages() {
-      return Math.ceil(this.displayedVariants.length / this.productsPerPage);
-    },
-
-    currentPageProducts() {
-      const startIndex = (this.currentPage - 1) * this.productsPerPage;
-      const endIndex = startIndex + this.productsPerPage;
-      return this.displayedVariants.slice(startIndex, endIndex);
-    },
-  },
-  async mounted() {
-    try {
-        const response = await axios.get('http://localhost:8080/product');
-        this.processProducts(response.data.message);
-        this.genres = Array.from(new Set(this.allVariants.flatMap(product => product.genres)));
-        this.platforms = Array.from(new Set(this.allVariants.map(product => product.platform.name)));
-        this.maxPrice = Math.max(...this.allVariants.map(product => product.price));
-        this.priceRange.max = this.maxPrice;
-        this.applyFilters();
-    } catch (error) {
-        console.error('Erreur lors de la récupération des produits:', error);
-    } finally {
-        this.loading = false;
-    }
-  },
-  methods: {
-    processProducts(products) {
-      this.allVariants = [];
-      products.forEach(product => {
-        product.variants.forEach(variant => {
-          this.allVariants.push({
-            productName: product.name,
-            description: product.description,
-            category: product.category,
-            genres: product.genres, 
-            ...variant,
-          });
+  // Méthodes pour traiter les produits
+  const processProducts = (products) => {
+    allVariants.value = [];
+    products.forEach(product => {
+      product.variants.forEach((variant) => {
+        allVariants.value.push({
+          productName: product.name,
+          description: product.description,
+          category: product.category,
+          genres: product.genres,
+          ...variant,
         });
       });
-    },
-    toggleGenreFilter() {
-      this.isGenreOpen = !this.isGenreOpen;
-    },
-    togglePlatformFilter() {
-      this.isPlatformOpen = !this.isPlatformOpen;
-    },
-    applyFilters() {
-      this.displayedVariants = this.filteredVariantsComputed;
-      this.currentPage = 1;
-    },
-    resetFilters() {
-      this.selectedGenres = [];
-      this.selectedPlatforms = [];
-      this.priceRange.max = this.maxPrice;
-      this.searchQuery = '';
-      this.sortOrder = 'dateDesc';
-      this.displayedVariants = [...this.allVariants];
-      this.currentPage = 1;
-    },
-    changePage(pageNumber) {
-      if (pageNumber >= 1 && pageNumber <= this.totalPages) {
-        this.currentPage = pageNumber;
-      }
-    }
-  },
-});
-</script>
+    });
+  };
 
+  // Filtrer les produits
+  const filteredVariants = computed(() => {
+    let variants = [...allVariants.value];
+
+    // Filtrer par texte de recherche
+    if (searchQuery.value) {
+      variants = variants.filter(product =>
+        product.productName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    }
+
+    // Filtrer par genres
+    if (selectedGenres.value.length) {
+      variants = variants.filter(product =>
+        selectedGenres.value.some(genre => product.genres.includes(genre))
+      );
+    }
+
+    // Filtrer par plateformes
+    if (selectedPlatforms.value.length) {
+      variants = variants.filter(product =>
+        selectedPlatforms.value.includes(product.platform.name)
+      );
+    }
+
+    // Filtrer par prix
+    variants = variants.filter(product =>
+      product.price <= priceRange.value.max
+    );
+
+    // Tri selon l'ordre choisi
+    switch (sortOrder.value) {
+      case 'dateAsc': {
+        const getDate = (variant) => new Date(variant.releaseDate).getTime();
+        variants = variants.sort((a, b) => getDate(a) - getDate(b));
+        break;
+      }
+      case 'dateDesc': {
+        const getDate = (variant) => new Date(variant.releaseDate).getTime();
+        variants = variants.sort((a, b) => getDate(b) - getDate(a));
+        break;
+      }
+      case 'priceAsc':
+        variants = variants.sort((a, b) => a.price - b.price);
+        break;
+      case 'priceDesc':
+        variants = variants.sort((a, b) => b.price - a.price);
+        break;
+      case 'nameAsc':
+        variants = variants.sort((a, b) => a.productName.localeCompare(b.productName));
+        break;
+      case 'nameDesc':
+        variants = variants.sort((a, b) => b.productName.localeCompare(a.productName));
+        break;
+    }
+
+    return variants;
+  });
+
+  // Produits pour la page actuelle
+  const currentPageProducts = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+    const endIndex = startIndex + itemsPerPage.value;
+    return filteredVariants.value.slice(startIndex, endIndex);
+  });
+
+  // Méthodes pour interagir avec les filtres et la pagination
+  const toggleGenreFilter = () => {
+    isGenreOpen.value = !isGenreOpen.value;
+  };
+
+  const togglePlatformFilter = () => {
+    isPlatformOpen.value = !isPlatformOpen.value;
+  };
+
+  const toggleSelection = (array, value) => {
+    const index = array.indexOf(value);
+    if (index !== -1) {
+      array.splice(index, 1);
+    } else {
+      array.push(value);
+    }
+  };
+
+  const applyFilters = () => {
+    totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
+    displayedVariants.value = currentPageProducts.value;
+  };
+
+  const resetFilters = () => {
+    selectedGenres.value = [];
+    selectedPlatforms.value = [];
+    priceRange.value = { min: 0, max: maxPrice.value };
+    searchQuery.value = '';
+    sortOrder.value = 'dateDesc';
+    applyFilters();
+  };
+
+  const changePage = (page) => {
+    if (page < 1) page = 1;
+    if (page > totalPages.value) page = totalPages.value;
+    currentPage.value = page;
+    displayedVariants.value = currentPageProducts.value;
+  };
+
+  // Initialiser les données
+  onMounted(async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/product');
+      processProducts(response.data.message);
+
+      // Extraire dynamiquement les genres et plateformes
+      genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));
+      platforms.value = Array.from(new Set(allVariants.value.map(product => product.platform.name)));
+
+      // Mettre à jour le prix maximum en fonction des produits disponibles
+      maxPrice.value = Math.max(...allVariants.value.map(product => product.price));
+      priceRange.value.max = maxPrice.value;
+
+      // Calculer le nombre total de pages
+      totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
+
+      // Afficher les produits pour la première page
+      displayedVariants.value = currentPageProducts.value;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des produits:', error);
+    }
+  });
+</script>

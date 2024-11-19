@@ -11,10 +11,6 @@ import FooterComponent from './components/FooterComponent.vue'
       <div class="flex justify-center items-center flex-grow flex-col bg-gray-200">
         <router-view />
       </div>
-      <!-- <h1>Sample API Call with Axios</h1>
-      <button @click="fetchData">Fetch Dataj</button>
-      <div v-if="error">{{ error }}</div>
-      <div v-if="data">{{ data }}</div> -->
       <FooterComponent />
     </div>
   </div>  

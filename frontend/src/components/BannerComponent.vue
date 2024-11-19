@@ -27,7 +27,7 @@ export default {
     btnText: String,
     backgroundImage: {
       type: String,
-      default: 'https://chocobonplan.com/wp-content/uploads/2024/01/slider-soldes-jeux-vid%C3%A9o-%C3%A9t%C3%A9-2024-r%C3%A9cap-global.jpg'
+      default: 'https://i.pinimg.com/736x/0d/cc/7e/0dcc7efba2c6b14c8a75663c0d8e3907.jpg'
     }
   }
 };
