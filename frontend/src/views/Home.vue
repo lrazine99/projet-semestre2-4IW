@@ -16,14 +16,12 @@
 import { defineComponent } from 'vue';
 import ProductList from '../components/ProductList.vue';
 import BannerComponent from '../components/BannerComponent.vue';
-/* import CardProductComponent from '../components/CardProductComponent.vue'; */
 import IdentityComponent from '../components/IdentityComponent.vue';
 
 
 export default defineComponent({
   components: {
     BannerComponent,
-    /* CardProductComponent, */
     IdentityComponent,
     ProductList,
   },

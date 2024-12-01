@@ -1,4 +1,4 @@
-import Product from "../models/Product";
+import  ct from "../models/Product";
 import Platform from "../models/Platform";
 import { IPlatform } from "../types/Platform.interface";
 import mongoose from "mongoose";

@@ -127,13 +127,14 @@
         <CardProductComponent
           v-for="product in currentPageProducts"
           :key="product.sku"
+          :sku="product.sku"
           :title="product.productName"
           :imageSrc="product.images.length ? product.images[0] : 'https://via.placeholder.com/200'" 
           :description="product.description"
           :priceCurrent="product.price"
           :platformName="product.platform.name"
           :edition="product.edition"
-          :productQuantity="product.stock"
+          :stock="product.stock"
         />
 
         <!-- Pagination -->
@@ -164,24 +165,22 @@
   import axios from 'axios';
   import CardProductComponent from '../components/CardProductComponent.vue';
 
-  // Références réactives
-  const allVariants = ref([]); // Tous les produits
-  const genres = ref([]); // Genres extraits dynamiquement
-  const platforms = ref([]); // Plateformes extraites dynamiquement
-  const selectedGenres = ref([]); // Genres sélectionnés
-  const selectedPlatforms = ref([]); // Plateformes sélectionnées
-  const priceRange = ref({ min: 0, max: 100 }); // Plage de prix
-  const searchQuery = ref(''); // Texte de recherche
-  const displayedVariants = ref([]); // Liste des produits affichés
-  const currentPage = ref(1); // Page actuelle de la pagination
-  const itemsPerPage = ref(12); // Nombre d'éléments par page
-  const totalPages = ref(1); // Nombre total de pages pour la pagination
-  const maxPrice = ref(100); // Valeur maximum du prix pour le slider
-  const sortOrder = ref('dateDesc'); // Ordre de tri sélectionné
-  const isGenreOpen = ref(false); // Pour afficher ou masquer la section genres
-  const isPlatformOpen = ref(false); // Pour afficher ou masquer la section plateformes
+  const allVariants = ref([]);
+  const genres = ref([]);
+  const platforms = ref([]);
+  const selectedGenres = ref([]);
+  const selectedPlatforms = ref([]);
+  const priceRange = ref({ min: 0, max: 100 });
+  const searchQuery = ref('');
+  const displayedVariants = ref([]); 
+  const currentPage = ref(1); 
+  const itemsPerPage = ref(12); 
+  const totalPages = ref(1);
+  const maxPrice = ref(100); 
+  const sortOrder = ref('dateDesc'); 
+  const isGenreOpen = ref(false); 
+  const isPlatformOpen = ref(false); 
 
-  // Méthodes pour traiter les produits
   const processProducts = (products) => {
     allVariants.value = [];
     products.forEach(product => {
@@ -257,14 +256,12 @@
     return variants;
   });
 
-  // Produits pour la page actuelle
   const currentPageProducts = computed(() => {
     const startIndex = (currentPage.value - 1) * itemsPerPage.value;
     const endIndex = startIndex + itemsPerPage.value;
     return filteredVariants.value.slice(startIndex, endIndex);
   });
 
-  // Méthodes pour interagir avec les filtres et la pagination
   const toggleGenreFilter = () => {
     isGenreOpen.value = !isGenreOpen.value;
   };
@@ -303,24 +300,19 @@
     displayedVariants.value = currentPageProducts.value;
   };
 
-  // Initialiser les données
   onMounted(async () => {
     try {
       const response = await axios.get('http://localhost:8080/product');
       processProducts(response.data.message);
 
-      // Extraire dynamiquement les genres et plateformes
       genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));
       platforms.value = Array.from(new Set(allVariants.value.map(product => product.platform.name)));
 
-      // Mettre à jour le prix maximum en fonction des produits disponibles
       maxPrice.value = Math.max(...allVariants.value.map(product => product.price));
       priceRange.value.max = maxPrice.value;
 
-      // Calculer le nombre total de pages
       totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
 
-      // Afficher les produits pour la première page
       displayedVariants.value = currentPageProducts.value;
     } catch (error) {
       console.error('Erreur lors de la récupération des produits:', error);
