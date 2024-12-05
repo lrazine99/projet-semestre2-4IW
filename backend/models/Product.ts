@@ -6,6 +6,7 @@ interface IProduct extends Document {
   description: string;
   genres: string[];
   variants?: ProductVariant[];
+  editor: String;
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -13,6 +14,7 @@ const ProductSchema = new Schema<IProduct>({
   description: { type: String, required: false },
   genres: { type: [String], required: true },
   variants: { type: [ProductVariantSchema] },
+  editor: { type: String, required: true },
 });
 
 const Product = model<IProduct>("Product", ProductSchema);

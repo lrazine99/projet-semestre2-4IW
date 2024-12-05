@@ -1,25 +1,33 @@
-FROM node:latest as dev
+FROM node:latest AS base
 
 # Set the working directory within the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Stage 2: developpement stage
+FROM base AS dev
+
 COPY . .
 
-# Expose the port the server will run on
 EXPOSE ${SERVER_PORT}
 
-# Command to run the application
 CMD ["npm", "run", "dev"]
 
-FROM base as production
+# Stage 3: Production stage
+FROM base AS prod
+
+COPY . .
 
 ENV NODE_PATH=./build
 
+ENV NODE_ENV=production
+
 RUN npm run build
+
+EXPOSE ${SERVER_PORT}
+
+# Command to run the application in production mode
+CMD ["npm", "run", "start"]

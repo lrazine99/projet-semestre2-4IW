@@ -13,7 +13,6 @@ services:
       - /usr/app/node_modules
       - ./backend/nodemon.json:/app/nodemon.json
     environment:
-      - BDD_ENDPOINT=${BDD_ENDPOINT:-mongodb://root:example@db:27017/gameShop?authSource=admin}
       - SERVER_PORT=${SERVER_PORT:-3000}
       - CHOKIDAR_USEPOLLING=true
     ports:
@@ -24,7 +23,7 @@ services:
     restart: always
     command: mongod --quiet --logpath /dev/null
     ports:
-      - 27017:27017
+      - 27018:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -37,6 +36,6 @@ services:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "3000:80"
+      - "80:80"
     environment:
       - CHOKIDAR_USEPOLLING=true
