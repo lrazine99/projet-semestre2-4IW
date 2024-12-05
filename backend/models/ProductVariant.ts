@@ -9,7 +9,7 @@ export interface ProductVariant extends Document {
   stock: number;
   releaseDate: Date;
   images: string[];
-  eanRef: number;
+  barcode: string;
 }
 
 export const ProductVariantSchema = new Schema<ProductVariant>(
@@ -22,7 +22,7 @@ export const ProductVariantSchema = new Schema<ProductVariant>(
     stock: { type: Number, required: true, default: 0 },
     releaseDate: { type: Date, required: true },
     images: { type: [String], default: [] },
-    eanRef: { type: Number, required: true},
+    barcode: { type: String, required: true },
   },
   { _id: false }
 );

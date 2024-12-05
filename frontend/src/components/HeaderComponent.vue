@@ -18,9 +18,7 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
             class="mr-3 h-6 sm:h-9"
             alt="GameMarket logo"
           />
-          <span class="self-center text-xl font-semibold whitespace-nowrap">
-            GameMarket
-          </span>
+          <span class="self-center text-xl font-semibold whitespace-nowrap">GameMarket</span>
         </a>
 
         <div class="flex items-center lg:order-2 space-x-4">
@@ -50,10 +48,18 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
           </div>
 
           <div v-if="isAuthenticated" class="flex items-center space-x-4">
-            <a href="/profile" class="text-gray-700 hover:text-primary">
-              <font-awesome-icon icon="user" class="h-6 w-6" />
+            <a href="/cart" class="text-gray-700 hover:text-primary">
+              <font-awesome-icon icon="shopping-cart" class="h-6 w-6" />
             </a>
-            <ButtonComponent hover-bg-color="hover:bg-secondary" to="/logout">
+            <a href="/mon-compte" class="text-gray-700 hover:text-primary">
+              <font-awesome-icon icon="user" class="h-6 w-6" />compte
+            </a>
+            <ButtonComponent
+              hover-bg-color="hover:bg-secondary"
+              to="/logout"
+              v-if="isAuthenticated"
+              @click="logout"
+            >
               Déconnexion
             </ButtonComponent>
           </div>
@@ -63,11 +69,14 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
               textColor="text-tertiary"
               bgColor="bg-transparent"
               hoverTextColor="hover:text-primary"
-              to="/login"
+              to="/inscription-connexion/#connexion"
             >
               Connexion
             </ButtonComponent>
-            <ButtonComponent hover-bg-color="hover:bg-secondary" to="/register">
+            <ButtonComponent
+              hover-bg-color="hover:bg-secondary"
+              to="/inscription-connexion/#inscription"
+            >
               Inscription
             </ButtonComponent>
           </div>
@@ -76,39 +85,29 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
           class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1"
           id="mobile-menu-2"
         >
-          <ul
-            class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0"
-          >
+          <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
             <li>
               <a href="/" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
                 >Accueil</a
               >
             </li>
             <li>
-              <a
-                href="/product"
-                class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
+              <a href="/products" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
                 >Produits</a
               >
             </li>
             <li>
-              <a
-                href="/about"
-                class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
+              <a href="/about" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
                 >Histoire</a
               >
             </li>
             <li>
-              <a
-                href="/contact"
-                class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
+              <a href="/contact" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
                 >Contact</a
               >
             </li>
             <li v-if="isAuthenticated">
-              <a
-                href="/wishlist"
-                class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
+              <a href="/wishlist" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
                 >Wishlist</a
               >
             </li>
@@ -118,3 +117,14 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
     </nav>
   </header>
 </template>
+
+<script setup>
+import ButtonComponent from './ButtonComponent.vue'
+
+const isAuthenticated = localStorage.getItem('authToken')
+
+const logout = () => {
+  localStorage.removeItem('authToken')
+  window.location.reload();
+}
+</script>

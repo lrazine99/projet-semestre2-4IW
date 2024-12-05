@@ -9,14 +9,11 @@ const connectDB = async () => {
   }
 
   try {
-    console.log("Connecting to MongoDB...");
+    console.log("Connecting to MongoDB...", process.env.BDD_ENDPOINT);
     // @ts-ignore
-    await mongoose.connect(
-      process.env.BDD_ENDPOINT || "mongodb://root:example@db:27017/gameShop",
-      {
-        dbName: "gameShop",
-      }
-    );
+    await mongoose.connect(process.env.BDD_ENDPOINT as string, {
+      dbName: "gameShop",
+    });
 
     isConnected = true;
 
