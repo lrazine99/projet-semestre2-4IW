@@ -121,7 +121,7 @@ import DeleteModal from "@/components/DeleteModalComponent.vue";
 const cartStore = useCartStore();
 const cartItems = ref([]);
 const totalPrice = computed(() =>
-  cartItems.value.reduce((total, item) => total + item.price * item.quantity, 0)
+  cartItems.value.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
 );
 const totalQuantity = computed(() =>
   cartItems.value.reduce((total, item) => total + item.quantity, 0)

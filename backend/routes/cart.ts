@@ -162,16 +162,13 @@ router.patch('/cart/increase/:sku', async (req: Request, res: Response) => {
     }
   });
 
-  // Route pour diminuer la quantité d'un article
 router.patch('/cart/decrease/:sku', async (req: Request, res: Response) => {
     try {
-      const { authToken, quantity } = req.body;  // Récupérer le token et la nouvelle quantité du corps de la requête
-      const { sku } = req.params;  // Récupérer le SKU de l'article à partir des paramètres de la route
+      const { authToken, quantity } = req.body;
+      const { sku } = req.params;
   
-      // Identifier l'utilisateur à partir du token (ici, on suppose que le token est l'userId)
       const userId = authToken;
   
-      // Chercher le panier de l'utilisateur
       let cart = await Cart.findOne({ userId });
 
       if (!cart) {
@@ -181,15 +178,11 @@ router.patch('/cart/decrease/:sku', async (req: Request, res: Response) => {
         });
       }
   
-      // Trouver l'article dans le panier en fonction du SKU
       const itemIndex = cart.items.findIndex(item => item.sku === sku);
   
-      // Vérifier si la quantité demandée ne devient pas inférieure à 1
       if (quantity > 0) {
-        // Mettre à jour la quantité de l'article
         cart.items[itemIndex].quantity = quantity;
   
-        // Sauvegarder le panier mis à jour
         await cart.save();
   
         res.status(200).json({ message: 'Quantité mise à jour', cart });

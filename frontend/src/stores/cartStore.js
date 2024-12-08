@@ -1,4 +1,3 @@
-// stores/cart.js
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
