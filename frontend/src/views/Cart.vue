@@ -112,47 +112,127 @@
   </template>
   
   <script setup>
-  import { computed, ref } from "vue";
-  import { useCartStore } from "@/stores/cartStore";
-  import ButtonComponent from "@/components/ButtonComponent.vue";
-  import DeleteModal from "@/components/DeleteModalComponent.vue";
-  
-  const cartStore = useCartStore();
-  const cartItems = computed(() => cartStore.cartItems);
-  const totalPrice = computed(() => cartStore.totalPrice);
-  const totalQuantity = computed(() => cartStore.totalQuantity);
-  
-  const isDeleteModalOpen = ref(false);
-  const itemToDeleteIndex = ref(null);
-  
-  const openDeleteModal = (index) => {
-    itemToDeleteIndex.value = index;
-    isDeleteModalOpen.value = true;
-  };
-  
-  const closeDeleteModal = () => {
-    isDeleteModalOpen.value = false;
-    itemToDeleteIndex.value = null;
-  };
-  
-  const confirmDeleteItem = () => {
-    if (itemToDeleteIndex.value !== null) {
+import { ref, onMounted, computed } from "vue";
+import { useCartStore } from "@/stores/cartStore";
+import axios from "axios";
+import ButtonComponent from "@/components/ButtonComponent.vue";
+import DeleteModal from "@/components/DeleteModalComponent.vue";
+
+const cartStore = useCartStore();
+const cartItems = ref([]);
+const totalPrice = computed(() =>
+  cartItems.value.reduce((total, item) => total + item.price * item.quantity, 0)
+);
+const totalQuantity = computed(() =>
+  cartItems.value.reduce((total, item) => total + item.quantity, 0)
+);
+const isDeleteModalOpen = ref(false);
+const itemToDeleteIndex = ref(null);
+
+const loadCart = async () => {
+  const token = localStorage.getItem("authToken");
+  if (token) {
+    try {
+      const response = await axios.get("http://localhost:8080/cart", {
+        params: { authToken: token },
+      });
+
+      cartItems.value = response.data?.items || []; 
+    } catch (error) {
+      console.error("Erreur lors de la récupération du panier :", error);
+      cartItems.value = [];
+    }
+  } else {
+    cartItems.value = [];
+  }
+};
+
+
+const openDeleteModal = (index) => {
+  itemToDeleteIndex.value = index;
+  isDeleteModalOpen.value = true;
+};
+
+const closeDeleteModal = () => {
+  isDeleteModalOpen.value = false;
+  itemToDeleteIndex.value = null;
+};
+
+const confirmDeleteItem = async () => {
+  const token = localStorage.getItem("authToken");
+  if (itemToDeleteIndex.value !== null) {
+    const item = cartItems.value[itemToDeleteIndex.value];
+    if (token) {
+      try {
+        await axios.delete(`http://localhost:8080/cart/remove/${item.sku}`, {
+          data: { authToken: token },
+        });
+        cartItems.value.splice(itemToDeleteIndex.value, 1);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de l'article :", error);
+      }
+    } else {
       cartStore.removeItem(itemToDeleteIndex.value);
-      closeDeleteModal();
+      cartItems.value = cartStore.cartItems;
     }
-  };
+    closeDeleteModal();
+  }
+};
 
-  const increaseQuantity = (index) => {
-    const item = cartItems.value[index];
 
-    if (item.quantity < item.stock) {
-        cartStore.increaseItemQuantity(index);
+const increaseQuantity = async (index) => {
+  const item = cartItems.value[index];
+  if (item.quantity < item.stock) {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        await axios.patch(
+          `http://localhost:8080/cart/increase/${item.sku}`,
+          { 
+            quantity: item.quantity + 1, 
+            authToken: token 
+          }
+        );
+        item.quantity++;
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour :", error);
+      }
+    } else {
+      cartStore.increaseItemQuantity(index);
+      cartItems.value = cartStore.cartItems;
     }
-  };
-  const decreaseQuantity = (index) => {
-    if (cartItems.value[index].quantity > 1) {
-        cartStore.decreaseItemQuantity(index);
+  }
+};
+
+
+const decreaseQuantity = async (index) => {
+  const item = cartItems.value[index];
+  if (item.quantity > 1) {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        await axios.patch(
+          `http://localhost:8080/cart/decrease/${item.sku}`,
+          { 
+            quantity: item.quantity - 1, 
+            authToken: token 
+          }
+        );
+        item.quantity--;
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour :", error);
+      }
+    } else {
+      cartStore.decreaseItemQuantity(index);
+      cartItems.value = cartStore.cartItems;
     }
-  };
+  }
+};
+
+
+onMounted(() => {
+  loadCart();
+});
 </script>
+
   

@@ -80,4 +80,127 @@ router.post('/cart/sync', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/cart', async (req: Request, res: Response) => {
+    try {
+      const authToken = req.query.authToken as string;
+  
+      const userId = authToken;
+      let cart = await Cart.findOne({ userId });
+  
+      if (!cart) {
+        cart = new Cart({
+          userId,
+          items: [],
+        });
+      }
+  
+      res.status(200).json(cart);
+    } catch (error) {
+      console.error('Erreur lors de la récupération du panier :', error);
+      res.status(500).json({ message: 'Erreur interne lors de la récupération du panier' });
+    }
+  });
+  
+  router.delete('/cart/remove/:sku', async (req: Request, res: Response) => {
+    try {
+      const { authToken } = req.body;
+      const { sku } = req.params;
+  
+      const userId = authToken;
+  
+      let cart = await Cart.findOne({ userId });
+  
+      if (!cart) {
+        cart = new Cart({
+          userId,
+          items: [],
+        });
+      }
+  
+      const itemIndex = cart.items.findIndex((item) => item.sku === sku);
+  
+      cart.items.splice(itemIndex, 1);
+      await cart.save();
+      
+      res.status(200).json({ message: 'Article supprimé du panier', cart });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur lors de la suppression de l\'article' });
+    }
+  });
+  
+
+router.patch('/cart/increase/:sku', async (req: Request, res: Response) => {
+    try {
+      const { authToken, quantity } = req.body;
+      const { sku } = req.params; 
+  
+      const userId = authToken;
+  
+      let cart = await Cart.findOne({ userId });
+
+      if (!cart) {
+        cart = new Cart({
+          userId,
+          items: [],
+        });
+      }
+  
+      const itemIndex = cart.items.findIndex(item => item.sku === sku);
+  
+      if (quantity <= cart.items[itemIndex].stock) {
+        cart.items[itemIndex].quantity = quantity;
+        await cart.save();
+  
+        res.status(200).json({ message: 'Quantité mise à jour', cart });
+      } else {
+        res.status(400).json({ message: 'La quantité demandée dépasse le stock disponible' });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour :", error);
+      res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'article'});
+    }
+  });
+
+  // Route pour diminuer la quantité d'un article
+router.patch('/cart/decrease/:sku', async (req: Request, res: Response) => {
+    try {
+      const { authToken, quantity } = req.body;  // Récupérer le token et la nouvelle quantité du corps de la requête
+      const { sku } = req.params;  // Récupérer le SKU de l'article à partir des paramètres de la route
+  
+      // Identifier l'utilisateur à partir du token (ici, on suppose que le token est l'userId)
+      const userId = authToken;
+  
+      // Chercher le panier de l'utilisateur
+      let cart = await Cart.findOne({ userId });
+
+      if (!cart) {
+        cart = new Cart({
+          userId,
+          items: [],
+        });
+      }
+  
+      // Trouver l'article dans le panier en fonction du SKU
+      const itemIndex = cart.items.findIndex(item => item.sku === sku);
+  
+      // Vérifier si la quantité demandée ne devient pas inférieure à 1
+      if (quantity > 0) {
+        // Mettre à jour la quantité de l'article
+        cart.items[itemIndex].quantity = quantity;
+  
+        // Sauvegarder le panier mis à jour
+        await cart.save();
+  
+        res.status(200).json({ message: 'Quantité mise à jour', cart });
+      } else {
+        res.status(400).json({ message: 'La quantité ne peut pas être inférieure à 1' });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour :", error);
+      res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'article'});
+    }
+  });
+
+
 export default router;

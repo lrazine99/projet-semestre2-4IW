@@ -58,6 +58,7 @@ export const useCartStore = defineStore('cart', {
             items: cartItems
           });
           console.log('Cart synced with backend!');
+          localStorage.removeItem('cart');
         } catch (error) {
           console.error('Failed to sync cart with backend', error);
         }
