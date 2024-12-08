@@ -4,7 +4,6 @@
       submitButtonText="Connexion" />
     <a href="/demande-reinitialiser-mot-de-passe" class="text-sm text-primary-600 hover:underline">Mot de passe oublié
       ?</a>
-
   </div>
 </template>
 
@@ -12,7 +11,7 @@
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
-
+import { useCartStore } from '@/stores/cartStore';
 
 const loginFields = [
   { id: 'email', label: 'Email', type: 'email', placeholder: 'Entrez votre email' },
@@ -32,16 +31,18 @@ const loginSchema = z.object({
 })
 
 const handleLogin = async (formData, signal) => {
-
   try {
-    const { data } = await axios.post('http://localhost:8080/user/login', formData, { signal })
+    const { data } = await axios.post('http://localhost:8080/user/login', formData, { signal });
 
-    localStorage.setItem('authToken', data.token)
-    alert('Connexion réussie')
-    window.location.reload()
+    localStorage.setItem('authToken', data.token);
+    alert('Connexion réussie');
+
+    const cartStore = useCartStore();
+    await cartStore.syncCartWithBackend();
+
+    window.location.reload();
   } catch (error) {
-    alert( error.response.data.message)
-
+    alert(error.response.data.message);
     throw error;
   }
 }

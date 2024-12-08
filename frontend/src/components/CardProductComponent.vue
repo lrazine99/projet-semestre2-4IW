@@ -78,6 +78,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
+import axios from 'axios';
 
 const props = defineProps({
   sku: String,
@@ -121,20 +122,49 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const addToCart = () => {
+const addToCart = async () => {
   if (quantity.value > props.stock) {
-    openModal();
-  } else {
-    cartStore.addItem({
-      sku: props.sku,
-      title: props.title,
-      imageSrc: props.imageSrc,
-      price: props.priceCurrent,
-      quantity: quantity.value,
-      stock: props.stock,
-      edition: props.edition,
-      platform: props.platformName,
-    });
+    alert("Quantité demandée indisponible.");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('authToken');
+    console.log('Token:', token);
+
+    if (token) {
+      const response = await axios.post(
+        'http://localhost:8080/cart/add', 
+        {
+          sku: props.sku,
+          title: props.title,
+          imageSrc: props.imageSrc,
+          price: props.priceCurrent,
+          quantity: quantity.value,
+          stock: props.stock,
+          edition: props.edition,
+          platform: props.platformName,
+          authToken: token, 
+        }
+      );
+
+      alert('Produit ajouté au panier');
+      console.log('Réponse du serveur:', response.data); 
+    } else {
+      cartStore.addItem({
+        sku: props.sku,
+        title: props.title,
+        imageSrc: props.imageSrc,
+        price: props.priceCurrent,
+        quantity: quantity.value,
+        stock: props.stock,
+        edition: props.edition,
+        platform: props.platformName,
+      });
+    }
+  } catch (error) {
+    alert('Erreur lors de l’ajout au panier');
+    console.error('Erreur ajout au panier:', error.response ? error.response.data : error.message);
   }
 };
 </script>

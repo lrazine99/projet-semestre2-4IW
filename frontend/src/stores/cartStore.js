@@ -1,4 +1,6 @@
+// stores/cart.js
 import { defineStore } from 'pinia';
+import axios from 'axios';
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
@@ -33,7 +35,6 @@ export const useCartStore = defineStore('cart', {
     },
     addItem(newItem) {
       const existingItem = this.cartItems.find(item => item.sku === newItem.sku);
-    
       if (existingItem) {
         const totalQuantity = existingItem.quantity + newItem.quantity;
         if (totalQuantity > newItem.stock) {
@@ -44,9 +45,23 @@ export const useCartStore = defineStore('cart', {
       } else {
         this.cartItems.push({ ...newItem });
       }
-    
       this.saveCartToStorage();
-    }
-      
+    },
+    async syncCartWithBackend() {
+      const cartItems = this.cartItems;
+      const token = localStorage.getItem('authToken');
+
+      if (token && cartItems.length > 0) {
+        try {
+          await axios.post('http://localhost:8080/cart/sync', {
+            authToken: token,  
+            items: cartItems
+          });
+          console.log('Cart synced with backend!');
+        } catch (error) {
+          console.error('Failed to sync cart with backend', error);
+        }
+      }
+    },
   },
 });

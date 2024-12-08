@@ -29,12 +29,14 @@
       <CardProductComponent 
         v-for="variant in displayedVariants" 
         :key="variant.sku"
+        :sku="variant.sku"
         :title="variant.productName"
         :imageSrc="variant.images.length ? variant.images[0] : ''" 
         :description="variant.description" 
         :priceCurrent="variant.price"
         :platformName="variant.platform.name" 
         :edition="variant.edition" 
+        :stock="variant.stock"
       />
     </div>
   </div>

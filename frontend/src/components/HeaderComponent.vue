@@ -1,13 +1,3 @@
-<script setup>
-import { computed } from 'vue';
-import { useCartStore } from '@/stores/cartStore';
-import ButtonComponent from './ButtonComponent.vue';
-
-const cartStore = useCartStore();
-const cartItemCount = computed(() => cartStore.totalQuantity);
-
-</script>
-
 <template>
   <header class="fixed top-0 z-50 w-full">
     <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5">
@@ -92,7 +82,7 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
               >
             </li>
             <li>
-              <a href="/products" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
+              <a href="/product" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
                 >Produits</a
               >
             </li>
@@ -119,6 +109,8 @@ const cartItemCount = computed(() => cartStore.totalQuantity);
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { useCartStore } from '@/stores/cartStore';
 import ButtonComponent from './ButtonComponent.vue'
 
 const isAuthenticated = localStorage.getItem('authToken')
@@ -127,4 +119,7 @@ const logout = () => {
   localStorage.removeItem('authToken')
   window.location.reload();
 }
+
+const cartStore = useCartStore();
+const cartItemCount = computed(() => cartStore.totalQuantity);
 </script>

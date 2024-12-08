@@ -1,8 +1,9 @@
-import  ct from "../models/Product";
+/* import  ct from "../models/Product"; */
 import Platform from "../models/Platform";
 import { IPlatform } from "../types/Platform.interface";
 import mongoose from "mongoose";
 import connectDB from "./database";
+import Product from "../models/Product";
 
 async function loadProducts() {
   await connectDB();
@@ -31,7 +32,7 @@ async function loadProducts() {
           stock: 100,
           releaseDate: new Date("2023-01-01"),
           images: ["https://www.micromania.fr/dw/image/v2/BCRB_PRD/on/demandware.static/-/Sites-masterCatalog_Micromania/default/dw5e1dfb6c/images/high-res/2024_Gaming/PS5/Jeux/PS5_HZDR_PKSHT_FT_RGB_FR_240918.jpg"],
-          eanRef: generateEAN(),
+          barcode: generateEAN(),
         };
       }),
     },
@@ -54,7 +55,7 @@ async function loadProducts() {
           stock: 100,
           releaseDate: new Date("2023-01-01"),
           images: ["https://www.micromania.fr/dw/image/v2/BCRB_PRD/on/demandware.static/-/Sites-masterCatalog_Micromania/default/dw7fcd69b3/images/high-res/2024_Gaming/PS5/Jeux/241354.jpg"],
-          eanRef: generateEAN(),
+          barcode: generateEAN(),
         };
       }),
     },
@@ -77,7 +78,7 @@ async function loadProducts() {
           stock: 50,
           releaseDate: new Date("2023-06-01"),
           images: ["https://www.micromania.fr/dw/image/v2/BCRB_PRD/on/demandware.static/-/Sites-masterCatalog_Micromania/default/dwdda88e49/images/high-res/2024_Gaming/PS5/Jeux/BO6/0196388432127.jpg"],
-          eanRef: generateEAN(),
+          barcode: generateEAN(),
         };
       }),
     },
@@ -100,7 +101,7 @@ async function loadProducts() {
           stock: 25,
           releaseDate: new Date("2023-09-01"),
           images: ["https://www.micromania.fr/dw/image/v2/BCRB_PRD/on/demandware.static/-/Sites-masterCatalog_Micromania/default/dw967b4634/images/high-res/142715.jpg"],
-          eanRef: generateEAN(),
+          barcode: generateEAN(),
         };
       }),
     },
