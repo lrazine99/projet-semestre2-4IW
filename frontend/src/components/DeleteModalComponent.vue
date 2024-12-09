@@ -23,45 +23,46 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    deleteFunction: {
-      type: Function,
-      required: true,
-    },
-    onSuccess: {
-      type: Function,
-      required: false,
-    },
-  },
-  data() {
-    return {
-      isModalOpen: true,
-      loading: false,
-      errorMessage: "",
-    };
-  },
-  methods: {
-    closeModal() {
-      this.isModalOpen = false;
-      this.$emit("close");
-    },
-    async confirmDelete() {
-      this.loading = true;
-      this.errorMessage = "";
+<script setup>
+import { ref, defineProps, defineEmits } from 'vue';
 
-      try {
-        await this.deleteFunction();
-        if (this.onSuccess) this.onSuccess();
-        this.closeModal();
-      } catch (error) {
-        this.errorMessage = "Une erreur est survenue lors de la suppression.";
-      } finally {
-        this.loading = false;
-      }
-    },
+const props = defineProps({
+  deleteFunction: {
+    type: Function,
+    required: true,
   },
+  onSuccess: {
+    type: Function,
+    required: false,
+  },
+});
+
+const emit = defineEmits(['close']);
+const isModalOpen = ref(true);
+const loading = ref(false);
+const errorMessage = ref('');
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  emit('close');
+};
+
+const confirmDelete = async () => {
+  loading.value = true;
+  errorMessage.value = '';
+
+  try {
+    await props.deleteFunction();
+    if (props.onSuccess) {
+      props.onSuccess(); 
+    }
+    closeModal();
+  } catch (error) {
+    console.error(error);
+    errorMessage.value = 'Une erreur est survenue lors de la suppression.';
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 

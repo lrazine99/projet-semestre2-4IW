@@ -7,9 +7,9 @@
     </a>
 </template>
 
-<script>
-export default {
-  props: {
+<script setup>
+  import { useRouter } from 'vue-router';
+  defineProps({
     textColor: {
       type: String,
       default: 'text-white',
@@ -26,13 +26,13 @@ export default {
       type: String,
       default: null,
     },
-  },
-  methods: {
-    navigate() {
-      if (this.to) {
-        this.$router.push(this.to);
-      }
-    },
-  },
-};
+  });
+
+  const router = useRouter();
+
+  function navigate() {
+    if (to) {
+      router.push(to);
+    }
+  }
 </script>

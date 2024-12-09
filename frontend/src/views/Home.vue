@@ -12,18 +12,8 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
-import ProductList from '../components/ProductList.vue';
+<script setup>
 import BannerComponent from '../components/BannerComponent.vue';
 import IdentityComponent from '../components/IdentityComponent.vue';
-
-
-export default defineComponent({
-  components: {
-    BannerComponent,
-    IdentityComponent,
-    ProductList,
-  },
-});
+import ProductList from '../components/ProductList.vue';
 </script>

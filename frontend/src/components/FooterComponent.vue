@@ -88,12 +88,6 @@
   </footer>
 </template>
 
-<script>
+<script setup>
 import LinkComponent from './LinkComponent.vue';
-
-export default {
-  components: {
-    LinkComponent,
-  },
-};
 </script>

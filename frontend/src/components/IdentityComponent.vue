@@ -39,9 +39,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
+<script setup>
+  defineProps({
     title1: {
       type: String,
       default: 'Pas de frais de livraison',
@@ -74,6 +73,5 @@ export default {
       type: String,
       default: 'Le plus grand choix de jeux vidéo',
     },
-  },
-};
+  });
 </script>

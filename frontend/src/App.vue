@@ -16,7 +16,7 @@ import FooterComponent from './components/FooterComponent.vue'
   </div>  
 </template>
 
-<script>
+<!-- <script>
 import axios from 'axios';
 
 export default {
@@ -41,4 +41,4 @@ export default {
         },
     },
 };
-</script>
+</script> -->
