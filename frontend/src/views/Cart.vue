@@ -95,7 +95,7 @@
             <ButtonComponent textColor="text-white" hoverBgColor="hover:bg-secondary" to="/product">
               Continuer les achats
             </ButtonComponent>
-            <ButtonComponent bgColor="bg-green-600" textColor="text-white" hoverBgColor="hover:bg-green-700" to="/payment">
+            <ButtonComponent bgColor="bg-green-600" textColor="text-white" hoverBgColor="hover:bg-green-700" :to="destination">
               Passer au paiement
             </ButtonComponent>
           </div>
@@ -228,7 +228,8 @@ const decreaseQuantity = async (index) => {
     }
   }
 };
-
+const isUserLoggedIn = !!localStorage.getItem('authToken');
+const destination = isUserLoggedIn ? '/payment' : '/inscription-connexion/#connexion';
 
 onMounted(() => {
   loadCart();
