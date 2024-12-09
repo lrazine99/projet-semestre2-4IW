@@ -2,14 +2,14 @@
   <header class="fixed top-0 z-50 w-full">
     <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5">
       <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-2xl">
-        <a href="/" class="flex items-center">
+        <router-link to="/" class="flex items-center">
           <img
             src="https://flowbite.com/docs/images/logo.svg"
             class="mr-3 h-6 sm:h-9"
             alt="GameMarket logo"
           />
           <span class="self-center text-xl font-semibold whitespace-nowrap">GameMarket</span>
-        </a>
+        </router-link>
 
         <div class="flex items-center lg:order-2 space-x-4">
           <div class="relative">
@@ -38,12 +38,12 @@
           </div>
 
           <div v-if="isAuthenticated" class="flex items-center space-x-4">
-            <a href="/cart" class="text-gray-700 hover:text-primary">
+            <router-link to="/cart" class="text-gray-700 hover:text-primary">
               <font-awesome-icon icon="shopping-cart" class="h-6 w-6" />
-            </a>
-            <a href="/mon-compte" class="text-gray-700 hover:text-primary">
+            </router-link>
+            <router-link to="/mon-compte" class="text-gray-700 hover:text-primary">
               <font-awesome-icon icon="user" class="h-6 w-6" />compte
-            </a>
+            </router-link>
             <ButtonComponent
               hover-bg-color="hover:bg-secondary"
               to="/logout"
@@ -77,29 +77,29 @@
         >
           <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
             <li>
-              <a href="/" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
-                >Accueil</a
-              >
+              <router-link to="/" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
+                Accueil
+              </router-link>
             </li>
             <li>
-              <a href="/product" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
-                >Produits</a
-              >
+              <router-link to="/product" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
+                Produits
+              </router-link>
             </li>
             <li>
-              <a href="/about" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
-                >Histoire</a
-              >
+              <router-link to="/about" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
+                Histoire
+              </router-link>
             </li>
             <li>
-              <a href="/contact" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
-                >Contact</a
-              >
+              <router-link to="/contact" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
+                Contact
+              </router-link>
             </li>
             <li v-if="isAuthenticated">
-              <a href="/wishlist" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary"
-                >Wishlist</a
-              >
+              <router-link to="/wishlist" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
+                Wishlist
+              </router-link>
             </li>
           </ul>
         </div>
@@ -109,16 +109,26 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
-import ButtonComponent from './ButtonComponent.vue'
+import ButtonComponent from './ButtonComponent.vue';
+import { useRouter } from 'vue-router';
 
-const isAuthenticated = localStorage.getItem('authToken')
+const isAuthenticated = ref(!!localStorage.getItem('authToken'));
 
+onMounted(() => {
+  window.addEventListener('auth-changed', () => {
+    isAuthenticated.value = !!localStorage.getItem('authToken');
+  });
+});
+
+const router = useRouter();
 const logout = () => {
-  localStorage.removeItem('authToken')
-  window.location.reload();
-}
+  localStorage.removeItem('authToken');
+  isAuthenticated.value = false;
+  window.dispatchEvent(new Event('auth-changed'));
+  router.push('/inscription-connexion/#connexion');
+};
 
 const cartStore = useCartStore();
 const cartItemCount = computed(() => cartStore.totalQuantity);

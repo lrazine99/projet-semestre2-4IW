@@ -8,10 +8,13 @@
 </template>
 
 <script setup>
-import { z } from 'zod'
-import FormComponent from '../FormComponent.vue'
-import axios from 'axios'
+import { useRouter } from 'vue-router';
+import { z } from 'zod';
+import FormComponent from '../FormComponent.vue';
+import axios from 'axios';
 import { useCartStore } from '@/stores/cartStore';
+
+const router = useRouter();
 
 const loginFields = [
   { id: 'email', label: 'Email', type: 'email', placeholder: 'Entrez votre email' },
@@ -39,8 +42,9 @@ const handleLogin = async (formData, signal) => {
 
     const cartStore = useCartStore();
     await cartStore.syncCartWithBackend();
+    window.dispatchEvent(new Event('auth-changed'));
 
-    window.location.reload();
+    router.push('/product');
   } catch (error) {
     alert(error.response.data.message);
     throw error;
