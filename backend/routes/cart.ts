@@ -5,7 +5,6 @@ const router = express.Router();
 
 router.post('/cart/add', async (req: Request, res: Response) => {
   try {
-    console.log("ici")
     const { authToken, sku, title, imageSrc, price, quantity, stock, edition, platform } = req.body;
 
     const userId = authToken;

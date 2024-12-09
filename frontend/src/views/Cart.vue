@@ -143,7 +143,7 @@ const loadCart = async () => {
       cartItems.value = [];
     }
   } else {
-    cartItems.value = [];
+    cartItems.value = cartStore.cartItems;
   }
 };
 
