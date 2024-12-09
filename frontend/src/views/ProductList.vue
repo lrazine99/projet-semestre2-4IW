@@ -19,7 +19,10 @@
         </div>
 
         <div class="mb-6">
-          <h4 class="font-medium text-gray-600 mb-6 cursor-pointer flex items-center justify-between" @click="toggleGenreFilter">
+          <h4 
+            class="font-medium text-gray-600 mb-6 cursor-pointer flex items-center justify-between"
+            @click="toggleGenreFilter"
+          >
             Genres
             <span class="text-gray-500 text-xl">{{ isGenreOpen ? '-' : '+' }}</span>
           </h4>
@@ -29,21 +32,25 @@
               v-for="genre in genres" 
               :key="genre" 
               class="flex items-center space-x-2 mb-2 cursor-pointer"
-              @click="toggleSelection(selectedGenres, genre)"
             >
-              <input 
-                type="checkbox" 
-                v-model="selectedGenres" 
-                :value="genre" 
-                class="form-checkbox text-blue-500 focus:ring-0 pointer-events-none" 
-              />
-              <span class="text-gray-700">{{ genre }}</span>
+              <label class="flex items-center space-x-2 w-full">
+                <input 
+                  type="checkbox" 
+                  v-model="selectedGenres" 
+                  :value="genre" 
+                  class="form-checkbox text-blue-500 focus:ring-0" 
+                />
+                <span class="text-gray-700">{{ genre }}</span>
+              </label>
             </li>
           </ul>
         </div>
 
         <div class="mb-6">
-          <h4 class="font-medium text-gray-600 mb-6 cursor-pointer flex items-center justify-between" @click="togglePlatformFilter">
+          <h4 
+            class="font-medium text-gray-600 mb-6 cursor-pointer flex items-center justify-between"
+            @click="togglePlatformFilter"
+          >
             Plateformes
             <span class="text-gray-500 text-xl">{{ isPlatformOpen ? '-' : '+' }}</span>
           </h4>
@@ -53,15 +60,16 @@
               v-for="platform in platforms" 
               :key="platform" 
               class="flex items-center space-x-2 mb-2 cursor-pointer"
-              @click="toggleSelection(selectedPlatforms, platform)"
             >
-              <input 
-                type="checkbox" 
-                v-model="selectedPlatforms" 
-                :value="platform" 
-                class="form-checkbox text-green-500 focus:ring-0 pointer-events-none" 
-              />
-              <span class="text-gray-700">{{ platform }}</span>
+              <label class="flex items-center space-x-2 w-full">
+                <input 
+                  type="checkbox" 
+                  v-model="selectedPlatforms" 
+                  :value="platform" 
+                  class="form-checkbox text-green-500 focus:ring-0" 
+                />
+                <span class="text-gray-700">{{ platform }}</span>
+              </label>
             </li>
           </ul>
         </div>
@@ -139,47 +147,56 @@
 
         <!-- Pagination -->
         <div class="col-span-3 mt-6 flex justify-center space-x-4">
-        <button 
-          @click="changePage(currentPage - 1)"
-          :disabled="currentPage === 1"
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-        >
-          Précédent
-        </button>
-        <span class="text-lg">{{ currentPage }} / {{ totalPages }}</span>
-        <button 
-          @click="changePage(currentPage + 1)"
-          :disabled="currentPage === totalPages"
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-        >
-          Suivant
-        </button>
-      </div>
+          <button 
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            Précédent
+          </button>
+          <span class="text-lg">{{ currentPage }} / {{ totalPages }}</span>
+          <button 
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            Suivant
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
   import axios from 'axios';
   import CardProductComponent from '../components/CardProductComponent.vue';
+
+  const router = useRouter();
+  const route = useRoute();
 
   const allVariants = ref([]);
   const genres = ref([]);
   const platforms = ref([]);
-  const selectedGenres = ref([]);
-  const selectedPlatforms = ref([]);
-  const priceRange = ref({ min: 0, max: 100 });
-  const searchQuery = ref('');
-  const displayedVariants = ref([]); 
-  const currentPage = ref(1); 
-  const itemsPerPage = ref(12); 
+  const selectedGenres = ref(route.query.genres ? route.query.genres.split(',') : []);
+  const selectedPlatforms = ref(route.query.platforms ? route.query.platforms.split(',') : []);
+  const priceRange = ref({
+    min: 0,
+    max: route.query.maxPrice ? parseFloat(route.query.maxPrice) : 100,
+  });
+  const searchQuery = ref(route.query.search || '');
+  const sortOrder = ref(route.query.sortOrder || 'dateDesc');
+  const currentPage = ref(route.query.page ? parseInt(route.query.page as string, 10) : 1);
+
+  const isGenreOpen = ref(false);
+  const isPlatformOpen = ref(false);
+
+  const itemsPerPage = ref(12);
+  const displayedVariants = ref([]);
   const totalPages = ref(1);
-  const maxPrice = ref(100); 
-  const sortOrder = ref('dateDesc'); 
-  const isGenreOpen = ref(false); 
-  const isPlatformOpen = ref(false); 
+  const maxPrice = ref(100);
 
   const processProducts = (products) => {
     allVariants.value = [];
@@ -196,11 +213,9 @@
     });
   };
 
-  // Filtrer les produits
   const filteredVariants = computed(() => {
     let variants = [...allVariants.value];
 
-    // Filtrer par texte de recherche
     if (searchQuery.value) {
       variants = variants.filter(product =>
         product.productName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -208,48 +223,42 @@
       );
     }
 
-    // Filtrer par genres
     if (selectedGenres.value.length) {
       variants = variants.filter(product =>
         selectedGenres.value.some(genre => product.genres.includes(genre))
       );
     }
 
-    // Filtrer par plateformes
     if (selectedPlatforms.value.length) {
       variants = variants.filter(product =>
         selectedPlatforms.value.includes(product.platform.name)
       );
     }
 
-    // Filtrer par prix
     variants = variants.filter(product =>
       product.price <= priceRange.value.max
     );
 
-    // Tri selon l'ordre choisi
     switch (sortOrder.value) {
       case 'dateAsc': {
-        const getDate = (variant) => new Date(variant.releaseDate).getTime();
-        variants = variants.sort((a, b) => getDate(a) - getDate(b));
+        variants.sort((a, b) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime());
         break;
       }
       case 'dateDesc': {
-        const getDate = (variant) => new Date(variant.releaseDate).getTime();
-        variants = variants.sort((a, b) => getDate(b) - getDate(a));
+        variants.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime());
         break;
       }
       case 'priceAsc':
-        variants = variants.sort((a, b) => a.price - b.price);
+        variants.sort((a, b) => a.price - b.price);
         break;
       case 'priceDesc':
-        variants = variants.sort((a, b) => b.price - a.price);
+        variants.sort((a, b) => b.price - a.price);
         break;
       case 'nameAsc':
-        variants = variants.sort((a, b) => a.productName.localeCompare(b.productName));
+        variants.sort((a, b) => a.productName.localeCompare(b.productName));
         break;
       case 'nameDesc':
-        variants = variants.sort((a, b) => b.productName.localeCompare(a.productName));
+        variants.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
     }
 
@@ -262,26 +271,13 @@
     return filteredVariants.value.slice(startIndex, endIndex);
   });
 
-  const toggleGenreFilter = () => {
-    isGenreOpen.value = !isGenreOpen.value;
-  };
-
-  const togglePlatformFilter = () => {
-    isPlatformOpen.value = !isPlatformOpen.value;
-  };
-
-  const toggleSelection = (array, value) => {
-    const index = array.indexOf(value);
-    if (index !== -1) {
-      array.splice(index, 1);
-    } else {
-      array.push(value);
-    }
-  };
-
   const applyFilters = () => {
     totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
     displayedVariants.value = currentPageProducts.value;
+  };
+
+  const changePage = (page) => {
+    currentPage.value = Math.max(1, Math.min(page, totalPages.value));
   };
 
   const resetFilters = () => {
@@ -290,15 +286,33 @@
     priceRange.value = { min: 0, max: maxPrice.value };
     searchQuery.value = '';
     sortOrder.value = 'dateDesc';
+    currentPage.value = 1;
+
+    router.push({
+      query: {},
+    });
+
     applyFilters();
   };
 
-  const changePage = (page) => {
-    if (page < 1) page = 1;
-    if (page > totalPages.value) page = totalPages.value;
-    currentPage.value = page;
-    displayedVariants.value = currentPageProducts.value;
-  };
+  watch(
+    [selectedGenres, selectedPlatforms, searchQuery, priceRange, sortOrder],
+    () => {
+      currentPage.value = 1;
+      router.push({
+        query: {
+          genres: selectedGenres.value.join(','),
+          platforms: selectedPlatforms.value.join(','),
+          search: searchQuery.value || undefined,
+          maxPrice: priceRange.value.max || undefined,
+          sortOrder: sortOrder.value || undefined,
+          page: currentPage.value,
+        },
+      });
+      applyFilters();
+    },
+    { deep: true }
+  );
 
   onMounted(async () => {
     try {
@@ -309,7 +323,10 @@
       platforms.value = Array.from(new Set(allVariants.value.map(product => product.platform.name)));
 
       maxPrice.value = Math.max(...allVariants.value.map(product => product.price));
-      priceRange.value.max = maxPrice.value;
+      priceRange.value.max = priceRange.value.max || maxPrice.value;
+
+        totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
+        totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
 
       totalPages.value = Math.ceil(filteredVariants.value.length / itemsPerPage.value);
 
@@ -318,4 +335,12 @@
       console.error('Erreur lors de la récupération des produits:', error);
     }
   });
+
+  const toggleGenreFilter = () => {
+    isGenreOpen.value = !isGenreOpen.value;
+  };
+
+  const togglePlatformFilter = () => {
+    isPlatformOpen.value = !isPlatformOpen.value;
+  };
 </script>
