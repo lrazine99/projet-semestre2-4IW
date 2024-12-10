@@ -79,6 +79,8 @@
 import { ref, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import axios from 'axios';
+import { isUserLoggedIn } from '../utils/auth.js';
+
 
 const props = defineProps({
   sku: String,
@@ -129,10 +131,9 @@ const addToCart = async () => {
   }
 
   try {
-    const token = localStorage.getItem('authToken');
-    console.log('Token:', token);
+    if (isUserLoggedIn()) {
+      const token = localStorage.getItem('authToken');
 
-    if (token) {
       const response = await axios.post(
         'http://localhost:8080/cart/add', 
         {

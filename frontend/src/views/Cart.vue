@@ -117,6 +117,7 @@ import { useCartStore } from "@/stores/cartStore";
 import axios from "axios";
 import ButtonComponent from "@/components/ButtonComponent.vue";
 import DeleteModal from "@/components/DeleteModalComponent.vue";
+import { isUserLoggedIn } from '@/utils/auth';
 
 const cartStore = useCartStore();
 const cartItems = ref([]);
@@ -130,13 +131,12 @@ const isDeleteModalOpen = ref(false);
 const itemToDeleteIndex = ref(null);
 
 const loadCart = async () => {
-  const token = localStorage.getItem("authToken");
-  if (token) {
+  if (isUserLoggedIn()) {
+    const token = localStorage.getItem('authToken');
     try {
       const response = await axios.get("http://localhost:8080/cart", {
         params: { authToken: token },
       });
-
       cartItems.value = response.data?.items || []; 
     } catch (error) {
       console.error("Erreur lors de la récupération du panier :", error);
@@ -146,6 +146,7 @@ const loadCart = async () => {
     cartItems.value = cartStore.cartItems;
   }
 };
+
 
 
 const openDeleteModal = (index) => {
@@ -159,10 +160,10 @@ const closeDeleteModal = () => {
 };
 
 const confirmDeleteItem = async () => {
-  const token = localStorage.getItem("authToken");
   if (itemToDeleteIndex.value !== null) {
     const item = cartItems.value[itemToDeleteIndex.value];
-    if (token) {
+    if (isUserLoggedIn()) {
+      const token = localStorage.getItem("authToken");
       try {
         await axios.delete(`http://localhost:8080/cart/remove/${item.sku}`, {
           data: { authToken: token },
@@ -183,8 +184,8 @@ const confirmDeleteItem = async () => {
 const increaseQuantity = async (index) => {
   const item = cartItems.value[index];
   if (item.quantity < item.stock) {
-    const token = localStorage.getItem("authToken");
-    if (token) {
+    if (isUserLoggedIn()) {
+      const token = localStorage.getItem('authToken');
       try {
         await axios.patch(
           `http://localhost:8080/cart/increase/${item.sku}`,
@@ -208,8 +209,8 @@ const increaseQuantity = async (index) => {
 const decreaseQuantity = async (index) => {
   const item = cartItems.value[index];
   if (item.quantity > 1) {
-    const token = localStorage.getItem("authToken");
-    if (token) {
+    if (isUserLoggedIn()) {
+      const token = localStorage.getItem("authToken");
       try {
         await axios.patch(
           `http://localhost:8080/cart/decrease/${item.sku}`,
@@ -228,8 +229,7 @@ const decreaseQuantity = async (index) => {
     }
   }
 };
-const isUserLoggedIn = !!localStorage.getItem('authToken');
-const destination = isUserLoggedIn ? '/payment' : '/inscription-connexion/#connexion';
+const destination = isUserLoggedIn() ? '/payment' : '/inscription-connexion/#connexion';
 
 onMounted(() => {
   loadCart();

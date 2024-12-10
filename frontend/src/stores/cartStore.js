@@ -48,9 +48,8 @@ export const useCartStore = defineStore('cart', {
     },
     async syncCartWithBackend() {
       const cartItems = this.cartItems;
-      const token = localStorage.getItem('authToken');
-
-      if (token && cartItems.length > 0) {
+      if (isUserLoggedIn() && cartItems.length > 0) {
+        const token = localStorage.getItem('authToken');
         try {
           await axios.post('http://localhost:8080/cart/sync', {
             authToken: token,  

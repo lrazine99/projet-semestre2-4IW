@@ -113,12 +113,13 @@ import { ref, onMounted, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import ButtonComponent from './ButtonComponent.vue';
 import { useRouter } from 'vue-router';
+import { isUserLoggedIn } from '@/utils/auth';
 
-const isAuthenticated = ref(!!localStorage.getItem('authToken'));
+const isAuthenticated = ref(isUserLoggedIn());
 
 onMounted(() => {
   window.addEventListener('auth-changed', () => {
-    isAuthenticated.value = !!localStorage.getItem('authToken');
+    isAuthenticated.value = isUserLoggedIn();
   });
 });
 
@@ -133,3 +134,4 @@ const logout = () => {
 const cartStore = useCartStore();
 const cartItemCount = computed(() => cartStore.totalQuantity);
 </script>
+
