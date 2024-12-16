@@ -135,9 +135,9 @@ const loadCart = async () => {
     const token = localStorage.getItem('authToken');
     try {
       const response = await axios.get("http://localhost:8080/cart", {
-        params: { authToken: token },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      cartItems.value = response.data?.items || []; 
+      cartItems.value = response.data?.items || [];
     } catch (error) {
       console.error("Erreur lors de la récupération du panier :", error);
       cartItems.value = [];
@@ -166,7 +166,7 @@ const confirmDeleteItem = async () => {
       const token = localStorage.getItem("authToken");
       try {
         await axios.delete(`http://localhost:8080/cart/remove/${item.sku}`, {
-          data: { authToken: token },
+          headers: { Authorization: `Bearer ${token}` },
         });
         cartItems.value.splice(itemToDeleteIndex.value, 1);
       } catch (error) {
@@ -189,10 +189,8 @@ const increaseQuantity = async (index) => {
       try {
         await axios.patch(
           `http://localhost:8080/cart/increase/${item.sku}`,
-          { 
-            quantity: item.quantity + 1, 
-            authToken: token 
-          }
+          { quantity: item.quantity + 1 },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         item.quantity++;
       } catch (error) {
@@ -214,10 +212,8 @@ const decreaseQuantity = async (index) => {
       try {
         await axios.patch(
           `http://localhost:8080/cart/decrease/${item.sku}`,
-          { 
-            quantity: item.quantity - 1, 
-            authToken: token 
-          }
+          { quantity: item.quantity - 1 }, 
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         item.quantity--;
       } catch (error) {

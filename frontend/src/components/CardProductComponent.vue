@@ -145,7 +145,11 @@ const addToCart = async () => {
           stock: props.stock,
           edition: props.edition,
           platform: props.platformName,
-          authToken: token, 
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 

@@ -12,7 +12,7 @@ interface ICartItem {
 }
 
 interface ICart extends Document {
-  userId: string;
+  userId: mongoose.Schema.Types.ObjectId;
   items: ICartItem[];
 }
 
@@ -28,7 +28,7 @@ const CartItemSchema = new Schema<ICartItem>({
 });
 
 const CartSchema = new Schema<ICart>({
-  userId: { type: String, required: true, unique: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   items: { type: [CartItemSchema], default: [] },
 });
 
