@@ -4,6 +4,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
 import UserRoutes from "./routes/user";
 import ProductRoutes from "./routes/product";
+import CartRoutes from "./routes/cart";
 // @ts-ignore
 import { xss } from "express-xss-sanitizer";
 import connectDB from "./helpers/database";
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(cors());
 app.use(UserRoutes);
 app.use(ProductRoutes);
+app.use(CartRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Hello from api server:" });

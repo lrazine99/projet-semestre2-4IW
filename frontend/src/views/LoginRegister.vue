@@ -38,7 +38,7 @@ onBeforeMount(() => {
   if (isUserLoggedIn()) {
     console.log('User is already logged in');
     
-    router.push('/produits')
+    router.push('/product')
   }
 })
 

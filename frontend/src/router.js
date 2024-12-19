@@ -8,6 +8,7 @@ import MyAccount from './views/MyAccount.vue'
 import ResetPassword from './views/ResetPassword.vue'
 import RequestReset from './views/RequestReset.vue'
 import ConfirmAccount from './views/ConfirmAccount.vue'
+import Cart from './views/Cart.vue'
 
 const routes = [
   {
@@ -42,6 +43,11 @@ const routes = [
     path: '/confirmer-votre-compte/:token',
     name: 'ConfirmAccount',
     component: ConfirmAccount
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: Cart
   },
   {
     path: '/:pathMatch(.*)*',

@@ -14,23 +14,19 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { defineProps } from 'vue';
 import ButtonComponent from '../components/ButtonComponent.vue';
 
-export default {
-  components: {
-    ButtonComponent
+defineProps({
+  titre: String,
+  paragraphe: String,
+  btnText: String,
+  backgroundImage: {
+    type: String,
+    default: 'https://i.pinimg.com/736x/0d/cc/7e/0dcc7efba2c6b14c8a75663c0d8e3907.jpg',
   },
-  props: {
-    titre: String,
-    paragraphe: String,
-    btnText: String,
-    backgroundImage: {
-      type: String,
-      default: 'https://chocobonplan.com/wp-content/uploads/2024/01/slider-soldes-jeux-vid%C3%A9o-%C3%A9t%C3%A9-2024-r%C3%A9cap-global.jpg'
-    }
-  }
-};
+});
 </script>
 
 <style scoped>

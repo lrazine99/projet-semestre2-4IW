@@ -7,9 +7,11 @@
   </button>
 </template>
 
-<script>
-export default {
-  props: {
+  <script setup>
+  import { defineProps } from 'vue';
+  import { useRouter } from 'vue-router';
+
+  const props = defineProps({
     bgColor: {
       type: String,
       default: 'bg-primary',
@@ -20,23 +22,23 @@ export default {
     },
     hoverTextColor: {
       type: String,
-      default: '', 
+      default: '',
     },
     hoverBgColor: {
       type: String,
-      default: '', 
+      default: '',
     },
     to: {
       type: String,
       default: null,
     },
-  },
-  methods: {
-    navigate() {
-      if (this.to) {
-        this.$router.push(this.to);
-      }
-    },
-  },
-};
+  });
+
+  const router = useRouter();
+
+  const navigate = () => {
+    if (props.to) {
+      router.push(props.to);
+    }
+  };
 </script>

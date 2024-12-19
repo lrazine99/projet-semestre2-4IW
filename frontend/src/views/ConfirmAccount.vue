@@ -44,7 +44,7 @@ const handleEmailConfirmation = async () => {
 
 onBeforeMount(() => {
     if (isUserLoggedIn()) {
-        router.push('/produits');
+        router.push('/product');
     }
 
     handleEmailConfirmation();
