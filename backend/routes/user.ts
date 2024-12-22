@@ -5,6 +5,10 @@ import uid2 from "uid2";
 import SHA256 from "crypto-js/sha256";
 import base64 from "crypto-js/enc-base64";
 import { randomBytes } from "crypto";
+import { isAuthenticated } from "../middlewares/isAuthenticated";
+import { isAdmin } from "../middlewares/isAdmin";
+
+
 
 import { Mailer } from "../helpers/mailer";
 
@@ -246,7 +250,7 @@ router.post("/send-confirmation", async (req: any, res: any) => {
   res.status(200).end();
 });
 
-router.get("/users", async (req: Request, res: Response) => {
+router.get("/users", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "desc" } = req.query;
 
@@ -273,7 +277,7 @@ router.get("/users", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/users", async (req: Request, res: Response) => {
+router.post("/users", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, password, role } = req.body;
 
@@ -312,7 +316,7 @@ router.post("/users", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/users/:id", async (req: Request, res: Response) => {
+router.put("/users/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -337,7 +341,7 @@ router.put("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/users/:id", async (req: Request, res: Response) => {
+router.delete("/users/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -359,7 +363,7 @@ router.delete("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/users", async (req: Request, res: Response) => {
+router.delete("/users", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
   try {
     const { ids } = req.body;
 
@@ -379,7 +383,7 @@ router.delete("/users", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/users/admin/add", async (req: Request, res: Response) => {
+router.post("/users/admin/add", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, role = "user" } = req.body;
 
