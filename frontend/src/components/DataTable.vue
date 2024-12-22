@@ -124,13 +124,7 @@ const handleSort = (columnKey) => {
 }
 
 const handleExport = () => {
-  const columnsToExport = [
-    { key: 'firstName', label: 'Prénom' },
-    { key: 'lastName', label: 'Nom' },
-    { key: 'email', label: 'Email' },
-    { key: 'role', label: 'Rôle' },
-    { key: 'birthDate', label: 'Anniversaire' }
-  ]
+  const columnsToExport = props.columns
 
   const header = columnsToExport.map((col) => col.label).join('\t')
 
