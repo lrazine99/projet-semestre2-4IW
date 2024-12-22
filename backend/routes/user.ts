@@ -22,7 +22,7 @@ const sendConfirmationEmail = async (user: IUser) => {
 
   newMailer.sendEmail(
     [user.email],
-    "Confirmer votre compte",
+    "Confirmez votre compte",
     `Vous avez 24 heures pour confirmer votre compte en cliquant sur le lien suivant: ${confirmationLink}`
   );
 };

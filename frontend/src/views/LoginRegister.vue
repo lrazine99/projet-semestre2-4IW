@@ -26,18 +26,17 @@ import { ref, watch, onMounted, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormLoginComponent from '../components/forms/FormLoginComponent.vue'
 import FormRegisterComponent from '@/components/forms/FormRegisterComponent.vue'
-import { isUserLoggedIn } from '@/utils/auth'; // Utility to check login status
+import { useLoginStore } from '@/stores/loginStore';
+
+const { isAuthenticated } = useLoginStore();
 
 const route = useRoute()
 const router = useRouter()
 const formChoice = ref('')
 
 onBeforeMount(() => {
-  console.log('Checking if user is already logged in');
   
-  if (isUserLoggedIn()) {
-    console.log('User is already logged in');
-    
+  if (isAuthenticated) {    
     router.push('/product')
   }
 })
@@ -50,7 +49,6 @@ watch(route, updateHash)
 
 
 onMounted(updateHash)
-
 
 
 const handleFormChoice = () => {
