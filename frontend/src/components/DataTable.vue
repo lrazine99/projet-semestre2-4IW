@@ -12,6 +12,14 @@ const props = defineProps({
   columns: {
     type: Array,
     required: true
+  },
+  showResetPassword: {
+    type: Boolean,
+    default: false
+  },
+  showAddUser: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -29,7 +37,10 @@ const searchColumn = ref(null)
 const showModal = ref(false)
 const newUser = ref({ firstName: '', lastName: '', email: '' })
 
-const searchableKeys = ['lastName', 'firstName', 'email', 'role', 'birthDate']
+const searchableKeys = computed(() => {
+  return props.columns
+    .map(col => col.key)
+})
 
 const filteredData = computed(() => {
   let result = [...data.value]
@@ -244,6 +255,7 @@ const handleDeleteSelected = async () => {
           Supprimer la sélection
         </button>
         <button
+          v-if="showAddUser"      
           @click="showModal = true"
           class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
         >
@@ -394,6 +406,7 @@ const handleDeleteSelected = async () => {
                   Supprimer
                 </button>
                 <button
+                  v-if="showResetPassword"
                   @click="sendResetEmail(row.email)"
                   class="px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
                 >

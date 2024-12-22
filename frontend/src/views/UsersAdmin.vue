@@ -2,7 +2,12 @@
 <template>
     <div class="mt-8">
         <h2 class="text-2xl font-bold mb-4">Gestion des utilisateurs</h2>
-        <DataTable apiEndpoint="http://localhost:8080/users" :columns="userColumns" />
+        <DataTable 
+            apiEndpoint="http://localhost:8080/users" 
+            :columns="userColumns"
+            :showResetPassword=false
+            :showAddUser=false
+        />
     </div>
 </template>
 
