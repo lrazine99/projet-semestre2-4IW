@@ -9,6 +9,7 @@ import ResetPassword from './views/ResetPassword.vue'
 import RequestReset from './views/RequestReset.vue'
 import ConfirmAccount from './views/ConfirmAccount.vue'
 import Cart from './views/Cart.vue'
+import UsersAdmin from './views/UsersAdmin.vue'
 
 const routes = [
   {
@@ -48,6 +49,11 @@ const routes = [
     path: '/cart',
     name: 'Cart',
     component: Cart
+  },
+  {
+    path: '/admin/users',
+    name: 'UsersAdmin',
+    component: UsersAdmin
   },
   {
     path: '/:pathMatch(.*)*',

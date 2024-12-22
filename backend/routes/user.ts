@@ -4,6 +4,7 @@ import ResetPassword from "../models/ResetPassword";
 import uid2 from "uid2";
 import SHA256 from "crypto-js/sha256";
 import base64 from "crypto-js/enc-base64";
+import { randomBytes } from "crypto";
 
 import { Mailer } from "../helpers/mailer";
 
@@ -78,6 +79,7 @@ router.post("/user/login", async (req: any, res: any) => {
         res
           .status(402)
           .json({ message: "compte non vérifié, un email a été envoyé" });
+          return;
       }
 
       const generatedHash = SHA256(
@@ -242,6 +244,182 @@ router.post("/send-confirmation", async (req: any, res: any) => {
   await sendConfirmationEmail(user);
 
   res.status(200).end();
+});
+
+router.get("/users", async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "desc" } = req.query;
+
+    const query = search
+      ? { $or: [{ firstName: { $regex: search, $options: "i" } }, { lastName: { $regex: search, $options: "i" } }] }
+      : {};
+
+    const users = await User.find(query)
+      .sort({ [sortBy as string]: order === "asc" ? 1 : -1 })
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit));
+
+    const totalUsers = await User.countDocuments(query);
+
+    res.status(200).json({
+      users,
+      totalPages: Math.ceil(totalUsers / Number(limit)),
+      currentPage: Number(page),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs." });
+    return;
+  }
+});
+
+router.post("/users", async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, email, password, role } = req.body;
+
+    if (!firstName || !lastName || !email || !password || !role) {
+      res.status(400).json({ message: "Tous les champs sont requis." });
+      return;
+    }
+
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+      res.status(409).json({ message: "Un utilisateur avec cet email existe déjà." });
+      return;
+    }
+
+    const generatedSalt = uid2(12);
+    const generatedHash = SHA256(password + generatedSalt).toString(base64);
+
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      role,
+      hash: generatedHash,
+      salt: generatedSalt,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "Utilisateur créé avec succès." });
+    return;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la création de l'utilisateur." });
+    return;
+  }
+});
+
+router.put("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      res.status(404).json({ message: "Utilisateur introuvable." });
+      return;
+    }
+
+    Object.assign(user, updates);
+
+    await user.save();
+
+    res.status(200).json({ message: "Utilisateur mis à jour avec succès." });
+    return;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur." });
+    return;
+  }
+});
+
+router.delete("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      res.status(404).json({ message: "Utilisateur introuvable." });
+      return;
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({ message: "Utilisateur supprimé avec succès." });
+    return;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur." });
+    return;
+  }
+});
+
+router.delete("/users", async (req: Request, res: Response) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids)) {
+      res.status(400).json({ message: "Un tableau d'IDs est requis." });
+      return;
+    }
+
+    await User.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Utilisateurs supprimés avec succès." });
+    return;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la suppression des utilisateurs." });
+    return;
+  }
+});
+
+router.post("/users/admin/add", async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, email, role = "user" } = req.body;
+
+    if (firstName && lastName && email) {
+      const userFoundByEmail = await User.findOne({ email });
+
+      if (!userFoundByEmail) {
+        const password = randomBytes(8).toString('hex');
+        const generatedToken = uid2(16);
+        const generatedSalt = uid2(12);
+        const generatedHash = SHA256(password + generatedSalt).toString();
+
+        const newUser = new User({
+          firstName,
+          lastName,
+          email,
+          token: generatedToken,
+          hash: generatedHash,
+          salt: generatedSalt,
+          birthDate: new Date(),
+          role,
+        });
+
+        await newUser.save();
+
+        res.status(201).json({ message: "Utilisateur ajouté avec succès", user: newUser });
+        return;
+      } else {
+        res.status(409).json({ message: "Cet email est déjà pris" });
+        return;
+      }
+    } else {
+      res.status(400).json({ message: "Données manquantes" });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur, veuillez réessayer" });
+    return;
+  }
 });
 
 export default router;
