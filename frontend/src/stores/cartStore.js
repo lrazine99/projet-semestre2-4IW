@@ -1,66 +1,67 @@
-import { defineStore } from 'pinia';
-import axios from 'axios';
+import { defineStore } from 'pinia'
+import axios from 'axios'
+import { useLoginStore } from './loginStore'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
-    cartItems: JSON.parse(localStorage.getItem('cart')) || [],
+    cartItems: JSON.parse(localStorage.getItem('cart')) || []
   }),
   getters: {
-    totalQuantity: (state) => 
-      state.cartItems.reduce((total, item) => total + item.quantity, 0),
-    totalPrice: (state) => 
-      state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2),
+    totalQuantity: (state) => state.cartItems.reduce((total, item) => total + item.quantity, 0),
+    totalPrice: (state) =>
+      state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
   },
   actions: {
     loadCartFromStorage() {
-      this.cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+      this.cartItems = JSON.parse(localStorage.getItem('cart')) || []
     },
     saveCartToStorage() {
-      localStorage.setItem('cart', JSON.stringify(this.cartItems));
+      localStorage.setItem('cart', JSON.stringify(this.cartItems))
     },
     removeItem(index) {
-      this.cartItems.splice(index, 1);
-      this.saveCartToStorage();
+      this.cartItems.splice(index, 1)
+      this.saveCartToStorage()
     },
     increaseItemQuantity(index) {
-      this.cartItems[index].quantity++;
-      this.saveCartToStorage();
+      this.cartItems[index].quantity++
+      this.saveCartToStorage()
     },
     decreaseItemQuantity(index) {
       if (this.cartItems[index].quantity > 1) {
-        this.cartItems[index].quantity--;
-        this.saveCartToStorage();
+        this.cartItems[index].quantity--
+        this.saveCartToStorage()
       }
     },
     addItem(newItem) {
-      const existingItem = this.cartItems.find(item => item.sku === newItem.sku);
+      const existingItem = this.cartItems.find((item) => item.sku === newItem.sku)
       if (existingItem) {
-        const totalQuantity = existingItem.quantity + newItem.quantity;
+        const totalQuantity = existingItem.quantity + newItem.quantity
         if (totalQuantity > newItem.stock) {
-          existingItem.quantity = newItem.stock;
+          existingItem.quantity = newItem.stock
         } else {
-          existingItem.quantity = totalQuantity;
+          existingItem.quantity = totalQuantity
         }
       } else {
-        this.cartItems.push({ ...newItem });
+        this.cartItems.push({ ...newItem })
       }
-      this.saveCartToStorage();
+      this.saveCartToStorage()
     },
     async syncCartWithBackend() {
-      const cartItems = this.cartItems;
-      if (isUserLoggedIn() && cartItems.length > 0) {
-        const token = localStorage.getItem('authToken');
+      const loginStore = useLoginStore()
+
+      const cartItems = this.cartItems
+      if (loginStore.isAuthenticated && cartItems.length > 0) {
         try {
           await axios.post('http://localhost:8080/cart/sync', {
-            authToken: token,  
+            authToken: loginStore.token,
             items: cartItems
-          });
-          console.log('Cart synced with backend!');
-          localStorage.removeItem('cart');
+          })
+          console.log('Cart synced with backend!')
+          localStorage.removeItem('cart')
         } catch (error) {
-          console.error('Failed to sync cart with backend', error);
+          console.error('Failed to sync cart with backend', error)
         }
       }
-    },
-  },
-});
+    }
+  }
+})
