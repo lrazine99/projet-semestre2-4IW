@@ -147,7 +147,7 @@ const confirmDeleteItem = async () => {
   if (itemToDeleteIndex.value !== null) {
     const item = cartItems.value[itemToDeleteIndex.value];
     if (loginStore.isAuthenticated) {
-      const token = loginStore.isAuthenticated;
+      const token = loginStore.token;
       try {
         await axios.delete(`http://localhost:8080/cart/remove/${item.sku}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -169,7 +169,7 @@ const increaseQuantity = async (index) => {
   const item = cartItems.value[index];
   if (item.quantity < item.stock) {
     if (loginStore.isAuthenticated) {
-      const token = loginStore.isAuthenticated;
+      const token = loginStore.token;
       try {
         await axios.patch(
           `http://localhost:8080/cart/increase/${item.sku}`,
@@ -192,7 +192,7 @@ const decreaseQuantity = async (index) => {
   const item = cartItems.value[index];
   if (item.quantity > 1) {
     if (loginStore.isAuthenticated) {
-      const token = loginStore.isAuthenticated;
+      const token = loginStore.token;
       try {
         await axios.patch(
           `http://localhost:8080/cart/decrease/${item.sku}`,

@@ -5,8 +5,8 @@
         <DataTable 
             apiEndpoint="http://localhost:8080/users" 
             :columns="userColumns"
-            :showResetPassword=false
-            :showAddUser=false
+            :showResetPassword=true
+            :showAddUser=true
         />
     </div>
 </template>

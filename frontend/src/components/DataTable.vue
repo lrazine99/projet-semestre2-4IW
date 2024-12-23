@@ -2,6 +2,7 @@
 import { useDatatable } from '../composable/useTable'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
+import DeleteModal from "@/components/DeleteModalComponent.vue";
 import axios from 'axios'
 
 const props = defineProps({
@@ -36,6 +37,7 @@ const editedData = ref({})
 const searchColumn = ref(null)
 const showModal = ref(false)
 const newUser = ref({ firstName: '', lastName: '', email: '' })
+const itemToDelete = ref(null);
 
 const searchableKeys = computed(() => {
   return props.columns
@@ -121,7 +123,9 @@ const saveEditing = async (id) => {
   }
 }
 
-const handleDelete = (id) => deleteRow(id)
+const handleDelete = (item) => {
+  itemToDelete.value = item;
+};
 const handleUpdate = (id, updatedData) => updateRow(id, updatedData)
 const handleAddRow = (newData) => addRow(newData)
 
@@ -217,18 +221,25 @@ const toggleAllSelection = () => {
   }
 }
 
-const handleDeleteSelected = async () => {
-  try {
-    for (const userId of selectedRows.value) {
-      await deleteRow(userId)
-    }
-    selectedRows.value = []
-    fetchData()
-  } catch (error) {
-    console.error('Erreur lors de la suppression :', error)
-    alert('Une erreur est survenue lors de la suppression.')
+const handleDeleteSelected = () => {
+  if (selectedRows.value.length === 0) {
+    return;
   }
-}
+  itemToDelete.value = selectedRows.value;
+};
+
+const confirmDeleteSelected = async () => {
+  try {
+    for (const userId of itemToDelete.value) {
+      await deleteRow(userId);
+    }
+    selectedRows.value = [];
+    itemToDelete.value = null;
+    fetchData();
+  } catch (error) {
+    console.error("Erreur lors de la suppression :", error);
+  }
+};
 </script>
 
 <template>
@@ -377,7 +388,7 @@ const handleDeleteSelected = async () => {
                 {{ row[column.key] }}
               </template>
             </td>
-            <td class="py-3 px-6 flex space-x-2">
+            <td class="py-3 px-6 flex">
               <template v-if="editingRow === row._id">
                 <button
                   @click="saveEditing(row._id)"
@@ -400,18 +411,24 @@ const handleDeleteSelected = async () => {
                   Modifier
                 </button>
                 <button
-                  @click="handleDelete(row._id)"
-                  class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-                >
+                  @click="handleDelete(row)"
+                  class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
+                  >
                   Supprimer
                 </button>
                 <button
                   v-if="showResetPassword"
                   @click="sendResetEmail(row.email)"
-                  class="px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+                  class="ml-2 px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
                 >
                   Réinitialiser mot de passe
                 </button>
+                <DeleteModal
+                  v-if="itemToDelete"
+                  :deleteFunction="itemToDelete.length > 1 ? confirmDeleteSelected : () => deleteRow(itemToDelete._id)"
+                  @close="itemToDelete = null"
+                  :onSuccess="fetchData"
+                />
               </template>
             </td>
           </tr>
