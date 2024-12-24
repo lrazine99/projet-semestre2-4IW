@@ -1,28 +1,8 @@
 import { Schema, model, Document } from "mongoose";
-import { AddressSchema } from "./Address";
-import { IAddress } from "../types/Address.interface";
+import { UserRole, IUser } from "../../../types";
+import { AddressSchema } from "./address.schema";
 
-enum UserRole {
-  USER = "user",
-  ADMIN = "admin",
-}
-
-export interface IUser extends Document {
-  firstName: string;
-  lastName: string;
-  email: string;
-  address?: IAddress;
-  token: string;
-  hash: string;
-  salt: string;
-  role?: UserRole;
-  birthDate: Date;
-  isVerified: boolean;
-  confirmationToken?: string | null;
-  confirmationTokenExpires?: Date | null;
-}
-
-const UserSchema = new Schema<IUser>({
+export const UserSchema = new Schema<IUser>({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: {
@@ -32,7 +12,7 @@ const UserSchema = new Schema<IUser>({
     unique: true,
   },
   address: {
-    type: AddressSchema,
+    type: AddressSchema, // Use the schema as a type
     required: false,
   },
   role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
@@ -44,5 +24,3 @@ const UserSchema = new Schema<IUser>({
   confirmationToken: { type: String, required: false },
   confirmationTokenExpires: { type: Date, required: false },
 });
-
-export const User = model<IUser>("User", UserSchema);

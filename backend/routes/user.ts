@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+/*import express, { Request, Response } from "express";
 import { IUser, User } from "../models/User";
 import ResetPassword from "../models/ResetPassword";
 import uid2 from "uid2";
@@ -245,3 +245,4 @@ router.post("/send-confirmation", async (req: any, res: any) => {
 });
 
 export default router;
+*/
