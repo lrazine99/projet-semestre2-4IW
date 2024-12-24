@@ -1,9 +1,8 @@
 import { MongooseService } from "./mongoose.service";
 import { IPlatform } from "../../types";
 
-class FixturesService {
-  constructor() {}
-  async loadPlatforms() {
+abstract class FixturesService {
+  static async loadPlatforms() {
     const mongooseService = await MongooseService.get();
     const Platform = mongooseService.platformService.model;
 
@@ -24,7 +23,7 @@ class FixturesService {
     }
   }
 
-  async loadProducts() {
+  static async loadProducts() {
     const mongooseService = await MongooseService.get();
     const Platform = mongooseService.platformService.model;
     const Product = mongooseService.productService.model;
@@ -148,7 +147,6 @@ class FixturesService {
 }
 
 (async () => {
-  const fixturesService = new FixturesService();
-  await fixturesService.loadPlatforms();
-  await fixturesService.loadProducts();
+  await FixturesService.loadPlatforms();
+  await FixturesService.loadProducts();
 })();

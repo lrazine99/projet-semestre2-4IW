@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from "express";
 import { CartService } from "../services/mongoose/models";
 import { MongooseService } from "../services";
 import { ICartItem } from "../types";
-import { isAuthenticated } from "src/middlewares/isAuthenticated";
+import { isAuthenticated } from "../middlewares/isAuthenticated";
 
 export class CartController {
   private cartService!: CartService;
