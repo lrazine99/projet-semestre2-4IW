@@ -13,8 +13,10 @@ import { z } from 'zod';
 import FormComponent from '../FormComponent.vue';
 import axios from 'axios';
 import { useCartStore } from '@/stores/cartStore';
+import { useLoginStore } from '@/stores/loginStore';
 
 const router = useRouter();
+const loginStore = useLoginStore();
 
 const loginFields = [
   { id: 'email', label: 'Email', type: 'email', placeholder: 'Entrez votre email' },
@@ -37,11 +39,13 @@ const handleLogin = async (formData, signal) => {
   try {
     const { data } = await axios.post('http://localhost:8080/user/login', formData, { signal });
 
-    localStorage.setItem('authToken', data.token);
+    loginStore.login(data?.token);
+
     alert('Connexion réussie');
 
     const cartStore = useCartStore();
-    await cartStore.syncCartWithBackend();
+    await cartStore.syncCartWithBackend(loginStore.isAuthenticated);
+
     window.dispatchEvent(new Event('auth-changed'));
 
     router.push('/product');

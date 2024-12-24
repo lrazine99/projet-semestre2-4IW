@@ -79,8 +79,9 @@
 import { ref, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import axios from 'axios';
-import { isUserLoggedIn } from '../utils/auth.js';
+import { useLoginStore } from '@/stores/loginStore.js';
 
+const loginStore = useLoginStore();
 
 const props = defineProps({
   sku: String,
@@ -116,9 +117,12 @@ const decreaseQuantity = () => {
   }
 };
 
+
+/*
 const openModal = () => {
   isModalOpen.value = true;
 };
+*/
 
 const closeModal = () => {
   isModalOpen.value = false;
@@ -131,8 +135,8 @@ const addToCart = async () => {
   }
 
   try {
-    if (isUserLoggedIn()) {
-      const token = localStorage.getItem('authToken');
+    if (loginStore.isAuthenticated) {
+      const token = loginStore.token;
 
       const response = await axios.post(
         'http://localhost:8080/cart/add', 
