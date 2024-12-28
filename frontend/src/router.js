@@ -10,6 +10,7 @@ import RequestReset from './views/RequestReset.vue'
 import ConfirmAccount from './views/ConfirmAccount.vue'
 import Cart from './views/Cart.vue'
 import UsersAdmin from './views/UsersAdmin.vue'
+import ProductsAdmin from './views/ProductsAdmin.vue'
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     path: '/admin/users',
     name: 'UsersAdmin',
     component: UsersAdmin
+  },
+  {
+    path: '/admin/products',
+    name: 'ProductsAdmin',
+    component: ProductsAdmin
   },
   {
     path: '/:pathMatch(.*)*',

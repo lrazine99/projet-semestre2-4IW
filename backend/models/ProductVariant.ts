@@ -1,6 +1,7 @@
-import { Schema, Document } from "mongoose";
+import { Schema, Document, Types } from "mongoose";
 
 export interface ProductVariant extends Document {
+  _id: Types.ObjectId; // Ajouter le type pour _id
   sku: string;
   platform: Schema.Types.ObjectId;
   name: string;
@@ -24,5 +25,5 @@ export const ProductVariantSchema = new Schema<ProductVariant>(
     images: { type: [String], default: [] },
     barcode: { type: String, required: true },
   },
-  { _id: false }
+  { _id: true }
 );

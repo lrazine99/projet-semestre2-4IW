@@ -6,11 +6,29 @@ export function useDatatable(apiEndpoint) {
   const isLoading = ref(false);
   const error = ref(null);
 
+  const flattenProductData = (products) => {
+    return products.flatMap(product => 
+      product.variants.map(variant => ({
+        _id: product._id,
+        name: product.name,
+        description: product.description,
+        genres: product.genres.join(', '),
+        minAge: product.minAge,
+        editor: product.editor,
+        variantName: variant.name,
+        variantEdition: variant.edition,
+        variantPrice: variant.price,
+        variantStock: variant.stock,
+        platform: variant.platform.name,
+      }))
+    );
+  };
+
   const fetchData = async (params = {}) => {
     isLoading.value = true;
     try {
       const response = await axios.get(apiEndpoint, { params: { ...params, limit: 1000 } });
-      data.value = response.data.users || [];
+      data.value = response.data.users || response.data.products || [];
     } catch (err) {
       error.value = err.message;
     } finally {
@@ -20,6 +38,7 @@ export function useDatatable(apiEndpoint) {
   
 
   const deleteRow = async (id) => {
+    console.log(id)
     try {
       await axios.delete(`${apiEndpoint}/${id}`); 
       data.value = data.value.filter((row) => row._id.toString() !== id.toString()); 

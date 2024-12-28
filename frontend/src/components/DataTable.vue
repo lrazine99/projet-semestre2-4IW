@@ -21,6 +21,10 @@ const props = defineProps({
   showAddUser: {
     type: Boolean,
     default: false
+  },
+  showAddProduct: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -35,8 +39,10 @@ const selectedRows = ref([])
 const editingRow = ref(null)
 const editedData = ref({})
 const searchColumn = ref(null)
-const showModal = ref(false)
+const showModalUser = ref(false)
+const showModalProduct = ref(false)
 const newUser = ref({ firstName: '', lastName: '', email: '' })
+const newProduct = ref({ name: '', description: '', genres: '', ageMin: '', editor: '' })
 const itemToDelete = ref(null);
 
 const searchableKeys = computed(() => {
@@ -195,7 +201,7 @@ const handleAddUser = async () => {
       alert('Utilisateur ajouté et email envoyé avec succès !')
     }
 
-    showModal.value = false
+    showModalUser.value = false
     newUser.value = { firstName: '', lastName: '', email: '' }
     fetchData()
   } catch (error) {
@@ -203,6 +209,30 @@ const handleAddUser = async () => {
     alert(error.response?.data?.message || "Une erreur est survenue lors de l'ajout.")
   }
 }
+
+const handleAddProduct = async () => {
+  try {
+    // Transformation des genres en tableau
+    const formattedProduct = {
+      ...newProduct.value,
+      genres: newProduct.value.genres.split(',').map(genre => genre.trim())
+    };
+
+    // Envoi de la requête
+    const response = await axios.post('http://localhost:8080/product', formattedProduct);
+
+    // Réinitialisation du formulaire après ajout
+    showModalProduct.value = false;
+    newProduct.value = { name: '', description: '', genres: '', minAge: '', editor: '' };
+    fetchData(); // Recharge les données
+    alert(response.data.message || "Produit ajouté avec succès !");
+  } catch (error) {
+    console.error("Erreur lors de l'ajout :", error);
+    alert(error.response?.data?.message || "Une erreur est survenue lors de l'ajout.");
+  }
+};
+
+
 
 const toggleSelection = (row) => {
   const index = selectedRows.value.findIndex((selected) => selected === row._id)
@@ -230,8 +260,8 @@ const handleDeleteSelected = () => {
 
 const confirmDeleteSelected = async () => {
   try {
-    for (const userId of itemToDelete.value) {
-      await deleteRow(userId);
+    for (const itemId of itemToDelete.value) {
+      await deleteRow(itemId);
     }
     selectedRows.value = [];
     itemToDelete.value = null;
@@ -267,10 +297,17 @@ const confirmDeleteSelected = async () => {
         </button>
         <button
           v-if="showAddUser"      
-          @click="showModal = true"
+          @click="showModalUser = true"
           class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
         >
           Ajouter un utilisateur
+        </button>
+        <button
+          v-if="showAddProduct"      
+          @click="showModalProduct = true"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          Ajouter un produit
         </button>
         <button
           @click="handleExport"
@@ -282,7 +319,7 @@ const confirmDeleteSelected = async () => {
     </div>
 
     <div
-      v-if="showModal"
+      v-if="showModalUser"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     >
       <div class="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -320,7 +357,82 @@ const confirmDeleteSelected = async () => {
           </div>
           <div class="flex justify-end gap-4">
             <button
-              @click="showModal = false"
+              @click="showModalUser = false"
+              type="button"
+              class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Ajouter
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      v-if="showModalProduct"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Ajouter un produit</h2>
+        <form @submit.prevent="handleAddProduct">
+          <div class="mb-4">
+            <label for="productName" class="block text-sm font-medium">Nom du produit</label>
+            <input
+              v-model="newProduct.name"
+              id="productName"
+              type="text"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="productDescription" class="block text-sm font-medium">Description</label>
+            <textarea
+              v-model="newProduct.description"
+              id="productDescription"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            ></textarea>
+          </div>
+          <div class="mb-4">
+            <label for="productGenres" class="block text-sm font-medium">Genres</label>
+            <input
+              v-model="newProduct.genres"
+              id="productGenres"
+              type="text"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="productAge" class="block text-sm font-medium">Âge minimum</label>
+            <input
+              v-model="newProduct.minAge"
+              id="productAge"
+              type="number"
+              min="0"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="productEditor" class="block text-sm font-medium">Éditeur</label>
+            <input
+              v-model="newProduct.editor"
+              id="productEditor"
+              type="text"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div class="flex justify-end gap-4">
+            <button
+              @click="showModalProduct = false"
               type="button"
               class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
             >
@@ -398,7 +510,7 @@ const confirmDeleteSelected = async () => {
                 </button>
                 <button
                   @click="cancelEditing"
-                  class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
+                  class="ml-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
                 >
                   Annuler
                 </button>

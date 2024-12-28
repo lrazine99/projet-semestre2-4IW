@@ -273,7 +273,7 @@ watch(
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:8080/product');
-    processProducts(response.data.message);
+    processProducts(response.data.products);
 
     genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));
     platforms.value = Array.from(new Set(allVariants.value.map(product => product.platform.name)));
