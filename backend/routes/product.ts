@@ -19,32 +19,29 @@ router.get("/product", async (req, res, next) => {
   }
 });
 
-// CREATE: Ajouter un nouveau produit
 router.post("/product", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, description, genres, minAge, editor, variants } = req.body;
 
-    // Validation des champs principaux
     if (!name || !description || !genres || !minAge || !editor) {
       res.status(400).json({ message: "Tous les champs principaux sont requis." });
       return;
     }
 
-    // Validation des genres
     if (!Array.isArray(genres) || genres.length === 0) {
       res.status(400).json({ message: "Les genres doivent être un tableau non vide." });
       return;
     }
 
-    // Validation des variantes
     if (!Array.isArray(variants) || variants.length === 0) {
       res.status(400).json({ message: "Au moins une variante est requise." });
       return;
     }
 
     for (const variant of variants) {
+      variant.sku = generateRandomSKU();
+
       if (
-        !variant.sku ||
         !variant.platform ||
         !variant.name ||
         !variant.edition ||
@@ -55,7 +52,7 @@ router.post("/product", async (req: Request, res: Response, next: NextFunction) 
       ) {
         res.status(400).json({
           message:
-            "Chaque variante doit inclure un SKU, une plateforme, un nom, une édition, un prix, un stock, une date de sortie et un code-barres.",
+            "Chaque variante doit inclure une plateforme, un nom, une édition, un prix, un stock, une date de sortie et un code-barres.",
         });
         return;
       }
@@ -78,8 +75,29 @@ router.post("/product", async (req: Request, res: Response, next: NextFunction) 
   }
 });
 
+function generateRandomSKU(): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let sku = '';
+  for (let i = 0; i < 8; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    sku += characters[randomIndex];
+  }
+  return sku;
+}
 
-// READ: Récupérer tous les produits ou un produit spécifique
+
+router.get("/platforms", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const platforms = await Platform.find();
+    res.status(200).json(platforms);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des plateformes :", error);
+    next(error);
+  }
+});
+
+
+
 router.get("/product/:id?", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
@@ -109,7 +127,6 @@ router.get("/product/:id?", async (req: Request, res: Response, next: NextFuncti
   }
 });
 
-// UPDATE: Modifier un produit existant
 router.put("/product/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
@@ -135,7 +152,6 @@ router.put("/product/:id", async (req: Request, res: Response, next: NextFunctio
   }
 });
 
-// DELETE: Supprimer un produit spécifique
 router.delete("/product/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

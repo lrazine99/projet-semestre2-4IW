@@ -44,6 +44,29 @@ const showModalProduct = ref(false)
 const newUser = ref({ firstName: '', lastName: '', email: '' })
 const newProduct = ref({ name: '', description: '', genres: '', ageMin: '', editor: '' })
 const itemToDelete = ref(null);
+const productVariants = ref([
+  {
+    platform: '',
+    name: '',
+    edition: '',
+    price: 0,
+    stock: 0,
+    releaseDate: '',
+    images: [],
+    barcode: ''
+  }
+]);
+
+const platforms = ref([]);
+
+const fetchPlatforms = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/platforms');
+    platforms.value = response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des plateformes :", error);
+  }
+};
 
 const searchableKeys = computed(() => {
   return props.columns
@@ -102,6 +125,7 @@ const goToPreviousPage = () => {
 
 onMounted(() => {
   fetchData()
+  fetchPlatforms()
 })
 
 const startEditing = (row) => {
@@ -212,19 +236,27 @@ const handleAddUser = async () => {
 
 const handleAddProduct = async () => {
   try {
-    // Transformation des genres en tableau
     const formattedProduct = {
       ...newProduct.value,
-      genres: newProduct.value.genres.split(',').map(genre => genre.trim())
+      genres: newProduct.value.genres.split(',').map(genre => genre.trim()),
+      variants: productVariants.value
     };
 
-    // Envoi de la requête
     const response = await axios.post('http://localhost:8080/product', formattedProduct);
 
-    // Réinitialisation du formulaire après ajout
     showModalProduct.value = false;
     newProduct.value = { name: '', description: '', genres: '', minAge: '', editor: '' };
-    fetchData(); // Recharge les données
+    productVariants.value = [{
+      platform: '',
+      name: '',
+      edition: '',
+      price: 0,
+      stock: 0,
+      releaseDate: '',
+      images: [],
+      barcode: ''
+    }]; 
+    fetchData();
     alert(response.data.message || "Produit ajouté avec succès !");
   } catch (error) {
     console.error("Erreur lors de l'ajout :", error);
@@ -232,6 +264,18 @@ const handleAddProduct = async () => {
   }
 };
 
+const addVariant = () => {
+  productVariants.value.push({
+    platform: '',
+    name: '',
+    edition: '',
+    price: 0,
+    stock: 0,
+    releaseDate: '',
+    images: [],
+    barcode: ''
+  });
+};
 
 
 const toggleSelection = (row) => {
@@ -374,80 +418,188 @@ const confirmDeleteSelected = async () => {
       </div>
     </div>
     <div
-      v-if="showModalProduct"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 class="text-xl font-bold mb-4">Ajouter un produit</h2>
-        <form @submit.prevent="handleAddProduct">
+  v-if="showModalProduct"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+>
+  <div class="bg-white p-6 rounded-lg shadow-lg w-9/12 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-xl font-bold mb-4">Ajouter un produit</h2>
+    <form @submit.prevent="handleAddProduct">
+      <div class="grid grid-cols-4 gap-4 mb-4">
+        <div>
+          <label for="productName" class="block text-sm font-medium">Nom du produit</label>
+          <input
+            v-model="newProduct.name"
+            id="productName"
+            type="text"
+            class="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <div>
+          <label for="productDescription" class="block text-sm font-medium">Description</label>
+          <input
+            v-model="newProduct.description"
+            id="productDescription"
+            type="text"
+            class="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <div>
+          <label for="productGenres" class="block text-sm font-medium">Genres</label>
+          <input
+            v-model="newProduct.genres"
+            id="productGenres"
+            type="text"
+            class="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <div>
+          <label for="productAge" class="block text-sm font-medium">Âge minimum</label>
+          <input
+            v-model="newProduct.minAge"
+            id="productAge"
+            type="number"
+            min="0"
+            class="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <div>
+          <label for="productEditor" class="block text-sm font-medium">Éditeur</label>
+          <input
+            v-model="newProduct.editor"
+            id="productEditor"
+            type="text"
+            class="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+      </div>
+
+      <h3 class="text-lg font-semibold mt-6 mb-4">Ajouter des variantes</h3>
+
+      <div v-for="(variant, index) in productVariants" :key="index" class="mb-4">
+        <div class="grid grid-cols-4 gap-4 mb-4">
           <div class="mb-4">
-            <label for="productName" class="block text-sm font-medium">Nom du produit</label>
+            <label for="variantPlatform" class="block text-sm font-medium">Plateforme</label>
+            <select
+              v-model="variant.platform"
+              id="variantPlatform"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            >
+              <option value="" disabled selected>Choisir une plateforme</option>
+              <option v-for="platform in platforms" :key="platform._id" :value="platform._id">
+                {{ platform.name }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label for="variantName" class="block text-sm font-medium">Nom de la variante</label>
             <input
-              v-model="newProduct.name"
-              id="productName"
+              v-model="variant.name"
+              id="variantName"
               type="text"
               class="w-full p-2 border border-gray-300 rounded-md"
               required
             />
           </div>
-          <div class="mb-4">
-            <label for="productDescription" class="block text-sm font-medium">Description</label>
-            <textarea
-              v-model="newProduct.description"
-              id="productDescription"
-              class="w-full p-2 border border-gray-300 rounded-md"
-              required
-            ></textarea>
-          </div>
-          <div class="mb-4">
-            <label for="productGenres" class="block text-sm font-medium">Genres</label>
+          <div>
+            <label for="variantEdition" class="block text-sm font-medium">Édition</label>
             <input
-              v-model="newProduct.genres"
-              id="productGenres"
+              v-model="variant.edition"
+              id="variantEdition"
               type="text"
               class="w-full p-2 border border-gray-300 rounded-md"
               required
             />
           </div>
-          <div class="mb-4">
-            <label for="productAge" class="block text-sm font-medium">Âge minimum</label>
+          <div>
+            <label for="variantImage" class="block text-sm font-medium">Image</label>
             <input
-              v-model="newProduct.minAge"
-              id="productAge"
+              v-model="variant.images"
+              id="variantImage"
+              type="text"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div>
+            <label for="variantPrice" class="block text-sm font-medium">Prix</label>
+            <input
+              v-model="variant.price"
+              id="variantPrice"
               type="number"
               min="0"
               class="w-full p-2 border border-gray-300 rounded-md"
               required
             />
           </div>
-          <div class="mb-4">
-            <label for="productEditor" class="block text-sm font-medium">Éditeur</label>
+          <div>
+            <label for="variantStock" class="block text-sm font-medium">Stock</label>
             <input
-              v-model="newProduct.editor"
-              id="productEditor"
+              v-model="variant.stock"
+              id="variantStock"
+              type="number"
+              min="0"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div>
+            <label for="variantReleaseDate" class="block text-sm font-medium">Date de sortie</label>
+            <input
+              v-model="variant.releaseDate"
+              id="variantReleaseDate"
+              type="date"
+              class="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div>
+            <label for="variantBarcode" class="block text-sm font-medium">Code-barres</label>
+            <input
+              v-model="variant.barcode"
+              id="variantBarcode"
               type="text"
               class="w-full p-2 border border-gray-300 rounded-md"
               required
             />
           </div>
-          <div class="flex justify-end gap-4">
-            <button
-              @click="showModalProduct = false"
-              type="button"
-              class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
-            >
-              Ajouter
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
+
+      <div class="flex justify-between mb-4">
+        <button
+          type="button"
+          @click="addVariant"
+          class="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600"
+        >
+          Ajouter une variante
+        </button>
+      </div>
+
+      <div class="flex justify-end gap-4">
+        <button
+          @click="showModalProduct = false"
+          type="button"
+          class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+        >
+          Ajouter
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
       <table class="min-w-full table-auto">
