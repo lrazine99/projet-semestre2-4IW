@@ -1,24 +1,19 @@
-import express, { Request, Response } from "express";
-import Cart from "../models/Cart";
+import express, { Router, Request, Response } from "express";
+import { CartService } from "../services/mongoose/models";
+import { MongooseService } from "../services";
+import { ICartItem } from "../types";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
 
-const router = express.Router();
+export class CartController {
+  private cartService!: CartService;
 
-interface CartItem {
-  sku: string;
-  title: string;
-  imageSrc: string;
-  price: number;
-  quantity: number;
-  stock: number;
-  edition: string;
-  platform: string;
-}
+  constructor() {
+    MongooseService.get().then((mongooseService) => {
+      this.cartService = mongooseService.cartService;
+    });
+  }
 
-router.post(
-  "/cart/add",
-  isAuthenticated,
-  async (req: Request, res: Response) => {
+  async cartAdd(req: Request, res: Response) {
     try {
       const {
         sku,
@@ -32,9 +27,9 @@ router.post(
       } = req.body;
       const userId = req.body.userId;
 
-      let cart = await Cart.findOne({ userId });
+      let cart = await this.cartService.model.findOne({ userId });
       if (!cart) {
-        cart = new Cart({
+        cart = new this.cartService.model({
           userId,
           items: [],
         });
@@ -65,26 +60,22 @@ router.post(
       res.status(500).json({ message: "Erreur lors de l’ajout au panier" });
     }
   }
-);
 
-router.post(
-  "/cart/sync",
-  isAuthenticated,
-  async (req: Request, res: Response) => {
+  async cartSync(req: Request, res: Response) {
     try {
-      const { items }: { items: CartItem[] } = req.body;
+      const { items }: { items: ICartItem[] } = req.body;
       const userId = req.body.userId;
 
-      let cart = await Cart.findOne({ userId });
+      let cart = await this.cartService.model.findOne({ userId });
 
       if (!cart) {
-        cart = new Cart({
+        cart = new this.cartService.model({
           userId,
           items: [],
         });
       }
 
-      items.forEach((item: CartItem) => {
+      items.forEach((item: ICartItem) => {
         const existingItem = cart.items.find(
           (cartItem) => cartItem.sku === item.sku
         );
@@ -106,18 +97,14 @@ router.post(
         .json({ message: "Erreur lors de la synchronisation du panier" });
     }
   }
-);
 
-router.get(
-  "/cart", 
-  isAuthenticated, 
-  async (req: Request, res: Response) => {
+  async cartGet(req: Request, res: Response) {
     try {
       const userId = req.body.userId;
-      let cart = await Cart.findOne({ userId });
+      let cart = await this.cartService.model.findOne({ userId });
 
       if (!cart) {
-        cart = new Cart({
+        cart = new this.cartService.model({
           userId,
           items: [],
         });
@@ -131,17 +118,13 @@ router.get(
         .json({ message: "Erreur interne lors de la récupération du panier" });
     }
   }
-);
 
-router.delete(
-  "/cart/remove/:sku",
-  isAuthenticated,
-  async (req: Request, res: Response) => {
+  async cartRemoveBySky(req: Request, res: Response) {
     try {
       const { sku } = req.params;
       const userId = req.body.userId;
 
-      let cart = await Cart.findOne({ userId });
+      let cart = await this.cartService.model.findOne({ userId });
 
       if (!cart) {
         res.status(404).json({ message: "Panier non trouvé" });
@@ -166,18 +149,14 @@ router.delete(
         .json({ message: "Erreur lors de la suppression de l'article" });
     }
   }
-);
 
-router.patch(
-  "/cart/increase/:sku",
-  isAuthenticated,
-  async (req: Request, res: Response) => {
+  async cartIncrease(req: Request, res: Response) {
     try {
       const { quantity } = req.body;
       const { sku } = req.params;
       const userId = req.body.userId;
 
-      let cart = await Cart.findOne({ userId });
+      let cart = await this.cartService.model.findOne({ userId });
 
       if (!cart) {
         res.status(404).json({ message: "Panier non trouvé" });
@@ -197,11 +176,9 @@ router.patch(
 
         res.status(200).json({ message: "Quantité mise à jour", cart });
       } else {
-        res
-          .status(400)
-          .json({
-            message: "La quantité demandée dépasse le stock disponible",
-          });
+        res.status(400).json({
+          message: "La quantité demandée dépasse le stock disponible",
+        });
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour :", error);
@@ -210,17 +187,14 @@ router.patch(
         .json({ message: "Erreur lors de la mise à jour de l'article" });
     }
   }
-);
 
-router.patch("/cart/decrease/:sku",
-  isAuthenticated,
-  async (req: Request, res: Response) => {
+  async cartDecrease(req: Request, res: Response) {
     try {
       const { quantity } = req.body;
       const { sku } = req.params;
       const userId = req.body.userId;
 
-      let cart = await Cart.findOne({ userId });
+      let cart = await this.cartService.model.findOne({ userId });
 
       if (!cart) {
         res.status(404).json({ message: "Panier non trouvé" });
@@ -251,6 +225,19 @@ router.patch("/cart/decrease/:sku",
         .json({ message: "Erreur lors de la mise à jour de l'article" });
     }
   }
-);
 
-export default router;
+  buildRouter(): Router {
+    const router = Router();
+    
+    router.use(isAuthenticated);
+
+    router.get("/", this.cartGet.bind(this));
+    router.post("/add", this.cartAdd.bind(this));
+    router.post("/sync", this.cartSync.bind(this));
+    router.delete("/remove/:sku", this.cartRemoveBySky.bind(this));
+    router.patch("/increase/:sku", this.cartIncrease.bind(this));
+    router.patch("/decrease/:sku", this.cartDecrease.bind(this));
+    
+    return router;
+  }
+}
