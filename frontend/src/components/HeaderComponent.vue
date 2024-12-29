@@ -53,7 +53,7 @@
               </router-link>
             </li>
             <li>
-              <router-link to="/product" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
+              <router-link to="/produits" class="block py-2 pr-4 pl-3 text-tertiary hover:text-primary">
                 Produits
               </router-link>
             </li>

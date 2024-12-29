@@ -14,6 +14,7 @@ import FormComponent from '../FormComponent.vue';
 import axios from 'axios';
 import { useCartStore } from '@/stores/cartStore';
 import { useLoginStore } from '@/stores/loginStore';
+import { API_ENDPOINT } from '@/utils/const';
 
 const router = useRouter();
 const loginStore = useLoginStore();
@@ -37,7 +38,7 @@ const loginSchema = z.object({
 
 const handleLogin = async (formData, signal) => {
   try {
-    const { data } = await axios.post('http://localhost:8080/user/login', formData, { signal });
+    const { data } = await axios.post(`${API_ENDPOINT}/user/login`, formData, { signal });
 
     loginStore.login(data?.token);
 
