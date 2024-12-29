@@ -25,10 +25,18 @@ const props = defineProps({
   showAddProduct: {
     type: Boolean,
     default: false
+  },
+  showProductVariant: {
+    type: Boolean,
+    default: false
+  },
+  showProduct: {
+    type: Boolean,
+    default: false
   }
 })
 
-const { data, isLoading, fetchData, deleteRow, updateRow, addRow } = useDatatable(props.apiEndpoint)
+const { data, isLoading, fetchData, deleteRow, deleteRowVariant, updateRow, addRow, fetchVariantData } = useDatatable(props.apiEndpoint)
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -82,7 +90,7 @@ const filteredData = computed(() => {
         ? String(row[searchColumn.value] || '')
             .toLowerCase()
             .includes(searchTerm.value.toLowerCase())
-        : searchableKeys.some((key) =>
+        : searchableKeys.value.some((key) =>
             String(row[key] || '')
               .toLowerCase()
               .includes(searchTerm.value.toLowerCase())
@@ -124,9 +132,19 @@ const goToPreviousPage = () => {
 }
 
 onMounted(() => {
-  fetchData()
-  fetchPlatforms()
-})
+  handleFetchData();
+  fetchPlatforms(); 
+});
+
+
+const handleFetchData = () => {
+  if (props.showProduct) {
+    fetchVariantData();
+  } else {
+    fetchData();
+  }
+};
+
 
 const startEditing = (row) => {
   editingRow.value = row._id
@@ -154,7 +172,11 @@ const saveEditing = async (id) => {
 }
 
 const handleDelete = (item) => {
-  itemToDelete.value = item;
+  itemToDelete.value = { _id: item._id };
+};
+
+const handleDeleteVariant = (item) => {
+  itemToDelete.value = { productId: item._id, variantId: item.variantId };
 };
 const handleUpdate = (id, updatedData) => updateRow(id, updatedData)
 const handleAddRow = (newData) => addRow(newData)
@@ -227,7 +249,7 @@ const handleAddUser = async () => {
 
     showModalUser.value = false
     newUser.value = { firstName: '', lastName: '', email: '' }
-    fetchData()
+    handleFetchData()
   } catch (error) {
     console.error("Erreur lors de l'ajout :", error)
     alert(error.response?.data?.message || "Une erreur est survenue lors de l'ajout.")
@@ -256,7 +278,7 @@ const handleAddProduct = async () => {
       images: [],
       barcode: ''
     }]; 
-    fetchData();
+    handleFetchData()
     alert(response.data.message || "Produit ajouté avec succès !");
   } catch (error) {
     console.error("Erreur lors de l'ajout :", error);
@@ -309,7 +331,7 @@ const confirmDeleteSelected = async () => {
     }
     selectedRows.value = [];
     itemToDelete.value = null;
-    fetchData();
+    handleFetchData()
   } catch (error) {
     console.error("Erreur lors de la suppression :", error);
   }
@@ -332,6 +354,20 @@ const confirmDeleteSelected = async () => {
         "
       />
       <div class="flex gap-4">
+        <router-link
+          to="/admin/products/variant"
+          v-if="showProductVariant" 
+          class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600"
+        >
+          Voir les variants
+        </router-link>
+        <router-link
+          to="/admin/products"
+          v-if="showProduct" 
+          class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600"
+        >
+          Voir les produits
+        </router-link>
         <button
           @click="handleDeleteSelected"
           class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
@@ -675,9 +711,17 @@ const confirmDeleteSelected = async () => {
                   Modifier
                 </button>
                 <button
+                  v-if="!showProduct"
                   @click="handleDelete(row)"
                   class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-                  >
+                >
+                  Supprimer
+                </button>
+                <button
+                  v-if="showProduct"
+                  @click="handleDeleteVariant(row)"
+                  class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
+                >
                   Supprimer
                 </button>
                 <button
@@ -689,9 +733,9 @@ const confirmDeleteSelected = async () => {
                 </button>
                 <DeleteModal
                   v-if="itemToDelete"
-                  :deleteFunction="itemToDelete.length > 1 ? confirmDeleteSelected : () => deleteRow(itemToDelete._id)"
+                  :deleteFunction="itemToDelete.variantId ? () => deleteRowVariant(itemToDelete.productId, itemToDelete.variantId) : () => deleteRow(itemToDelete._id)"
                   @close="itemToDelete = null"
-                  :onSuccess="fetchData"
+                  :onSuccess="handleFetchData"
                 />
               </template>
             </td>

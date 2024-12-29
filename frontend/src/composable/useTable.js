@@ -6,10 +6,11 @@ export function useDatatable(apiEndpoint) {
   const isLoading = ref(false);
   const error = ref(null);
 
-  const flattenProductData = (products) => {
-    return products.flatMap(product => 
+  const productVariantData = (products) => {
+    return products.flatMap(product =>
       product.variants.map(variant => ({
         _id: product._id,
+        variantId: variant._id,
         name: product.name,
         description: product.description,
         genres: product.genres.join(', '),
@@ -20,6 +21,8 @@ export function useDatatable(apiEndpoint) {
         variantPrice: variant.price,
         variantStock: variant.stock,
         platform: variant.platform.name,
+        /* images: variant.images, */
+        barcode: variant.barcode,
       }))
     );
   };
@@ -28,25 +31,55 @@ export function useDatatable(apiEndpoint) {
     isLoading.value = true;
     try {
       const response = await axios.get(apiEndpoint, { params: { ...params, limit: 1000 } });
-      data.value = response.data.users || response.data.products || [];
+      if (response.data.users) {
+        data.value = response.data.users || [];
+      } else if (response.data.products) {
+        data.value = response.data.products || [];
+      }
     } catch (err) {
       error.value = err.message;
     } finally {
       isLoading.value = false;
     }
   };
-  
 
-  const deleteRow = async (id) => {
-    console.log(id)
+  const fetchVariantData = async (params = {}) => {
+    isLoading.value = true;
     try {
-      await axios.delete(`${apiEndpoint}/${id}`); 
-      data.value = data.value.filter((row) => row._id.toString() !== id.toString()); 
+      const response = await axios.get(apiEndpoint, { params: { ...params, limit: 1000 } });
+      const products = response.data.products || [];
+      data.value = productVariantData(products);
     } catch (err) {
       error.value = err.message;
+    } finally {
+      isLoading.value = false;
     }
   };
-  
+
+const deleteRow = async (id) => {
+  try {
+    await axios.delete(`${apiEndpoint}/${id}`);
+    data.value = data.value.filter((row) => row._id.toString() !== id.toString());
+  } catch (err) {
+    error.value = err.message;
+  }
+};
+
+const deleteRowVariant = async (productId, variantId) => {
+  try {
+    await axios.delete(`${apiEndpoint}/${productId}/variant/${variantId}`);
+    data.value = data.value.map((product) => {
+      if (product._id.toString() === productId.toString()) {
+        product.variants = product.variants.filter(
+          (variant) => variant._id.toString() !== variantId.toString()
+        );
+      }
+      return product;
+    });
+  } catch (err) {
+    error.value = err.message;
+  }
+};
 
   const updateRow = async (id, updatedData) => {
     try {
@@ -75,7 +108,9 @@ export function useDatatable(apiEndpoint) {
     isLoading,
     error,
     fetchData,
+    fetchVariantData,
     deleteRow,
+    deleteRowVariant,
     updateRow,
     addRow,
   };

@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-    <div class="mt-8">
-        <h2 class="text-2xl font-bold mb-4">Gestion des utilisateurs</h2>
+    <div class="mx-8 mt-20">
+        <h2 class="text-3xl font-bold mb-4 text-center">Gestion des utilisateurs</h2>
         <DataTable 
             apiEndpoint="http://localhost:8080/users" 
             :columns="userColumns"

@@ -132,8 +132,10 @@ router.put("/product/:id", async (req: Request, res: Response, next: NextFunctio
     const { id } = req.params;
     const { genres, ...updateData } = req.body;
 
-    if (genres) {
-      updateData.genres = genres.split(',').map((genre: string) => genre.trim());
+    if (typeof genres === "string") {
+      updateData.genres = genres.split(",").map((genre: string) => genre.trim());
+    } else if (Array.isArray(genres)) {
+      updateData.genres = genres;
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
@@ -145,7 +147,11 @@ router.put("/product/:id", async (req: Request, res: Response, next: NextFunctio
       res.status(404).json({ message: "Product not found" });
       return;
     }
-    res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
+
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
   } catch (error) {
     console.error("Erreur lors de la mise à jour :", error);
     next(error);
@@ -171,5 +177,41 @@ router.delete("/product/:id", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Erreur lors de la suppression du produit." });
   }
 });
+
+router.delete("/product/:id/variant/:variantId", async (req: Request, res: Response) => {
+  try {
+    const { id, variantId } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      res.status(404).json({ message: "Produit introuvable." });
+      return;
+    }
+
+    if (!Array.isArray(product.variants)) {
+      res.status(400).json({ message: "Le produit ne contient pas de variantes valides." });
+      return;
+    }
+
+    const initialVariantCount = product.variants.length;
+    product.variants = product.variants.filter(
+      (variant: any) => variant._id.toString() !== variantId
+    );
+
+    if (initialVariantCount === product.variants.length) {
+      res.status(404).json({ message: "Variante introuvable dans ce produit." });
+      return;
+    }
+
+    await product.save();
+
+    res.status(200).json({ message: "Variante supprimée avec succès.", product });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la variante :", error);
+    res.status(500).json({ message: "Erreur lors de la suppression de la variante." });
+  }
+});
+
 
 export default router;

@@ -11,6 +11,7 @@ import ConfirmAccount from './views/ConfirmAccount.vue'
 import Cart from './views/Cart.vue'
 import UsersAdmin from './views/UsersAdmin.vue'
 import ProductsAdmin from './views/ProductsAdmin.vue'
+import ProductsVariantAdmin from './views/ProductsVariantAdmin.vue'
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/admin/products',
     name: 'ProductsAdmin',
     component: ProductsAdmin
+  },
+  {
+    path: '/admin/products/variant',
+    name: 'ProductsVariantAdmin',
+    component: ProductsVariantAdmin
   },
   {
     path: '/:pathMatch(.*)*',
