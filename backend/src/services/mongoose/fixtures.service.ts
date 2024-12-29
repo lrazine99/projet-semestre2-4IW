@@ -1,5 +1,6 @@
 import { MongooseService } from "./mongoose.service";
 import { IPlatform } from "../../types";
+import { exit } from "process";
 
 abstract class FixturesService {
   static async loadPlatforms() {
@@ -21,6 +22,8 @@ abstract class FixturesService {
     } catch (error) {
       console.error("Error inserting platforms:", error);
     }
+
+    return;
   }
 
   static async loadProducts() {
@@ -139,14 +142,17 @@ abstract class FixturesService {
     try {
       await Product.insertMany(games);
 
-      console.log("Games inserted successfully");
+       console.log("Games inserted successfully");
     } catch (error) {
-      console.error("Error inserting games:", error);
+       console.error("Error inserting games:", error);
     }
+    return
   }
+
 }
 
 (async () => {
   await FixturesService.loadPlatforms();
   await FixturesService.loadProducts();
+  exit;
 })();
