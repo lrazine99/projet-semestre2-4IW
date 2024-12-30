@@ -9,6 +9,7 @@
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
+import { API_ENDPOINT } from '@/utils/const';
 
 const props = defineProps({
   emailUser: {
@@ -49,7 +50,7 @@ const loginSchema = z.object({
 
 const handleLogin = async ({ password }, signal) => {  
   try {
-    await axios.post('http://localhost:8080/user/edit-password', { password, email: emailUser }, {
+    await axios.post(`${API_ENDPOINT}/user/edit-password`, { password, email: emailUser }, {
       signal
     })
 

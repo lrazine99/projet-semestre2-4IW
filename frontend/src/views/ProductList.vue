@@ -113,16 +113,16 @@
           <div class="">
             Aucun produit ne correspond à vos critères.
           </div>
-
-
-          <!-- Card produits -->
-          <CardProductComponent v-for="product in currentPageProducts" :key="product.sku" :sku="product.sku"
-            :title="product.productName"
-            :imageSrc="product.images.length ? product.images[0] : 'https://via.placeholder.com/200'"
-            :description="product.description" :priceCurrent="product.price" :platformName="product.platform.name"
-            :edition="product.edition" :stock="product.stock" />
-
         </div>
+
+
+        <!-- Card produits -->
+        <CardProductComponent v-for="product in currentPageProducts" :key="product.sku" :sku="product.sku"
+          :title="product.productName"
+          :imageSrc="product.images.length ? product.images[0] : 'https://via.placeholder.com/200'"
+          :description="product.description" :priceCurrent="product.price" :platformName="product.platform.name"
+          :edition="product.edition" :stock="product.stock" />
+
         <!-- Pagination -->
       </div>
       <div class="mt-6 flex justify-center content-center h-16">
@@ -142,11 +142,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import CardProductComponent from '../components/CardProductComponent.vue';
+import { API_ENDPOINT } from '@/utils/const';
 
 const router = useRouter();
 const route = useRoute();
@@ -162,7 +163,7 @@ const priceRange = ref({
 });
 const searchQuery = ref(route.query.search || '');
 const sortOrder = ref(route.query.sortOrder || 'dateDesc');
-const currentPage = ref(route.query.page ? parseInt(route.query.page as string, 10) : 1);
+const currentPage = ref(route.query.page ? parseInt(route.query.page, 10) : 1);
 
 const isGenreOpen = ref(false);
 const isPlatformOpen = ref(false);
@@ -290,13 +291,15 @@ watch(
 
 onMounted(async () => {
   try {
-    const { data: { productsFound, platforms: platfromsData } } = await axios.get(`${API_ENDPOINT}/product`);
+    const { data: { productsFound, platforms : platfromsData } } = await axios.get(`${API_ENDPOINT}/product`);
     console.log(platforms);
+    
+    processProducts(productsFound);
 
     processProducts(productsFound);
 
     genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));
-    platforms.value = Array.from(new Set(allVariants.value.map(product => product.platform.name)));
+    platforms.value = platfromsData.map(platform => platform.name);
 
     maxPrice.value = Math.max(...allVariants.value.map(product => product.price));
     priceRange.value.max = priceRange.value.max || maxPrice.value;
@@ -310,6 +313,11 @@ onMounted(async () => {
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error);
   }
+
+  for (const item of currentPageProducts.value) {
+    console.log(item);
+  }
+
 });
 
 const toggleGenreFilter = () => {
