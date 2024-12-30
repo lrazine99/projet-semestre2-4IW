@@ -77,7 +77,7 @@
         </div>
 
         <div class="mt-6 flex justify-between space-x-4 flex-col md:space-x-0 md:space-y-4">
-          <ButtonComponent textColor="text-white" hoverBgColor="hover:bg-secondary" to="/product">
+          <ButtonComponent textColor="text-white" hoverBgColor="hover:bg-secondary" to="/produits">
             Continuer les achats
           </ButtonComponent>
           <ButtonComponent bgColor="bg-green-600" textColor="text-white" hoverBgColor="hover:bg-green-700"
@@ -209,7 +209,7 @@ const decreaseQuantity = async (index) => {
     }
   }
 };
-const destination = loginStore.isAuthenticated ? '/payment' : '/inscription-connexion/#connexion';
+const destination = loginStore.isAuthenticated ? '/paiement' : '/inscription-connexion/#connexion';
 
 onMounted(() => {
   loadCart();

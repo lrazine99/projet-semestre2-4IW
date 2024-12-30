@@ -15,7 +15,7 @@ onMounted(() => {
     <div class="flex flex-col h-screen bg-gray-200">
       <HeaderComponent />
 
-      <div class="flex justify-center items-center flex-grow flex-col bg-gray-200">
+      <div class="flex justify-center items-center flex-grow flex-col mt-16 pb-6 bg-gray-200">
         <router-view />
       </div>
       <FooterComponent />
