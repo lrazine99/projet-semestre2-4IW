@@ -17,12 +17,12 @@ export class ProductController {
     try {
       const platfroms = await this.platformService.model.find();
 
-      const gamesFound = await this.productService.model.find().populate({
+      const productsFound = await this.productService.model.find().populate({
         path: "variants.platform",
         select: "name",
       });
 
-      res.status(200).json({ message: gamesFound });
+      res.status(200).json({ platfroms, productsFound });
     } catch (error) {
       res
         .status(500)
@@ -30,10 +30,28 @@ export class ProductController {
     }
   }
 
+  async productGetBySku(req: Request, res: Response) {
+    const sku = req.params?.sku;
+
+    try {
+      const platforms = await this.platformService.model.find();
+      const productFound = await this.productService.model.findOne({
+        "variants.sku": sku,
+      });
+
+      res.status(200).json({ productFound, platforms });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la récupération du produit" });
+    }
+  }
+
   buildRouter(): Router {
     const router = Router();
 
     router.get("/", this.productGet.bind(this));
+    router.get("/:sku", this.productGetBySku.bind(this));
 
     return router;
   }
