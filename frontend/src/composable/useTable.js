@@ -93,6 +93,33 @@ const deleteRowVariant = async (productId, variantId) => {
     }
   };
 
+  const updateRowVariant = async (productId, variantId, updatedData) => {
+    try {
+      const response = await axios.put(`${apiEndpoint}/${productId}/variant/${variantId}`, updatedData);
+  
+      if (!Array.isArray(data.value)) {
+        console.error("data.value n'est pas un tableau", data.value);
+        return;
+      }
+  
+      const product = data.value.find((product) => product._id === productId);
+      if (product) {
+        console.log(product);
+  
+        if (product.variantId === variantId) {
+          product.variantId = response.data.variantId;
+        } else {
+          console.error("La variante n'a pas été trouvée avec l'ID :", variantId);
+        }
+      } else {
+        console.error("Le produit n'a pas été trouvé avec l'ID :", productId);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la variante :", error);
+      throw error;
+    }
+  };
+
   const addRow = async (newData) => {
     try {
       const response = await axios.post(apiEndpoint, newData);
@@ -112,6 +139,7 @@ const deleteRowVariant = async (productId, variantId) => {
     deleteRow,
     deleteRowVariant,
     updateRow,
+    updateRowVariant,
     addRow,
   };
 }

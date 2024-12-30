@@ -36,7 +36,7 @@ const props = defineProps({
   }
 })
 
-const { data, isLoading, fetchData, deleteRow, deleteRowVariant, updateRow, addRow, fetchVariantData } = useDatatable(props.apiEndpoint)
+const { data, isLoading, fetchData, deleteRow, deleteRowVariant, updateRow, updateRowVariant, addRow, fetchVariantData } = useDatatable(props.apiEndpoint)
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -46,6 +46,8 @@ const sortOrder = ref('asc')
 const selectedRows = ref([])
 const editingRow = ref(null)
 const editedData = ref({})
+const editingVariant = ref(null);
+const editedVariantData = ref({});
 const searchColumn = ref(null)
 const showModalUser = ref(false)
 const showModalProduct = ref(false)
@@ -64,6 +66,14 @@ const productVariants = ref([
     barcode: ''
   }
 ]);
+const productVariantColumns = [
+        { key: "variantName", label: "Nom de la variante" },
+        { key: "variantEdition", label: "Édition de la variante" },
+        { key: "variantPrice", label: "Prix" },
+        { key: "variantStock", label: "Stock" },
+        { key: "platform", label: "Plateforme" },
+        { key: "barcode", label: "Code Barre" },
+    ];
 
 const platforms = ref([]);
 
@@ -171,6 +181,38 @@ const saveEditing = async (id) => {
   }
 }
 
+const startEditingVariant = (row) => {
+  editingVariant.value = row.variantId;
+  editedVariantData.value = { ...row };
+  const matchingPlatform = platforms.value.find(p => p.name === row.platform);
+  editedVariantData.value.platform = matchingPlatform._id;
+};
+
+const cancelEditingVariant = () => {
+  editingVariant.value = null;
+  editedVariantData.value = {};
+};
+
+const saveEditingVariant = async (row) => {
+  try {
+    const {
+  variantName: name,
+  variantEdition: edition,
+  variantPrice: price,
+  variantStock: stock,
+  platform,
+  barcode,
+} = editedVariantData.value;
+
+const updatedData = { name, edition, price, stock, platform, barcode };
+
+    await handleUpdateVariant(row._id, row.variantId, updatedData);
+
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la variante :", error);
+  }
+};
+
 const handleDelete = (item) => {
   itemToDelete.value = { _id: item._id };
 };
@@ -178,6 +220,9 @@ const handleDelete = (item) => {
 const handleDeleteVariant = (item) => {
   itemToDelete.value = { productId: item._id, variantId: item.variantId };
 };
+
+const handleUpdateVariant = (productId, variantId, updatedData) => updateRowVariant(productId, variantId, updatedData)
+
 const handleUpdate = (id, updatedData) => updateRow(id, updatedData)
 const handleAddRow = (newData) => addRow(newData)
 
@@ -672,75 +717,127 @@ const confirmDeleteSelected = async () => {
           </tr>
         </thead>
         <tbody class="text-sm text-gray-700">
-          <tr v-for="row in paginatedData" :key="row._id" class="border-b hover:bg-gray-50">
-            <td class="py-3 px-6">
-              <input type="checkbox" :value="row._id" v-model="selectedRows" />
-            </td>
-            <td v-for="column in columns" :key="column.key" class="py-3 px-6">
-              <template v-if="editingRow === row._id">
-                <input
-                  v-model="editedData[column.key]"
-                  class="w-full p-1 border border-gray-300 rounded"
-                  :type="column.type || 'text'"
-                />
-              </template>
-              <template v-else>
-                {{ row[column.key] }}
-              </template>
-            </td>
-            <td class="py-3 px-6 flex">
-              <template v-if="editingRow === row._id">
-                <button
-                  @click="saveEditing(row._id)"
-                  class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
-                >
-                  Sauvegarder
-                </button>
-                <button
-                  @click="cancelEditing"
-                  class="ml-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
-                >
-                  Annuler
-                </button>
-              </template>
-              <template v-else>
-                <button
-                  @click="startEditing(row)"
-                  class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-                >
-                  Modifier
-                </button>
-                <button
-                  v-if="!showProduct"
-                  @click="handleDelete(row)"
-                  class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-                >
-                  Supprimer
-                </button>
-                <button
-                  v-if="showProduct"
-                  @click="handleDeleteVariant(row)"
-                  class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
-                >
-                  Supprimer
-                </button>
-                <button
-                  v-if="showResetPassword"
-                  @click="sendResetEmail(row.email)"
-                  class="ml-2 px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
-                >
-                  Réinitialiser mot de passe
-                </button>
-                <DeleteModal
-                  v-if="itemToDelete"
-                  :deleteFunction="itemToDelete.variantId ? () => deleteRowVariant(itemToDelete.productId, itemToDelete.variantId) : () => deleteRow(itemToDelete._id)"
-                  @close="itemToDelete = null"
-                  :onSuccess="handleFetchData"
-                />
-              </template>
-            </td>
-          </tr>
-        </tbody>
+  <tr v-for="row in paginatedData" :key="row._id" class="border-b hover:bg-gray-50">
+    <td class="py-3 px-6">
+      <input type="checkbox" :value="row._id" v-model="selectedRows" />
+    </td>
+    <td v-for="column in columns" :key="column.key" class="py-3 px-6">
+      <!-- Si showProduct est vrai, on édite la variante -->
+      <template v-if="showProduct && editingVariant === row.variantId && productVariantColumns.some(col => col.key === column.key)">
+        <div v-if="column.key === 'platform'">
+          <!-- Liste déroulante pour la plateforme -->
+          <select v-model="editedVariantData.platform" id="platform" class="w-full p-1 border border-gray-300 rounded">
+            <option v-for="platform in platforms" :key="platform._id" :value="platform._id">
+              {{ platform.name }}
+            </option>
+          </select>
+        </div>
+        <template v-else>
+          <!-- Champ de texte pour les autres colonnes -->
+          <input
+            v-model="editedVariantData[column.key]"
+            class="w-full p-1 border border-gray-300 rounded"
+            :type="column.type || 'text'"
+          />
+        </template>
+      </template>
+
+      <!-- Si showProduct est faux, on édite le produit -->
+      <template v-else-if="!showProduct && editingRow === row._id">
+        <input
+          v-model="editedData[column.key]"
+          class="w-full p-1 border border-gray-300 rounded"
+          :type="column.type || 'text'"
+        />
+      </template>
+
+      <template v-else>
+        {{ row[column.key] }}
+      </template>
+    </td>
+    <td class="py-3 px-6 flex">
+      <!-- Boutons d'édition pour les variantes ou produits -->
+      <template v-if="showProduct && editingVariant === row.variantId">
+        <button
+          @click="saveEditingVariant(row)"
+          class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
+        >
+          Sauvegarder
+        </button>
+        <button
+          @click="cancelEditingVariant"
+          class="ml-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
+        >
+          Annuler
+        </button>
+      </template>
+
+      <template v-else-if="!showProduct && editingRow === row._id">
+        <button
+          @click="saveEditing(row._id)"
+          class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
+        >
+          Sauvegarder
+        </button>
+        <button
+          @click="cancelEditing"
+          class="ml-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
+        >
+          Annuler
+        </button>
+      </template>
+
+      <template v-else>
+        <!-- Boutons pour commencer l'édition -->
+        <button
+          v-if="showProduct"
+          @click="startEditingVariant(row)"
+          class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+        >
+          Modifier variant
+        </button>
+        
+        <button
+          v-else
+          @click="startEditing(row)"
+          class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+        >
+          Modifier
+        </button>
+        
+        <button
+          v-if="!showProduct"
+          @click="handleDelete(row)"
+          class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
+        >
+          Supprimer
+        </button>
+
+        <button
+          v-if="showProduct"
+          @click="handleDeleteVariant(row)"
+          class="ml-2 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"
+        >
+          Supprimer
+        </button>
+
+        <button
+          v-if="showResetPassword"
+          @click="sendResetEmail(row.email)"
+          class="ml-2 px-4 py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200"
+        >
+          Réinitialiser mot de passe
+        </button>
+        <DeleteModal
+          v-if="itemToDelete"
+          :deleteFunction="Array.isArray(itemToDelete) ? confirmDeleteSelected : (itemToDelete.variantId ? () => deleteRowVariant(itemToDelete.productId, itemToDelete.variantId) : () => deleteRow(itemToDelete._id))"
+          @close="itemToDelete = null"
+          :onSuccess="handleFetchData"
+        />
+      </template>
+    </td>
+  </tr>
+</tbody>
       </table>
     </div>
     <div class="flex justify-center items-center my-5">

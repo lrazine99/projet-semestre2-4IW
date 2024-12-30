@@ -213,5 +213,52 @@ router.delete("/product/:id/variant/:variantId", async (req: Request, res: Respo
   }
 });
 
+router.put("/product/:id/variant/:variantId", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id, variantId } = req.params;
+    const { platform, name, edition, price, stock, barcode } = req.body;
+
+    if (!platform || !name || !edition || price == null || stock == null || !barcode) {
+      res.status(400).json({
+        message: "Tous les champs (platform, name, edition, price, stock, barcode) sont nécessaires.",
+        received: req.body,
+      });
+      return;
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      res.status(404).json({ message: "Produit introuvable." });
+      return;
+    }
+
+    if (!Array.isArray(product.variants)) {
+      res.status(400).json({ message: "Le produit ne contient pas de variantes valides." });
+      return;
+    }
+
+    const variant = product.variants.find((v) => v._id.toString() === variantId);
+
+    if (!variant) {
+      res.status(404).json({ message: "Variante introuvable." });
+      return;
+    }
+
+    variant.platform = platform;
+    variant.name = name;
+    variant.edition = edition;
+    variant.price = price;
+    variant.stock = stock;
+    variant.barcode = barcode;
+
+    await product.save();
+
+    res.status(200).json({ message: "Variante mise à jour avec succès.", variant });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la variante :", error);
+    next(error);
+  }
+});
 
 export default router;

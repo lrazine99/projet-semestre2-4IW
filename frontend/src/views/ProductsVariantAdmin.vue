@@ -27,5 +27,14 @@
         /* { key: "images", label: "Image" }, */
         { key: "barcode", label: "Code Barre" },
     ];
+
+    const productVariantColumns = [
+        { key: "variantName", label: "Nom de la variante" },
+        { key: "variantEdition", label: "Édition de la variante" },
+        { key: "variantPrice", label: "Prix" },
+        { key: "variantStock", label: "Stock" },
+        { key: "platform", label: "Plateforme" },
+        { key: "barcode", label: "Code Barre" },
+    ];
     
 </script>
