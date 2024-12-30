@@ -1,10 +1,25 @@
 <template>
-  <div class="container mx-auto p-6 mt-16">
+  <div class="my-16  ">
     <!-- Grille avec filtres et produits -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-      <!-- Colonne de filtres -->
-      <aside class="bg-white shadow-lg rounded-lg p-6 border border-gray-200 sticky top-20 self-start">
+    <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar"
+      type="button"
+      class="inline-flex fixed mt-8 items-center p-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+      <span class="sr-only">Open sidebar</span>
+      <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg">
+        <path clip-rule="evenodd" fill-rule="evenodd"
+          d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
+        </path>
+      </svg>
+    </button>
+
+    <aside id="default-sidebar"
+      class=" fixed  overflow top-20 left-4 z-40 w-64 h-90 transition-transform -translate-x-full sm:translate-x-0"
+      aria-label="Sidebar">
+      <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+
+
         <h3 class="text-2xl font-semibold text-gray-700 mb-6">Filtres</h3>
 
         <!-- Barre de recherche -->
@@ -87,12 +102,21 @@
             Réinitialiser les filtres
           </button>
         </div>
-      </aside>
+      </div>
+    </aside>
+    <div class="py-4  sm:ml-64 border border-blue-600">
+
 
       <!-- Grille des produits -->
+<<<<<<< Updated upstream
       <div class="col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <div class="row-start-1 col-span-3 min-h-96 border-2 ">
           <div v-if="displayedVariants.length === 0" class="col-span-3 text-center text-lg text-gray-500">
+=======
+      <div class="flex flex-row flex-wrap gap-3 border   ">
+        <div v-if="displayedVariants.length === 0 && !currentPageProducts.length" class=" min-h-96 border-2 ">
+          <div class="">
+>>>>>>> Stashed changes
             Aucun produit ne correspond à vos critères.
           </div>
 
@@ -106,18 +130,18 @@
 
         </div>
         <!-- Pagination -->
-        <div class="col-span-6 mt-6 flex justify-center content-center h-16">
-          <div class=" h-inherit ">
-            <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
-              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400">
-              Précédent
-            </button>
-            <span class="text-lg">{{ currentPage }} / {{ totalPages }}</span>
-            <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
-              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400">
-              Suivant
-            </button>
-          </div>
+      </div>
+      <div class="mt-6 flex justify-center content-center h-16">
+        <div class=" h-inherit ">
+          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400">
+            Précédent
+          </button>
+          <span class="text-lg">{{ currentPage }} / {{ totalPages }}</span>
+          <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400">
+            Suivant
+          </button>
         </div>
       </div>
     </div>
@@ -272,8 +296,15 @@ watch(
 
 onMounted(async () => {
   try {
+<<<<<<< Updated upstream
     const response = await axios.get('http://localhost:8080/product');
     processProducts(response.data.message);
+=======
+    const { data: { productsFound, platforms: platfromsData } } = await axios.get(`${API_ENDPOINT}/product`);
+    console.log(platforms);
+
+    processProducts(productsFound);
+>>>>>>> Stashed changes
 
     genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));
     platforms.value = Array.from(new Set(allVariants.value.map(product => product.platform.name)));
