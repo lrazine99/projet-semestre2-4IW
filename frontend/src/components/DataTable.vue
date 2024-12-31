@@ -356,11 +356,13 @@ const toggleSelection = (row) => {
 
 const toggleAllSelection = () => {
   if (selectedRows.value.length === filteredData.value.length) {
-    selectedRows.value = []
+    selectedRows.value = [];
   } else {
-    selectedRows.value = filteredData.value.map((row) => row._id)
+    selectedRows.value = filteredData.value.map((row) =>
+      props.showProduct ? row.variantId : row._id
+    );
   }
-}
+};
 
 const handleDeleteSelected = () => {
   if (selectedRows.value.length === 0) {
@@ -896,10 +898,19 @@ const removeVariant = (index) => {
           </tr>
         </thead>
         <tbody class="text-sm text-gray-700">
-  <tr v-for="row in paginatedData" :key="row._id" class="border-b hover:bg-gray-50">
-    <td class="py-3 px-6">
-      <input type="checkbox" :value="row._id" v-model="selectedRows" />
-    </td>
+          <tr 
+  v-for="row in paginatedData" 
+  :key="showProduct ? row.variantId : row._id" 
+  class="border-b hover:bg-gray-50"
+>
+  <td class="py-3 px-6">
+    <input 
+      type="checkbox" 
+      :value="showProduct ? row.variantId : row._id" 
+      v-model="selectedRows" 
+    />
+  </td>
+
     <td v-for="column in columns" :key="column.key" class="py-3 px-6">
       <!-- Si showProduct est vrai, on édite la variante -->
       <template v-if="showProduct && editingVariant === row.variantId && productVariantColumns.some(col => col.key === column.key)">
@@ -973,7 +984,7 @@ const removeVariant = (index) => {
           @click="startEditingVariant(row)"
           class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
         >
-          Modifier variant
+          Modifier
         </button>
         
         <button

@@ -165,17 +165,29 @@ router.delete("/product/:id", async (req: Request, res: Response) => {
 
     const product = await Product.findById(id);
 
-    if (!product) {
-      res.status(404).json({ message: "Produit introuvable." });
+    if (product) {
+      await product.deleteOne();
+      res.status(200).json({ message: "Produit supprimé avec succès." });
       return;
     }
 
-    await product.deleteOne();
+    const productWithVariant = await Product.findOne({ "variants._id": id });
 
-    res.status(200).json({ message: "Produit supprimé avec succès." });
+    if (!productWithVariant || !productWithVariant.variants) {
+      res.status(404).json({ message: "Produit ou variante introuvable." });
+      return;
+    }
+
+    productWithVariant.variants = productWithVariant.variants.filter(
+      (variant) => variant._id.toString() !== id
+    );
+
+    await productWithVariant.save();
+
+    res.status(200).json({ message: "Variante supprimée avec succès." });
   } catch (error) {
-    console.error("Erreur lors de la suppression du produit :", error);
-    res.status(500).json({ message: "Erreur lors de la suppression du produit." });
+    console.error("Erreur lors de la suppression :", error);
+    res.status(500).json({ message: "Erreur lors de la suppression." });
   }
 });
 
