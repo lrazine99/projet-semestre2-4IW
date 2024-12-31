@@ -1,10 +1,10 @@
 import { ref } from "vue";
 import axios from "axios";
-
 export function useDatatable(apiEndpoint) {
   const data = ref([]);
   const isLoading = ref(false);
   const error = ref(null);
+  const allProducts = ref([]);
 
   const productVariantData = (products) => {
     return products.flatMap(product =>
@@ -21,7 +21,8 @@ export function useDatatable(apiEndpoint) {
         variantPrice: variant.price,
         variantStock: variant.stock,
         platform: variant.platform.name,
-        /* images: variant.images, */
+        images: variant.images,
+        releaseDate: variant.releaseDate,
         barcode: variant.barcode,
       }))
     );
@@ -48,6 +49,7 @@ export function useDatatable(apiEndpoint) {
     try {
       const response = await axios.get(apiEndpoint, { params: { ...params, limit: 1000 } });
       const products = response.data.products || [];
+      allProducts.value = response.data.products
       data.value = productVariantData(products);
     } catch (err) {
       error.value = err.message;
@@ -102,10 +104,8 @@ const deleteRowVariant = async (productId, variantId) => {
         return;
       }
   
-      const product = data.value.find((product) => product._id === productId);
+      const product = data.value.find((product) => product.variantId === variantId);
       if (product) {
-        console.log(product);
-  
         if (product.variantId === variantId) {
           product.variantId = response.data.variantId;
         } else {
@@ -129,6 +129,19 @@ const deleteRowVariant = async (productId, variantId) => {
     }
   };
   
+  const addRowVariant = async (productId, newVariantData) => {
+    try {
+      const response = await axios.post(`${apiEndpoint}/${productId}/variant`, newVariantData);
+      data.value = data.value.map((product) => {
+        if (product._id.toString() === productId.toString()) {
+          product.variants.push(response.data.variant); 
+        }
+        return product;
+      });
+    } catch (err) {
+      error.value = err.message;
+    }
+  };
 
   return {
     data,
@@ -141,5 +154,7 @@ const deleteRowVariant = async (productId, variantId) => {
     updateRow,
     updateRowVariant,
     addRow,
+    addRowVariant,
+    allProducts
   };
 }

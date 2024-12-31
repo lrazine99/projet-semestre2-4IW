@@ -1,7 +1,7 @@
-import { Schema, Document, Types } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface ProductVariant extends Document {
-  _id: Types.ObjectId; // Ajouter le type pour _id
+  _id: Types.ObjectId;
   sku: string;
   platform: Schema.Types.ObjectId;
   name: string;
@@ -27,3 +27,7 @@ export const ProductVariantSchema = new Schema<ProductVariant>(
   },
   { _id: true }
 );
+
+const ProductVariant = model<ProductVariant>("ProductVariant", ProductVariantSchema);
+
+export default ProductVariant;

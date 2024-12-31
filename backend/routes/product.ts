@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import Product from "../models/Product";
+import ProductVariant from "../models/ProductVariant";
 import Platform from "../models/Platform";
 
 const router = express.Router();
@@ -257,6 +258,53 @@ router.put("/product/:id/variant/:variantId", async (req: Request, res: Response
     res.status(200).json({ message: "Variante mise à jour avec succès.", variant });
   } catch (error) {
     console.error("Erreur lors de la mise à jour de la variante :", error);
+    next(error);
+  }
+});
+
+router.post("/product/:id/variant", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { platform, name, edition, images, releaseDate, price, stock, barcode } = req.body;
+
+    if (!platform || !name || !edition || !images || !releaseDate || price == null || stock == null || !barcode) {
+      res.status(400).json({
+        message: "Tous les champs (platform, name, edition, price, stock, barcode) sont nécessaires.",
+        received: req.body,
+      });
+      return;
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      res.status(404).json({ message: "Produit introuvable." });
+      return;
+    }
+
+    if (!product.variants) {
+      product.variants = [];
+    }
+
+    const newVariant = new ProductVariant({
+      sku: generateRandomSKU(),
+      platform,
+      name,
+      edition,
+      images,
+      releaseDate,
+      price,
+      stock,
+      barcode,
+    });
+
+    product.variants.push(newVariant);
+
+    await product.save();
+
+    res.status(201).json({ message: "Variante ajoutée avec succès.", variant: newVariant });
+  } catch (error) {
+    console.error("Erreur lors de l'ajout de la variante :", error);
     next(error);
   }
 });

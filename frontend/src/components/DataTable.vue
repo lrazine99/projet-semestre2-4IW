@@ -36,7 +36,7 @@ const props = defineProps({
   }
 })
 
-const { data, isLoading, fetchData, deleteRow, deleteRowVariant, updateRow, updateRowVariant, addRow, fetchVariantData } = useDatatable(props.apiEndpoint)
+const { data, isLoading, fetchData, deleteRow, deleteRowVariant, updateRow, updateRowVariant, addRow, fetchVariantData, allProducts } = useDatatable(props.apiEndpoint)
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -51,6 +51,7 @@ const editedVariantData = ref({});
 const searchColumn = ref(null)
 const showModalUser = ref(false)
 const showModalProduct = ref(false)
+const showModalVariant = ref(false)
 const newUser = ref({ firstName: '', lastName: '', email: '' })
 const newProduct = ref({ name: '', description: '', genres: '', ageMin: '', editor: '' })
 const itemToDelete = ref(null);
@@ -85,7 +86,6 @@ const fetchPlatforms = async () => {
     console.error("Erreur lors de la récupération des plateformes :", error);
   }
 };
-
 const searchableKeys = computed(() => {
   return props.columns
     .map(col => col.key)
@@ -381,6 +381,66 @@ const confirmDeleteSelected = async () => {
     console.error("Erreur lors de la suppression :", error);
   }
 };
+const selectedProductId = ref(null);
+const variantName = ref('')
+const variantEdition = ref('')
+const variantPrice = ref(null)
+const variantStock = ref(null)
+const images = ref('')
+const releaseDate = ref('')
+const platform = ref('')
+const barcode = ref('')
+
+const handleAddVariant = async () => {
+  if (!selectedProductId.value || !variantName.value || !variantEdition.value || 
+      !variantPrice.value || !variantStock.value || !images.value || 
+      !releaseDate.value || !platform.value || !barcode.value) {
+    alert('Tous les champs doivent être remplis');
+    return;
+  }
+
+  const newVariantData = {
+    platform: platform.value._id || platform.value,
+    name: variantName.value,
+    edition: variantEdition.value,
+    images: [images.value],
+    releaseDate: releaseDate.value,
+    price: variantPrice.value,
+    stock: variantStock.value,
+    barcode: barcode.value
+  };
+
+  try {
+    const response = await axios.post(
+      `http://localhost:8080/product/${selectedProductId.value}/variant`, 
+      newVariantData
+    );
+    console.log('Variante ajoutée avec succès', response.data);
+    
+    showModalVariant.value = false;
+    selectedProductId.value = null;
+    variantName.value = '';
+    variantEdition.value = '';
+    variantPrice.value = null;
+    variantStock.value = null;
+    images.value = '';
+    releaseDate.value = '';
+    platform.value = '';
+    barcode.value = '';
+
+    handleFetchData();
+
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de la variante:', error.response?.data || error);
+  }
+};
+
+const removeVariant = (index) => {
+  productVariants.value.splice(index, 1);
+};
+
+
 </script>
 
 <template>
@@ -428,6 +488,13 @@ const confirmDeleteSelected = async () => {
           Ajouter un utilisateur
         </button>
         <button
+          v-if="showProduct"      
+          @click="showModalVariant = true"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          Ajouter une variante
+        </button>
+        <button
           v-if="showAddProduct"      
           @click="showModalProduct = true"
           class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
@@ -442,7 +509,110 @@ const confirmDeleteSelected = async () => {
         </button>
       </div>
     </div>
+  <div v-if="showModalVariant" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-9/12">
+      <h2 class="text-xl font-bold mb-4">Ajouter une variante</h2>
+<div class="grid grid-cols-4 gap-4">
+      <div class="mb-4">
+        <label for="product-select" class="block font-medium mb-1">Produit :</label>
+        <select
+          id="product-select"
+          v-model="selectedProductId" 
+          class="w-full p-2 border border-gray-300 rounded"
+        >
+          <option v-for="product in allProducts" :key="product._id" :value="product._id">
+            {{ product.name }}
+          </option>
+        </select>
+      </div>
 
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Nom de la variante :</label>
+        <input
+          v-model="variantName"
+          type="text"
+          placeholder="Nom de la variante"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Édition :</label>
+        <input
+          v-model="variantEdition"
+          type="text"
+          placeholder="Édition"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Prix :</label>
+        <input
+          v-model="variantPrice"
+          type="number"
+          placeholder="Prix"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Stock :</label>
+        <input
+          v-model="variantStock"
+          type="number"
+          placeholder="Stock"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Image :</label>
+        <input
+          v-model="images"
+          type="text"
+          placeholder="Image"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Date de sortie :</label>
+        <input
+          v-model="releaseDate"
+          type="date"
+          placeholder="Date de sortie"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="platform-select" class="block font-medium mb-1">Plateforme :</label>
+        <select
+          id="platform-select"
+          v-model="platform"
+          class="w-full p-2 border border-gray-300 rounded"
+        >
+          <option disabled value="">Sélectionnez une plateforme</option>
+          <option v-for="platformOption in platforms" :key="platformOption._id" :value="platformOption._id">
+            {{ platformOption.name }}
+          </option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium mb-1">Code Barre :</label>
+        <input
+          v-model="barcode"
+          type="text"
+          placeholder="Code barre"
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div class="flex justify-end">
+        <button @click="showModalVariant = false" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">
+          Annuler
+        </button>
+        <button @click="handleAddVariant" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
     <div
       v-if="showModalUser"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
@@ -563,6 +733,15 @@ const confirmDeleteSelected = async () => {
 
       <div v-for="(variant, index) in productVariants" :key="index" class="mb-4">
         <div class="grid grid-cols-4 gap-4 mb-4">
+          <div class="col-span-4 flex justify-end mt-2">
+            <button
+              type="button"
+              @click="removeVariant(index)"
+              class="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+            >
+              Supprimer
+            </button>
+          </div>
           <div class="mb-4">
             <label for="variantPlatform" class="block text-sm font-medium">Plateforme</label>
             <select
