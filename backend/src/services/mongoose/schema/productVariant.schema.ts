@@ -1,17 +1,5 @@
-import { Schema, model, Document, Types } from "mongoose";
-
-export interface ProductVariant extends Document {
-  _id: Types.ObjectId;
-  sku: string;
-  platform: Schema.Types.ObjectId;
-  name: string;
-  edition: string;
-  price: number;
-  stock: number;
-  releaseDate: Date;
-  images: string[];
-  barcode: string;
-}
+import { Schema } from "mongoose";
+import { ProductVariant } from "../../../types";
 
 export const ProductVariantSchema = new Schema<ProductVariant>(
   {

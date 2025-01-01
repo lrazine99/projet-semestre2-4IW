@@ -1,14 +1,13 @@
+// @ts-ignore
+import { xss } from "express-xss-sanitizer";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
-import UserRoutes from "./routes/user";
-import ProductRoutes from "./routes/product";
-import CartRoutes from "./routes/cart";
-// @ts-ignore
-import { xss } from "express-xss-sanitizer";
-import connectDB from "./helpers/database";
-import errorHandler from "./middlewares/errorHandler"; // Import the error handler middleware
+import errorHandler from "./src/middlewares/errorHandler"; // Import the error handler middleware
+import { AuthController } from "./src/controllers/auth.controller";
+import { CartController } from "./src/controllers/cart.controller";
+import { ProductController } from "./src/controllers/product.controller";
 
 const app = express();
 
@@ -17,12 +16,17 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(express.json());
 app.use(cors());
-app.use(UserRoutes);
-app.use(ProductRoutes);
-app.use(CartRoutes);
+
+const authController = new AuthController();
+const cartController = new CartController();
+const productController = new ProductController();
+
+app.use('/user', authController.buildRouter());
+app.use('/cart', cartController.buildRouter());
+app.use('/product', productController.buildRouter());
 
 app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Hello from api server:" });
+  res.json({ message: "Hello from api server :" });
 });
 
 app.all("*", (req: Request, res: Response) => {
@@ -33,7 +37,7 @@ app.use(errorHandler);
 
 const startServer = async () => {
   try {
-    await connectDB();
+    // await connectDB();
 
     // @ts-ignore
     const PORT = process.env.SERVER_PORT || 8080;

@@ -10,6 +10,7 @@
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
+import { API_ENDPOINT } from '@/utils/const'
 
 const loginFields = [
   { id: 'email', label: 'Email', type: 'email', placeholder: 'Entrez votre email' }
@@ -22,7 +23,7 @@ const loginSchema = z.object({
 const handleLogin = async (formData, signal) => {
   
   try {
-    await axios.post('http://localhost:8080/request-reset-password ', formData, {
+    await axios.post(`${API_ENDPOINT}/request-reset-password`, formData, {
       signal
     })
 

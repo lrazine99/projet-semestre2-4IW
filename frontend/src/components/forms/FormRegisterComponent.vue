@@ -10,6 +10,7 @@
 import axios from 'axios'
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
+import { API_ENDPOINT } from '@/utils/const'
 
 const fields = [
   {
@@ -51,7 +52,7 @@ const signUpSchema = z.object({
 const handleSignUp = async (formData, signal) => {
   const { firstName, lastName, email, password } = formData
   try {
-    await axios.post('http://localhost:8080/user/signup', {
+    await axios.post(`${API_ENDPOINT}/user/signup`, {
       firstName,
       lastName,
       email,

@@ -7,45 +7,33 @@
     </h2>
     
     <div class="flex justify-center space-x-8 mb-8">
-      <button 
-        @click="currentFilter = 'new'" 
-        :class="filterButtonClass('new')">
+      <button @click="currentFilter = 'new'" :class="filterButtonClass('new')">
         Nouveautés
       </button>
-      <button 
-        @click="currentFilter = 'bestSellers'" 
-        :class="filterButtonClass('bestSellers')">
+      <button @click="currentFilter = 'bestSellers'" :class="filterButtonClass('bestSellers')">
         Meilleures ventes
       </button>
-      <button 
-        @click="currentFilter = 'cheapest'" 
-        :class="filterButtonClass('cheapest')">
+      <button @click="currentFilter = 'cheapest'" :class="filterButtonClass('cheapest')">
         Moins cher
       </button>
     </div>
-    
-    <div v-if="loading" class="text-center">Chargement des produits...</div>
+
+    <LoaderComponent v-if="loading" />
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      <CardProductComponent 
-        v-for="variant in displayedVariants" 
-        :key="variant.sku"
-        :sku="variant.sku"
-        :title="variant.productName"
-        :imageSrc="variant.images.length ? variant.images[0] : ''" 
-        :description="variant.description" 
-        :priceCurrent="variant.price"
-        :platformName="variant.platform.name" 
-        :edition="variant.edition" 
-        :stock="variant.stock"
-      />
+      <CardProductComponent v-for="variant in displayedVariants" :key="variant.sku" :sku="variant.sku"
+        :title="variant.productName" :imageSrc="variant.images.length ? variant.images[0] : ''"
+        :description="variant.description" :priceCurrent="variant.price" :platformName="variant.platform.name"
+        :edition="variant.edition" :stock="variant.stock" />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import CardProductComponent from '../components/CardProductComponent.vue';
+import { API_ENDPOINT } from '@/utils/const';
+import LoaderComponent from './LoaderComponent.vue';
 
 const allVariants = ref([]);
 const loading = ref(true);
@@ -71,10 +59,10 @@ const displayedVariants = computed(() => {
   }
 });
 
-const processProducts = (products: any[]) => {
+const processProducts = (products) => {
   allVariants.value = [];
   products.forEach(product => {
-    product.variants.forEach((variant: any) => {
+    product.variants.forEach((variant) => {
       allVariants.value.push({
         productName: product.name,
         description: product.description,
@@ -84,15 +72,23 @@ const processProducts = (products: any[]) => {
   });
 };
 
-const filterButtonClass = (filter: string) =>
+const processPlatforms = (platforms) => {
+  allVariants.value.forEach((variant) => {
+    variant.platform = platforms.find((platform) => platform.id === variant.platformId);
+  });
+};
+
+const filterButtonClass = (filter) =>
   currentFilter.value === filter
     ? 'text-lg text-blue-600 font-bold'
     : 'text-lg text-gray-500 hover:text-blue-500';
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:8080/product');
-    processProducts(response.data.products);
+    const { data: { productsFound, platforms } } = await axios.get(`${API_ENDPOINT}/product`);
+
+    processProducts(productsFound);
+    processPlatforms(platforms);
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error);
   } finally {
