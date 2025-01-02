@@ -275,7 +275,7 @@ onMounted(async () => {
   try {
     const { data: { productsFound, platforms : platfromsData } } = await axios.get(`${API_ENDPOINT}/product`);
     console.log(platforms);
-    
+
     processProducts(productsFound);
 
     genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));

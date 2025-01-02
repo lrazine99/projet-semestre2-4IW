@@ -29,7 +29,7 @@
             <router-link to="/mon-compte" class="text-gray-700 hover:text-primary">
               <font-awesome-icon icon="user" class="h-6 w-6" />compte
             </router-link>
-            <ButtonComponent hover-bg-color="hover:bg-secondary" to="/logout" v-if="loginStore.isAuthenticated"
+            <ButtonComponent hover-bg-color="hover:bg-secondary" to="/inscription-connexion/#connexion" v-if="loginStore.isAuthenticated"
               @click="logout">
               Déconnexion
             </ButtonComponent>
@@ -83,7 +83,6 @@
 import { computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import ButtonComponent from './ButtonComponent.vue';
-import { useRouter } from 'vue-router';
 import { useLoginStore } from '@/stores/loginStore';
 
 const loginStore = useLoginStore();
@@ -95,6 +94,5 @@ console.log(loginStore.isAuthenticated);
 const logout = () => {
 
   loginStore.logout();
-  useRouter.push('/');
 };
 </script>
