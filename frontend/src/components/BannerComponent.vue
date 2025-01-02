@@ -6,7 +6,7 @@
       <ButtonComponent
         :hoverBgColor="'hover:bg-secondary'"
         class="py-3 px-6"
-        :to="'/product'"
+        :to="'/produits'"
       >
         {{ btnText }}
       </ButtonComponent>

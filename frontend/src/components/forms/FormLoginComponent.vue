@@ -40,14 +40,14 @@ const handleLogin = async (formData, signal) => {
   try {
     const { data } = await axios.post(`${API_ENDPOINT}/user/login`, formData, { signal });
 
-    loginStore.login(data?.token);
+    loginStore.login(data?.token, data?.role);
 
     const cartStore = useCartStore();
     await cartStore.syncCartWithBackend(loginStore.isAuthenticated);
 
     window.dispatchEvent(new Event('auth-changed'));
 
-    router.push('/product');
+    router.push('/produits');
   } catch (error) {
     alert(error.response.data.message);
     throw error;

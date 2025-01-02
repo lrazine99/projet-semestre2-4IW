@@ -94,6 +94,7 @@ export class AuthController {
             _id: userFound._id,
             email: userFound.email,
             token: userFound.token,
+            role: userFound.role,
           });
         } else {
           res

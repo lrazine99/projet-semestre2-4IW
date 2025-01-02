@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useLoginStore } from './stores/loginStore'
 
 import Home from './views/Home.vue'
 import NotFound from './views/NotFound.vue'
@@ -38,10 +39,14 @@ const routes = [
   {
     path: '/mon-compte',
     name: 'MyAccount',
-    component: MyAccount
+    component: MyAccount,
+    meta: { requiresAuth: true }
   },
-  { path: '/demande-reinitialiser-mot-de-passe', name: 'RequestReset', component: RequestReset },
-
+  {
+    path: '/demande-reinitialiser-mot-de-passe',
+    name: 'RequestReset',
+    component: RequestReset
+  },
   {
     path: '/reinitialiser-mot-de-passe/:token',
     name: 'ResetPassword',
@@ -59,19 +64,25 @@ const routes = [
     component: Cart
   },
   {
-    path: '/admin/users',
-    name: 'UsersAdmin',
-    component: UsersAdmin
-  },
-  {
-    path: '/admin/products',
-    name: 'ProductsAdmin',
-    component: ProductsAdmin
-  },
-  {
-    path: '/admin/products/variant',
-    name: 'ProductsVariantAdmin',
-    component: ProductsVariantAdmin
+    path: '/admin',
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: 'users',
+        name: 'UsersAdmin',
+        component: UsersAdmin
+      },
+      {
+        path: 'products',
+        name: 'ProductsAdmin',
+        component: ProductsAdmin
+      },
+      {
+        path: 'products/variant',
+        name: 'ProductsVariantAdmin',
+        component: ProductsVariantAdmin
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',
@@ -80,7 +91,29 @@ const routes = [
   }
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const loginStore = useLoginStore()
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!loginStore.isLoggedIn) {
+      next({ name: from.name || 'Home', replace: true })
+      return
+    }
+
+    if (to.matched.some(record => record.meta.requiresAdmin)) {
+      if (!loginStore.isAdmin) {
+        next({ name: from.name || 'Home', replace: true })
+        return
+      }
+    }
+  }
+
+  next()
+})
+
+export default router
