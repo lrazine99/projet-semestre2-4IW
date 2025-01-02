@@ -1,6 +1,7 @@
 import { Schema, Document } from "mongoose";
 
 export interface ProductVariant extends Document {
+  _id: Schema.Types.ObjectId,
   sku: string;
   platform: Schema.Types.ObjectId;
   name: string;

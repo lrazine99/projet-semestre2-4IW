@@ -80,8 +80,8 @@ const platforms = ref([]);
 
 const fetchPlatforms = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/platforms');
-    platforms.value = response.data;
+    const response = await axios.get('http://localhost:8080/product');
+    platforms.value = response.data.platforms;
   } catch (error) {
     console.error("Erreur lors de la récupération des plateformes :", error);
   }
@@ -252,7 +252,7 @@ const handleExport = () => {
 
 const sendResetEmail = async (email) => {
   try {
-    const response = await fetch('http://localhost:8080/request-reset-password', {
+    const response = await fetch('http://localhost:8080/user/reset-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -283,10 +283,10 @@ const setSearchColumn = (columnKey) => {
 
 const handleAddUser = async () => {
   try {
-    const response = await axios.post('http://localhost:8080/users/admin/add', newUser.value)
+    const response = await axios.post('http://localhost:8080/user/admin/add', newUser.value)
 
     if (response.status === 201) {
-      await axios.post('http://localhost:8080/request-reset-password', {
+      await axios.post('http://localhost:8080/user/reset-password', {
         email: newUser.value.email
       })
       alert('Utilisateur ajouté et email envoyé avec succès !')
@@ -368,13 +368,17 @@ const handleDeleteSelected = () => {
   if (selectedRows.value.length === 0) {
     return;
   }
-  itemToDelete.value = selectedRows.value;
+  itemToDelete.value = [...selectedRows.value];
 };
 
 const confirmDeleteSelected = async () => {
   try {
-    for (const itemId of itemToDelete.value) {
-      await deleteRow(itemId);
+    for (const item of itemToDelete.value) {
+      if (props.showProduct) {
+        await deleteRowVariant(item._id, item.variantId);
+      } else {
+        await deleteRow(item);
+      }
     }
     selectedRows.value = [];
     itemToDelete.value = null;
@@ -905,10 +909,10 @@ const removeVariant = (index) => {
 >
   <td class="py-3 px-6">
     <input 
-      type="checkbox" 
-      :value="showProduct ? row.variantId : row._id" 
-      v-model="selectedRows" 
-    />
+  type="checkbox" 
+  :value="showProduct ? { variantId: row.variantId, _id: row._id } : row._id" 
+  v-model="selectedRows" 
+/>
   </td>
 
     <td v-for="column in columns" :key="column.key" class="py-3 px-6">

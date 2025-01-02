@@ -1,4 +1,4 @@
-/*import express, { Request, Response } from "express";
+import express, { Request, Response } from "express";
 import { IUser, User } from "../models/User";
 import ResetPassword from "../models/ResetPassword";
 import uid2 from "uid2";
@@ -427,4 +427,3 @@ router.post("/users/admin/add", async (req: Request, res: Response) => {
 });
 
 export default router;
-*/

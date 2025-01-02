@@ -3,7 +3,7 @@
     <div class="mx-8 mt-20">
         <h2 class="text-3xl font-bold mb-4 text-center">Gestion des utilisateurs</h2>
         <DataTable 
-            apiEndpoint="http://localhost:8080/users" 
+            apiEndpoint="http://localhost:8080/user" 
             :columns="userColumns"
             :showResetPassword=true
             :showAddUser=true

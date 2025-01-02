@@ -1,8 +1,9 @@
-import { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 import { ProductVariant } from "../../../types";
 
 export const ProductVariantSchema = new Schema<ProductVariant>(
   {
+    _id: { type: Schema.Types.ObjectId, auto: true },
     sku: { type: String, required: true, unique: true },
     platform: { type: Schema.Types.ObjectId, ref: "Platform", required: true },
     name: { type: String, required: true },

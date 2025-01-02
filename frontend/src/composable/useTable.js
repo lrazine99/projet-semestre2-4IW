@@ -34,8 +34,8 @@ export function useDatatable(apiEndpoint) {
       const response = await axios.get(apiEndpoint, { params: { ...params, limit: 1000 } });
       if (response.data.users) {
         data.value = response.data.users || [];
-      } else if (response.data.products) {
-        data.value = response.data.products || [];
+      } else if (response.data.productsFound) {
+        data.value = response.data.productsFound || [];
       }
     } catch (err) {
       error.value = err.message;
@@ -48,8 +48,20 @@ export function useDatatable(apiEndpoint) {
     isLoading.value = true;
     try {
       const response = await axios.get(apiEndpoint, { params: { ...params, limit: 1000 } });
-      const products = response.data.products || [];
-      allProducts.value = response.data.products
+      const products = response.data.productsFound || [];
+      const platforms = response.data.platforms || [];
+  
+      // Associer chaque produit à sa plateforme en fonction de l'ID
+      products.forEach(product => {
+        product.variants.forEach(variant => {
+          const platform = platforms.find(p => p._id === variant.platform);
+          if (platform) {
+            variant.platform = platform;  // Ajouter les informations complètes de la plateforme à chaque variant
+          }
+        });
+      });
+  
+      allProducts.value = products;
       data.value = productVariantData(products);
     } catch (err) {
       error.value = err.message;
