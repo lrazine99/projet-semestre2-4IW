@@ -32,7 +32,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import CardProductComponent from '../components/CardProductComponent.vue';
-import { API_ENDPOINT } from '@/utils/const';
+import { VITE_API_ENDPOINT } from '@/utils/const';
 import LoaderComponent from './LoaderComponent.vue';
 
 const allVariants = ref([]);
@@ -74,8 +74,11 @@ const processProducts = (products) => {
 
 const processPlatforms = (platforms) => {
   allVariants.value.forEach((variant) => {
-    variant.platform = platforms.find((platform) => platform.id === variant.platformId);
+    
+    
+    variant.platform = platforms.find((platform) => platform._id === variant.platform);
   });
+
 };
 
 const filterButtonClass = (filter) =>
@@ -85,8 +88,8 @@ const filterButtonClass = (filter) =>
 
 onMounted(async () => {
   try {
-    const { data: { productsFound, platforms } } = await axios.get(`${API_ENDPOINT}/product`);
-
+    const { data: { productsFound, platforms } } = await axios.get(`${VITE_API_ENDPOINT}/product`);
+    
     processProducts(productsFound);
     processPlatforms(platforms);
   } catch (error) {

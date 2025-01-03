@@ -14,6 +14,7 @@ import FormResetPasswordComponent from '@/components/forms/FormResetPasswordComp
 import TitleComponent from '@/components/TitleComponent.vue';
 import AbortControllerManager from '@/controllers/AbortControllerManager';
 import { getTokenUrl } from '@/utils/auth';
+import { VITE_API_ENDPOINT } from '@/utils/const';
 import axios from 'axios';
 import { onBeforeMount, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -27,7 +28,7 @@ onBeforeMount(async () => {
     const tokenReset = getTokenUrl();
 
     try {
-        const { data } = await axios.get(`http://localhost:8080/check-token-reset/${tokenReset} `, {
+        const { data } = await axios.get(`${VITE_API_ENDPOINT}/user/check-token-reset/${tokenReset} `, {
             signal: decoratedAbort.signal
         });
 

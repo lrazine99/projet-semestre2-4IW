@@ -5,10 +5,10 @@
 
 
             <!-- Item 1 -->
-            <div v-for="(image, index) in images" :key="index" class="hidden duration-700 ease-in-out"
+            <div v-for="(image, index) in images" :key="index" class=" duration-700 ease-in-out"
                 data-carousel-item>
                 <img :src="image.src" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
-                    :alt="image.alt">
+                    :alt="image.alt" a>
             </div>
 
         </div>
@@ -48,6 +48,8 @@
 const { images } = defineProps({
     images: { type: Array, required: true },
 });
+
 console.log(images);
+
 
 </script>

@@ -1,11 +1,11 @@
 <template>
-  <form @submit.prevent="handleForm">
+  <form @submit.prevent="handleForm" >
     <FormFieldComponent v-for="field in fields" :key="field.id" v-bind="field" v-model="formData[field.id]"
       :error="validationErrors[field.id]" @input="clearFieldError(field.id)" @onBlurInput="validateSingleField" />
 
 
     <div class="flex justify-center">
-      <button type="submit"
+      <button type="submit" :disabled="isSubmitting"
         class="bg-indigo-500 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
         <svg v-if="isSubmitting" class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg"
           fill="none" viewBox="0 0 24 24">
@@ -100,7 +100,7 @@ const handleForm = async () => {
     console.log('Request canceled')
   } finally {
     isSubmitting.value = false
-   }
+  }
 }
 
 const cancelRequest = () => {

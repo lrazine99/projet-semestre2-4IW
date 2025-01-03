@@ -6,7 +6,7 @@
       <ButtonComponent
         :hoverBgColor="'hover:bg-secondary'"
         class="py-3 px-6"
-        :to="'/product'"
+        :to="'/produits'"
       >
         {{ btnText }}
       </ButtonComponent>
@@ -15,7 +15,6 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
 import ButtonComponent from '../components/ButtonComponent.vue';
 
 defineProps({

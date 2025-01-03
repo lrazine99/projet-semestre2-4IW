@@ -1,12 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <template>
-  <div class="container mx-auto py-8 px-4 mt-16">
-    <h1 class="text-4xl font-semibold text-center text-gray-900 mb-8">Votre Panier</h1>
-
+  <LoaderComponent v-if="cartItems.length === 0" />
+  <div class="container mx-auto py-8 px-4 mt-10">
+    <TitleComponent titleText="Votre Panier" />
     <div class="flex space-x-8">
       <div class="flex-1 space-y-6">
-        <div v-if="cartItems.length > 0" v-for="(item, index) in cartItems" :key="index"
+        <div  v-scroll-appear v-if="cartItems.length > 0" v-for="(item, index) in cartItems" :key="index"
           class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 flex items-center space-x-6 p-6 hover:shadow-xl transition-shadow relative">
           <div class="flex-shrink-0">
             <img :src="item.imageSrc" alt="Product Image" class="w-32 h-32 object-cover rounded-lg shadow-md" />
@@ -77,7 +77,7 @@
         </div>
 
         <div class="mt-6 flex justify-between space-x-4 flex-col md:space-x-0 md:space-y-4">
-          <ButtonComponent textColor="text-white" hoverBgColor="hover:bg-secondary" to="/product">
+          <ButtonComponent textColor="text-white" hoverBgColor="hover:bg-secondary" to="/produits">
             Continuer les achats
           </ButtonComponent>
           <ButtonComponent bgColor="bg-green-600" textColor="text-white" hoverBgColor="hover:bg-green-700"
@@ -94,12 +94,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onBeforeMount, computed } from "vue";
 import { useCartStore } from "@/stores/cartStore";
 import axios from "axios";
 import ButtonComponent from "@/components/ButtonComponent.vue";
 import DeleteModal from "@/components/DeleteModalComponent.vue";
 import { useLoginStore } from '@/stores/loginStore';
+import { VITE_API_ENDPOINT } from "@/utils/const";
+import LoaderComponent from "@/components/LoaderComponent.vue";
+import TitleComponent from "@/components/TitleComponent.vue";
 
 const loginStore = useLoginStore();
 
@@ -113,23 +116,6 @@ const totalQuantity = computed(() =>
 );
 const isDeleteModalOpen = ref(false);
 const itemToDeleteIndex = ref(null);
-
-const loadCart = async () => {
-  if (loginStore.isAuthenticated) {
-    const token = loginStore.token;
-    try {
-      const response = await axios.get("http://localhost:8080/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      cartItems.value = response.data?.items || [];
-    } catch (error) {
-      console.error("Erreur lors de la récupération du panier :", error);
-      cartItems.value = [];
-    }
-  } else {
-    cartItems.value = cartStore.cartItems;
-  }
-};
 
 
 
@@ -146,14 +132,21 @@ const closeDeleteModal = () => {
 const confirmDeleteItem = async () => {
   if (itemToDeleteIndex.value !== null) {
     const item = cartItems.value[itemToDeleteIndex.value];
+
     if (loginStore.isAuthenticated) {
       const token = loginStore.token;
+
       try {
-        await axios.delete(`http://localhost:8080/cart/remove/${item.sku}`, {
+        await axios.delete(`${VITE_API_ENDPOINT}/cart/remove/${item.sku}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         cartItems.value.splice(itemToDeleteIndex.value, 1);
       } catch (error) {
+        if (error.response.status === 404) {
+          cartStore.removeItem(itemToDeleteIndex.value);
+          cartItems.value = cartStore.cartItems;
+        }
+
         console.error("Erreur lors de la suppression de l'article :", error);
       }
     } else {
@@ -167,12 +160,14 @@ const confirmDeleteItem = async () => {
 
 const increaseQuantity = async (index) => {
   const item = cartItems.value[index];
+
   if (item.quantity < item.stock) {
     if (loginStore.isAuthenticated) {
       const token = loginStore.token;
+
       try {
         await axios.patch(
-          `http://localhost:8080/cart/increase/${item.sku}`,
+          `${VITE_API_ENDPOINT}/cart/increase/${item.sku}`,
           { quantity: item.quantity + 1 },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -193,9 +188,10 @@ const decreaseQuantity = async (index) => {
   if (item.quantity > 1) {
     if (loginStore.isAuthenticated) {
       const token = loginStore.token;
+
       try {
         await axios.patch(
-          `http://localhost:8080/cart/decrease/${item.sku}`,
+          `${VITE_API_ENDPOINT}/cart/decrease/${item.sku}`,
           { quantity: item.quantity - 1 },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -209,9 +205,10 @@ const decreaseQuantity = async (index) => {
     }
   }
 };
-const destination = loginStore.isAuthenticated ? '/payment' : '/inscription-connexion/#connexion';
+const destination = loginStore.isAuthenticated ? '/commande' : '/inscription-connexion/#connexion';
 
-onMounted(() => {
-  loadCart();
+onBeforeMount(async () => {
+  await cartStore.loadCart();
+  cartItems.value = cartStore.cartItems
 });
 </script>

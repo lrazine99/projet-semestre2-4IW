@@ -37,7 +37,7 @@ const formChoice = ref('')
 onBeforeMount(() => {
   
   if (isAuthenticated) {    
-    router.push('/product')
+    router.push('/produits')
   }
 })
 
