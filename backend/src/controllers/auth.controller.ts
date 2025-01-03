@@ -4,6 +4,7 @@ import { MongooseService } from "../services";
 import uid2 from "uid2";
 import SHA256 from "crypto-js/sha256";
 import base64 from "crypto-js/enc-base64";
+import { randomBytes } from "crypto";
 import { IUser } from "../types/user.interface";
 import { ResetPasswordService } from "../services/mongoose/models/resetPassword.service";
 import { Mailer } from "../helpers/mailer";
@@ -287,6 +288,176 @@ export class AuthController {
     res.status(200).end();
   }
 
+  async getUsers(req: Request, res: Response) {
+    try {
+      const { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "desc" } = req.query;
+
+      const query = search
+        ? { $or: [{ firstName: { $regex: search, $options: "i" } }, { lastName: { $regex: search, $options: "i" } }] }
+        : {};
+
+      const users = await this.userService.model.find(query)
+        .sort({ [sortBy as string]: order === "asc" ? 1 : -1 })
+        .skip((Number(page) - 1) * Number(limit))
+        .limit(Number(limit));
+
+      const totalUsers = await this.userService.model.countDocuments(query);
+
+      res.status(200).json({
+        users,
+        totalPages: Math.ceil(totalUsers / Number(limit)),
+        currentPage: Number(page),
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs." });
+    }
+  }
+
+  async createUser(req: Request, res: Response) {
+    try {
+      const { firstName, lastName, email, password, role } = req.body;
+
+      if (!firstName || !lastName || !email || !password || !role) {
+        res.status(400).json({ message: "Tous les champs sont requis." });
+        return;
+      }
+
+      const userExists = await this.userService.model.findOne({ email });
+
+      if (userExists) {
+        res.status(409).json({ message: "Un utilisateur avec cet email existe déjà." });
+        return;
+      }
+
+      const generatedSalt = uid2(12);
+      const generatedHash = SHA256(password + generatedSalt).toString(base64);
+
+      const newUser = new this.userService.model({
+        firstName,
+        lastName,
+        email,
+        role,
+        hash: generatedHash,
+        salt: generatedSalt,
+      });
+
+      await newUser.save();
+
+      res.status(201).json({ message: "Utilisateur créé avec succès." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur lors de la création de l'utilisateur." });
+    }
+  }
+
+  async updateUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+
+      const user = await this.userService.model.findById(id);
+
+      if (!user) {
+        res.status(404).json({ message: "Utilisateur introuvable." });
+        return;
+      }
+
+      Object.assign(user, updates);
+
+      await user.save();
+
+      res.status(200).json({ message: "Utilisateur mis à jour avec succès." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur." });
+    }
+  }
+
+  async deleteUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const user = await this.userService.model.findById(id);
+
+      if (!user) {
+        res.status(404).json({ message: "Utilisateur introuvable." });
+        return;
+      }
+
+      await user.deleteOne();
+
+      res.status(200).json({ message: "Utilisateur supprimé avec succès." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur." });
+    }
+  }
+
+  async bulkDeleteUsers(req: Request, res: Response) {
+    try {
+      const { ids } = req.body;
+
+      if (!ids || !Array.isArray(ids)) {
+        res.status(400).json({ message: "Un tableau d'IDs est requis." });
+        return;
+      }
+
+      await this.userService.model.deleteMany({ _id: { $in: ids } });
+
+      res.status(200).json({ message: "Utilisateurs supprimés avec succès." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur lors de la suppression des utilisateurs." });
+    }
+  }
+
+  async addAdminUser(req: Request, res: Response) {
+    try {
+      const { firstName, lastName, email, role = "user" } = req.body;
+  
+      if (!firstName || !lastName || !email) {
+        res.status(400).json({ message: "Tous les champs requis sont obligatoires." });
+        return;
+      }
+  
+      const userExists = await this.userService.model.findOne({ email });
+  
+      if (userExists) {
+        res.status(409).json({ message: "Un utilisateur avec cet email existe déjà." });
+        return;
+      }
+  
+      const password = randomBytes(8).toString("hex");
+      const token = uid2(16);
+      const salt = uid2(12);
+      const hash = SHA256(password + salt).toString();
+  
+      const newUser = new this.userService.model({
+        firstName,
+        lastName,
+        email,
+        token,
+        hash,
+        salt,
+        birthDate: new Date(),
+        role,
+      });
+  
+      await newUser.save();
+  
+      res.status(201).json({
+        message: "Utilisateur ajouté avec succès.",
+        user: { firstName, lastName, email, role },
+        generatedPassword: password, // Renvoie le mot de passe généré
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+    }
+  }
+  
+
   buildRouter(): Router {
     const router = Router();
 
@@ -298,6 +469,13 @@ export class AuthController {
     router.post("/reset-password", this.requestResetPassword.bind(this));
     router.post("/login", this.userLogin.bind(this));
     router.post("/signup", this.userSignup.bind(this));
+
+    router.get("/", this.getUsers.bind(this));
+    router.post("/", this.createUser.bind(this));
+    router.put("/:id", this.updateUser.bind(this));
+    router.delete("/:id", this.deleteUser.bind(this));
+    router.delete("/", this.bulkDeleteUsers.bind(this));
+    router.post("/admin/add", this.addAdminUser.bind(this));
 
     return router;
   }

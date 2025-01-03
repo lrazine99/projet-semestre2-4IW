@@ -42,8 +42,6 @@ const handleLogin = async (formData, signal) => {
 
     loginStore.login(data?.token);
 
-    alert('Connexion réussie');
-
     const cartStore = useCartStore();
     await cartStore.syncCartWithBackend(loginStore.isAuthenticated);
     await cartStore.loadCart();

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-10 z-50">
     <div class="bg-white p-6 rounded shadow-lg w-96">
       <h2 class="text-lg font-semibold mb-4">Confirmer la suppression</h2>
       <p class="text-gray-700 mb-6">Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.</p>

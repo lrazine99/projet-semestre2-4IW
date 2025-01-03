@@ -62,6 +62,21 @@ const routes = [
     component: Order
   },
   {
+    path: '/admin/users',
+    name: 'UsersAdmin',
+    component: UsersAdmin
+  },
+  {
+    path: '/admin/products',
+    name: 'ProductsAdmin',
+    component: ProductsAdmin
+  },
+  {
+    path: '/admin/products/variant',
+    name: 'ProductsVariantAdmin',
+    component: ProductsVariantAdmin
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: NotFound

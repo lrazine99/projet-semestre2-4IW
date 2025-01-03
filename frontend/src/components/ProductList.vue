@@ -5,7 +5,7 @@
       LES MEILLEURES OFFRES
       <span class="flex-grow border-t border-gray-800 mx-4"></span>
     </h2>
-
+    
     <div class="flex justify-center space-x-8 mb-8">
       <button @click="currentFilter = 'new'" :class="filterButtonClass('new')">
         Nouveautés

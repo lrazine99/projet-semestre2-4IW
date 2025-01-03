@@ -9,6 +9,7 @@
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router';
 import { VITE_API_ENDPOINT } from '@/utils/const';
 
 const props = defineProps({
@@ -48,14 +49,15 @@ const loginSchema = z.object({
     path: ['confirmPassword']
   })
 
-const handleLogin = async ({ password }, signal) => {  
+const router = useRouter();
+const handleLogin = async ({ password }, signal) => {
   try {
     await axios.post(`${VITE_API_ENDPOINT}/user/edit-password`, { password, email: emailUser }, {
       signal
     })
 
     alert('Modification du mot de passe réussie')
-    window.location.reload()
+    router.push('/inscription-connexion/#connexion');
   } catch (error) {
     console.error('Login error:', error)
   }
