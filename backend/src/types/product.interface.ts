@@ -1,11 +1,11 @@
 import {  Document } from "mongoose";
-import { ProductVariant } from "./";
+import { IProductVariant } from "./";
 
 export interface IProduct extends Document {
   name: string;
   description: string;
   genres: string[];
-  variants?: ProductVariant[];
+  variants: IProductVariant[];
   minAge: number;
   editor: string;
 }

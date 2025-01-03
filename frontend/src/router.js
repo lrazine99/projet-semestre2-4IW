@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import Home from './views/Home.vue'
-import NotFound from './views/NotFound.vue'
-import ProductList from './views/ProductList.vue'
-import Product from './views/Product.vue'
-import LoginRegister from './views/LoginRegister.vue'
-import MyAccount from './views/MyAccount.vue'
-import ResetPassword from './views/ResetPassword.vue'
-import RequestReset from './views/RequestReset.vue'
-import ConfirmAccount from './views/ConfirmAccount.vue'
-import Cart from './views/Cart.vue'
+const Home = () => import('./views/HomeView.vue')
+const NotFound = () => import('./views/NotFoundView.vue')
+const ProductList = () => import('./views/ProductListView.vue')
+const Product = () => import('./views/ProductView.vue')
+const LoginRegister = () => import('./views/LoginRegisterView.vue')
+const MyAccount = () => import('./views/MyAccountView.vue')
+const ResetPassword = () => import('./views/ResetPasswordView.vue')
+const RequestReset = () => import('./views/RequestResetView.vue')
+const ConfirmAccount = () => import('./views/ConfirmAccountView.vue')
+const Cart = () => import('./views/CartView.vue')
+const Order = () => import('./views/OrderView.vue')
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     path: '/cart',
     name: 'Cart',
     component: Cart
+  },
+  {
+    path: '/commande',
+    name: 'Order',
+    component: Order
   },
   {
     path: '/:pathMatch(.*)*',

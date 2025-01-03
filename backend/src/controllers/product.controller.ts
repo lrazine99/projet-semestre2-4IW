@@ -15,14 +15,14 @@ export class ProductController {
 
   async productGet(req: Request, res: Response) {
     try {
-      const platfroms = await this.platformService.model.find();
+      const platforms = await this.platformService.model.find();
 
       const productsFound = await this.productService.model.find().populate({
         path: "variants.platform",
         select: "name",
       });
 
-      res.status(200).json({ platfroms, productsFound });
+      res.status(200).json({ platforms, productsFound });
     } catch (error) {
       res
         .status(500)

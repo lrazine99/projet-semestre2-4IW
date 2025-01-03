@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
-import { ProductVariant } from "../../../types";
+import { IProductVariant } from "../../../types";
 
-export const ProductVariantSchema = new Schema<ProductVariant>(
+export const ProductVariantSchema = new Schema<IProductVariant>(
   {
     sku: { type: String, required: true, unique: true },
     platform: { type: Schema.Types.ObjectId, ref: "Platform", required: true },

@@ -1,6 +1,6 @@
 import { Schema, Document } from "mongoose";
 
-export interface ProductVariant extends Document {
+export interface IProductVariant extends Document {
   sku: string;
   platform: Schema.Types.ObjectId;
   name: string;

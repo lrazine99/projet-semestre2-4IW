@@ -7,6 +7,7 @@ import base64 from "crypto-js/enc-base64";
 import { IUser } from "../types/user.interface";
 import { ResetPasswordService } from "../services/mongoose/models/resetPassword.service";
 import { Mailer } from "../helpers/mailer";
+import { isAuthenticated } from "../middlewares/isAuthenticated";
 
 export class AuthController {
   private userService!: UserService;
@@ -17,6 +18,23 @@ export class AuthController {
       this.userService = mongooseService.userService;
       this.resetPasswordService = mongooseService.resetPasswordService;
     });
+  }
+
+  async getUser(req: Request, res: Response) {
+    const userId = req.body.userId;
+    const user = await this.userService.model.findOne({ _id: userId });
+
+    if (user) {
+      res.status(200).send({
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        address: user.address,
+        birthDate: user.birthDate,
+      });
+    } else {
+      res.status(404).end();
+    }
   }
 
   async userSignup(req: Request, res: Response) {
@@ -60,7 +78,7 @@ export class AuthController {
     }
   }
 
-  async userLogin(req: any, res: any) {
+  async userLogin(req: Request, res: Response) {
     try {
       const userFound = await this.userService.model.findOne({
         email: req.body?.email,
@@ -72,13 +90,12 @@ export class AuthController {
             userFound
           );
 
-          return res
-            .status(402)
-            .json({
-              message: `compte non vérifié, ${
-                emailStatus ? "un email a été envoyé" : "envoie d'émail echoué"
-              }`,
-            });
+          res.status(402).json({
+            message: `compte non vérifié, ${
+              emailStatus ? "un email a été envoyé" : "envoie d'émail echoué"
+            }`,
+          });
+          return;
         }
 
         const generatedHash = SHA256(
@@ -111,7 +128,7 @@ export class AuthController {
     }
   }
 
-  async requestResetPassword(req: any, res: any){
+  async requestResetPassword(req: Request, res: Response) {
     const { email } = req.body;
 
     try {
@@ -120,7 +137,8 @@ export class AuthController {
       if (!user) {
         // Avoid leaking user existence
         console.log(`Password reset requested for non-existent user: ${email}`);
-        return res.status(200).json({ success: true });
+        res.status(200).json({ success: true });
+        return;
       }
 
       // Step 2: Generate token
@@ -149,19 +167,21 @@ export class AuthController {
       // Step 4: Send email
       const resetLink = `${process.env.FRONTEND_URL}/reinitialiser-mot-de-passe/${token}`;
       const mailer = new Mailer();
+
       await mailer.sendEmail(
         [email],
         "Demande de réinitialisation de mot de passe",
         `Cliquez sur le lien suivant pour réinitialiser votre mot de passe: ${resetLink}`
       );
 
-      return res.status(200).json({ success: true });
+      res.status(200).json({ success: true });
+      return;
     } catch (error) {
       console.error("Error during password reset request:", error);
-      return res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error" });
+      return;
     }
   }
-
 
   async checkTokenReset(req: Request, res: Response) {
     const resetPassword = await this.resetPasswordService.model
@@ -173,11 +193,14 @@ export class AuthController {
     if (resetPassword !== null) {
       if (resetPassword.resetPasswordExpires < new Date()) {
         res.status(404).end();
+        return;
       } else {
         res.status(200).send({ email: resetPassword.user.email });
+        return;
       }
     } else {
       res.status(404).end();
+      return;
     }
   }
 
@@ -209,7 +232,7 @@ export class AuthController {
     }
   }
 
-  async confirmEmail(req: any, res: any) {
+  async confirmEmail(req: Request, res: Response) {
     const { token } = req.params;
 
     try {
@@ -218,15 +241,19 @@ export class AuthController {
       });
 
       if (user === null) {
-        return res.status(400).end();
+        res.status(400).end();
+        return;
       }
 
       if (user.isVerified) {
         res.status(200).send({ message: { token: user.token } });
+        return;
       } else if (user.confirmationTokenExpires) {
         if (user.confirmationTokenExpires < new Date()) {
           await this.userService.sendConfirmationEmail(user);
-          return res.status(400).end();
+
+          res.status(400).end();
+          return;
         }
       }
 
@@ -238,19 +265,21 @@ export class AuthController {
       await user.save();
 
       res.status(200).send({ message: { token: user.token } });
+      return;
     } catch (error) {
       res.status(400).end();
       console.log(error);
     }
   }
 
-  async sendConfrmation(req: any, res: any) {
+  async sendConfrmation(req: Request, res: Response) {
     const { email } = req.body;
 
     const user = await this.userService.model.findOne({ email });
 
     if (!user || user.isVerified) {
-      return res.status(400).end();
+      res.status(400).end();
+      return;
     }
 
     await this.userService.sendConfirmationEmail(user);
@@ -261,10 +290,11 @@ export class AuthController {
   buildRouter(): Router {
     const router = Router();
 
-    router.post("/send-confirmation", this.sendConfrmation.bind(this));
-    router.get("/confirm-email/:token", this.confirmEmail.bind(this));
-    router.post("/edit-password", this.userEditPassword.bind(this));
     router.get("/reset-password/:token", this.checkTokenReset.bind(this));
+    router.get("/get-user", isAuthenticated, this.getUser.bind(this));
+    router.get("/confirm-email/:token", this.confirmEmail.bind(this));
+    router.post("/send-confirmation", this.sendConfrmation.bind(this));
+    router.post("/edit-password", this.userEditPassword.bind(this));
     router.post("/reset-password", this.requestResetPassword.bind(this));
     router.post("/login", this.userLogin.bind(this));
     router.post("/signup", this.userSignup.bind(this));

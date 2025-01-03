@@ -33,16 +33,11 @@
         </div>
       </div>
 
-      <div class="flex items-center px-4 py-2 border-t space-x-2">
-        <button @click.stop.prevent="addToCart"
-          class="w-full flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondary focus:outline-none focus:ring-4 focus:ring-blue-300">
-          Ajouter au panier
-        </button>
-      </div>
+
       <div class="flex items-center px-4 py-2 border-t space-x-2">
         <button v-for="(platform, index) in getPlatforms()" :key="index" @click="handlePlatform(platform)"
           class="w-full flex items-center justify-center rounded-md bg-gray-100	 px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-gray focus:outline-none focus:ring-4 focus:ring-blue-300"
-          :class="platform === product.platform ? 'bg-primary text-white' : ''">
+          :class="platform === platformSelected ? 'bg-blue-400 ' : ''">
 
           {{ platform }}
         </button>
@@ -51,8 +46,14 @@
       <div class="flex items-center px-4 py-2 border-t space-x-2">
         <button v-for="(edition, index) in getEditions()" :key="index" @click="handleEdition(edition)"
           class="w-full flex items-center justify-center rounded-md bg-gray-100	 px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-gray focus:outline-none focus:ring-4 focus:ring-blue-300"
-          :class="edition === product.edition ? 'bg-primary text-white' : ''">
+          :class="edition === editionSelected ? 'bg-blue-400 ' : ''">
           {{ edition }}
+        </button>
+      </div>
+      <div class="flex items-center px-4 py-2 border-t space-x-2">
+        <button @click.stop.prevent="addToCart"
+          class="w-full flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondary focus:outline-none focus:ring-4 focus:ring-blue-300">
+          Ajouter au panier
         </button>
       </div>
     </div>
@@ -63,7 +64,7 @@
 import axios from 'axios';
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { API_ENDPOINT } from '@/utils/const';
+import { VITE_API_ENDPOINT } from '@/utils/const';
 import { ref } from 'vue';
 import CarrousellComponent from '@/components/CarouselComponent.vue';
 import { useCartStore } from '@/stores/cartStore';
@@ -74,7 +75,9 @@ const route = useRoute();
 const loading = ref(true);
 const product = ref({});
 const siblingsProducts = ref([]);
-const cartStore = useCartStore()
+const cartStore = useCartStore();
+const editionSelected = ref('');
+const platformSelected = ref('');
 
 const getEditions = () => {
   const editions = siblingsProducts.value.map(({ edition }) => edition);
@@ -97,19 +100,17 @@ const addToCart = async () => {
     return;
   }
 
+  if (editionSelected.value === '' || platformSelected.value === '') {
+    alert("Veuillez sélectionner une édition et une plateforme.");
+    return;
+  }
+
+  product.value = siblingsProducts.value.find((item) => item.edition === editionSelected.value
+    && item.platform === platformSelected.value);
+
+
   try {
-    
-   console.log({
-      sku: product.value.sku,
-      title: product.value.title,
-      imageSrc: product.value.images[0],
-      price: product.value.price,
-      quantity: quantity.value,
-      stock: product.value.stock,
-      edition: product.value.edition,
-      platform: product.value.platform,
-    });
-   
+
     cartStore.addItem({
       sku: product.value.sku,
       title: product.value.name,
@@ -121,8 +122,6 @@ const addToCart = async () => {
       platform: product.value.platform,
     });
 
-
-    cartStore.syncCartWithBackend();
 
   } catch (error) {
     alert('Erreur lors de l’ajout au panier');
@@ -145,11 +144,11 @@ const decreaseQuantity = () => {
 
 
 const handleEdition = (edition) => {
-  product.value = siblingsProducts.value.find((item) => item.edition === edition);
+  editionSelected.value = edition;
 };
 
 const handlePlatform = (platform) => {
-  product.value = siblingsProducts.value.find((item) => item.platform === platform);
+  platformSelected.value = platform;
   console.log(product.value.sku);
 
 };
@@ -158,10 +157,10 @@ onMounted(async () => {
   try {
     const sku = route.params?.sku || '';
 
-    const { data: { productFound, platforms } } = await axios.get(`${API_ENDPOINT}/product/${sku}`);
+    const { data: { productFound, platforms } } = await axios.get(`${VITE_API_ENDPOINT}/product/${sku}`);
 
     const variants = productFound.variants;
-
+    
     variants.forEach((variant) => {
       variant.description = productFound.description;
       variant.name = `${productFound.name} - ${variant.name}`;
@@ -169,7 +168,8 @@ onMounted(async () => {
     });
 
     product.value = variants.find((item) => item.sku === sku);
-
+    editionSelected.value = product.value.edition;
+    platformSelected.value = product.value.platform;
     siblingsProducts.value = variants;
 
   } catch (error) {

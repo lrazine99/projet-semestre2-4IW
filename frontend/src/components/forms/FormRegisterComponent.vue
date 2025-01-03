@@ -1,6 +1,5 @@
 <template>
   <div class="p-6 space-y-4 md:space-y-6 bg-white sm:p-8 w-[100%]">
-
     <FormComponent :fields="fields" :submitButtonText="'Inscription'" :handleSubmit="handleSignUp"
       :validationSchema="signUpSchema" />
   </div>
@@ -10,7 +9,7 @@
 import axios from 'axios'
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
-import { API_ENDPOINT } from '@/utils/const'
+import { VITE_API_ENDPOINT } from '@/utils/const'
 
 const fields = [
   {
@@ -50,9 +49,10 @@ const signUpSchema = z.object({
 })
 
 const handleSignUp = async (formData, signal) => {
-  const { firstName, lastName, email, password } = formData
+  const { firstName, lastName, email, password } = formData;
+  
   try {
-    await axios.post(`${API_ENDPOINT}/user/signup`, {
+    await axios.post(`${VITE_API_ENDPOINT}/user/signup`, {
       firstName,
       lastName,
       email,
