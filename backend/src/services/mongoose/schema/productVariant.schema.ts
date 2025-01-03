@@ -16,7 +16,3 @@ export const ProductVariantSchema = new Schema<IProductVariant>(
   },
   { _id: true }
 );
-
-const ProductVariant = model<ProductVariant>("ProductVariant", ProductVariantSchema);
-
-export default ProductVariant;
