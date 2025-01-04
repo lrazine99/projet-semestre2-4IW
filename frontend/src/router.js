@@ -13,6 +13,7 @@ import Cart from './views/Cart.vue'
 import UsersAdmin from './views/UsersAdmin.vue'
 import ProductsAdmin from './views/ProductsAdmin.vue'
 import ProductsVariantAdmin from './views/ProductsVariantAdmin.vue'
+import Stats from './views/Stats.vue'
 
 const routes = [
   {
@@ -72,6 +73,11 @@ const routes = [
     path: '/admin/products/variant',
     name: 'ProductsVariantAdmin',
     component: ProductsVariantAdmin
+  },
+  {
+    path: '/admin/stats',
+    name: 'Stats',
+    component: Stats
   },
   {
     path: '/:pathMatch(.*)*',

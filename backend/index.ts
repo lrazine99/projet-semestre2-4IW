@@ -8,6 +8,7 @@ import errorHandler from "./src/middlewares/errorHandler"; // Import the error h
 import { AuthController } from "./src/controllers/auth.controller";
 import { CartController } from "./src/controllers/cart.controller";
 import { ProductController } from "./src/controllers/product.controller";
+import { StatsController } from "./src/controllers/stats.controller";
 
 const app = express();
 
@@ -20,10 +21,12 @@ app.use(cors());
 const authController = new AuthController();
 const cartController = new CartController();
 const productController = new ProductController();
+const statsController = new StatsController(); 
 
 app.use('/user', authController.buildRouter());
 app.use('/cart', cartController.buildRouter());
 app.use('/product', productController.buildRouter());
+app.use('/admin/stats', statsController.buildRouter());
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Hello from api server :" });
