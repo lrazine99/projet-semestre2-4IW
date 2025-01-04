@@ -29,8 +29,8 @@ export const useLoginStore = defineStore('login', {
       localStorage.removeItem('role');
       localStorage.removeItem('authToken'); // Save token to localStorage
 
-      const cartStroe = useCartStore()
-      cartStroe.removeAll();
+      const cartStore = useCartStore()
+      cartStore.removeAll();
     },
     initialize() {
       const savedToken = localStorage.getItem('authToken');
