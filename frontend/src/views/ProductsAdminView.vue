@@ -12,7 +12,7 @@
   
 
 <script setup>
-    import DataTable from '../components/DataTable.vue';
+    import DataTable from '../components/DataTableProduct.vue';
 
     const productColumns = [
         { key: "name", label: "Nom du produit" },

@@ -1,7 +1,6 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import { ProductService, PlatformService } from "../services/mongoose/models";
 import { MongooseService } from "../services";
-import ProductVariant from "../services/mongoose/schema/productVariant.schema";
 import { Types } from 'mongoose';
 
 export class ProductController {
@@ -233,7 +232,7 @@ export class ProductController {
       if (!product.variants) {
         product.variants = [];
       }
-  
+  /*
       const newVariant = new ProductVariant({
         sku: this.generateRandomSKU(),
         platform,
@@ -248,8 +247,8 @@ export class ProductController {
   
       product.variants.push(newVariant);
       await product.save();
-  
       res.status(201).json({ message: "Variante ajoutée avec succès.", variant: newVariant });
+      */
     } catch (error) {
       next(error);
     }

@@ -296,10 +296,11 @@ export class AuthController {
         ? { $or: [{ firstName: { $regex: search, $options: "i" } }, { lastName: { $regex: search, $options: "i" } }] }
         : {};
 
-      const users = await this.userService.model.find(query)
+        const users = await this.userService.model.find(query, '-salt -token -hash')
         .sort({ [sortBy as string]: order === "asc" ? 1 : -1 })
+        /*
         .skip((Number(page) - 1) * Number(limit))
-        .limit(Number(limit));
+        .limit(Number(limit));*/
 
       const totalUsers = await this.userService.model.countDocuments(query);
 
