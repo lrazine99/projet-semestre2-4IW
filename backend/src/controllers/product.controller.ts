@@ -258,7 +258,6 @@ export class ProductController {
     }
   }
   
-  
 
   generateRandomSKU(): string {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
