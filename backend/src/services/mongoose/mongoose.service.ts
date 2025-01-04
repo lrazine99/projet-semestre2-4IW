@@ -4,7 +4,8 @@ import {
   CartService,
   PlatformService,
   ProductService,
-  ResetPasswordService
+  ResetPasswordService,
+  OrderService,
 } from "./models";
 
 export class MongooseService {
@@ -16,6 +17,7 @@ export class MongooseService {
   readonly productService: ProductService;
   readonly resetPasswordService: ResetPasswordService;
   readonly cartService: CartService;
+  readonly orderService: OrderService;
 
   private constructor(mongoose: Mongoose) {
     this.mongoose = mongoose;
@@ -24,6 +26,7 @@ export class MongooseService {
     this.productService = new ProductService(this);
     this.resetPasswordService = new ResetPasswordService(this);
     this.cartService = new CartService(this);
+    this.orderService = new OrderService(this);
   }
 
   public static async get(): Promise<MongooseService> {

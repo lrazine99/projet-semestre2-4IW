@@ -18,7 +18,6 @@ export class ProductController {
   async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const platforms = await this.platformService.model.find();
-      console.log(platforms)
 
       const productsFound = await this.productService.model.find().populate({
         path: "variants.platform",

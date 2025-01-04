@@ -1,6 +1,9 @@
 <template>
+
+
     <h1
-        class="mb-4 text-3xl font-extrabold tracking-tight font-manrope leading-snug text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-pink-600 to-purple-600 md:text-4xl lg:text-5xl ">
+        class="text-4xl  mb-5 text-center text-gray-800 font-extrabold bg-clip-text text-transparent bg-[linear-gradient(to_right,theme(colors.indigo.400),theme(colors.indigo.100),theme(colors.sky.400),theme(colors.fuchsia.400),theme(colors.sky.400),theme(colors.indigo.100),theme(colors.indigo.400))] bg-[length:200%_auto] animate-gradient">
+
         {{ titleText }}</h1>
 
 </template>

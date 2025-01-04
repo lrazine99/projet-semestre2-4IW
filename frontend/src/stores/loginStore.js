@@ -1,5 +1,6 @@
 // stores/loginStore.js
 import { defineStore } from 'pinia';
+import { useCartStore } from './cartStore';
 
 export const useLoginStore = defineStore('login', {
   state: () => ({
@@ -15,17 +16,21 @@ export const useLoginStore = defineStore('login', {
   actions: {
     login(token, role) {
       this.token = token;
-      this.role = role; 
+      this.role = role;
       this.isAuthenticated = true;
       localStorage.setItem('authToken', token);
       localStorage.setItem('role', role)
     },
     logout() {
       this.token = null;
-      this.role = null; 
+      this.role = null;
       this.isAuthenticated = false;
       localStorage.removeItem('authToken');
       localStorage.removeItem('role');
+      localStorage.removeItem('authToken'); // Save token to localStorage
+
+      const cartStroe = useCartStore()
+      cartStroe.removeAll();
     },
     initialize() {
       const savedToken = localStorage.getItem('authToken');

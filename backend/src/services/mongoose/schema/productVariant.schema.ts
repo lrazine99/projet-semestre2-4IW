@@ -1,7 +1,7 @@
-import { Schema, model } from "mongoose";
-import { ProductVariant } from "../../../types";
+import { Schema } from "mongoose";
+import { IProductVariant } from "../../../types";
 
-export const ProductVariantSchema = new Schema<ProductVariant>(
+export const ProductVariantSchema = new Schema<IProductVariant>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
     sku: { type: String, required: true, unique: true },
@@ -16,7 +16,3 @@ export const ProductVariantSchema = new Schema<ProductVariant>(
   },
   { _id: true }
 );
-
-const ProductVariant = model<ProductVariant>("ProductVariant", ProductVariantSchema);
-
-export default ProductVariant;
