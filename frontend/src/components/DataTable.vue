@@ -11,10 +11,6 @@ const { columns, dataAll, actionsButtons, totalPages } = defineProps({
     type: Array,
     required: true
   },
-  handleAddUser: {
-    type: Function,
-    required: true
-  },
   actionsButtons: {
     type: Array,
     required: true
@@ -24,8 +20,6 @@ const { columns, dataAll, actionsButtons, totalPages } = defineProps({
     required: true
   },
 })
-console.log(dataAll);
-
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -58,12 +52,15 @@ const filteredData = computed(() => {
     )
   }
 
-  if (sortColumn.value) {
+    if (sortColumn.value) {
     result.sort((a, b) => {
-      if (a[sortColumn.value] < b[sortColumn.value]) return sortOrder.value === 'asc' ? -1 : 1
-      if (a[sortColumn.value] > b[sortColumn.value]) return sortOrder.value === 'asc' ? 1 : -1
-      return 0
-    })
+      const valA = a[sortColumn.value]?.toString().toLowerCase();
+      const valB = b[sortColumn.value]?.toString().toLowerCase();
+
+      if (valA < valB) return sortOrder.value === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder.value === 'asc' ? 1 : -1;
+      return 0;
+    });
   }
 
   return result

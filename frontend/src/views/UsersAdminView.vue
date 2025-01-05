@@ -109,9 +109,18 @@ const handleAction = (action, rowIndex) => {
   actionFunctions[action](rowIndex);
 }
 
-const handleDeleteSelected = (rows) => {
-  console.log('handleDeleteSelected', rows);
-}
+const handleDeleteSelected = async (rows) => {
+  try {
+    const response = await axios.delete(`${VITE_API_ENDPOINT}/user`, { data: { ids: rows } });
+
+    if (response.status === 200) {
+      users.value = users.value.filter(user => !rows.includes(user._id));
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression des utilisateurs :', error);
+    alert('Une erreur est survenue lors de la suppression.');
+  }
+};
 
 const handleAddUser = async (formData, signal) => {
   try {

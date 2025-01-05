@@ -1,7 +1,7 @@
 <template>
     <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
         @click.self="closeModal">
-        <div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
+        <div class="bg-white rounded-lg shadow-lg w-9/12 p-6 relative">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold">{{ title }}</h3>
@@ -11,11 +11,9 @@
                     &times;
                 </button>
             </div>
-            <div>
+            <div class="modal-body overflow-y-auto max-h-96">
                 <slot></slot>
             </div>
-
-            
         </div>
     </div>
 </template>
@@ -34,7 +32,14 @@ defineProps({
 const emit = defineEmits(['close']);
 
 const closeModal = () => {
-    emit('close'); // Emits the close event to the parent
+    emit('close');
 };
-
 </script>
+
+<style scoped>
+.modal-body {
+    max-height: 650px;
+    overflow-y: auto; 
+    padding-right: 16px; 
+}
+</style>
