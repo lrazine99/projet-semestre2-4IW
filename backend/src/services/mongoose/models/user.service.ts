@@ -26,7 +26,8 @@ export class UserService {
     await user.save();
 
     const newMailer = new Mailer();
-    const confirmationLink = `http://localhost/confirmer-votre-compte/${confirmationToken}`;
+    
+    const confirmationLink = ` ${process.env.FRONTEND_URL}/confirmer-votre-compte/${confirmationToken}`;
 
     return newMailer.sendEmail(
       [user.email],
