@@ -94,6 +94,7 @@ export class OrderController {
         await this.productService.model.updateOne(
           {
             "variants.sku": item.sku,
+            $expr: { $gte: ["$variants.quantity", item.quantity] }, // Ensure stock is sufficient
           },
           {
             $inc: { "variants.$.stock": -item.quantity },
