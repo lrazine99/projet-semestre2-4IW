@@ -8,7 +8,14 @@
       <div class="bg-gray-50 p-6 rounded-md shadow-md">
         <h2 class="text-lg font-semibold mb-4">Adresse</h2>
         <div class="flex items-center mb-4">
-          <input type="checkbox" id="sameAsBilling" @click="handleSameAs" v-model="sameAsBilling" class="mr-2" />
+          <input type="checkbox" id="addressAccount" v-model="addressAccount" class="mr-2" />
+          <label for="addressAccount" class="text-sm text-gray-700">
+            Enregistrer l'adresse pour les prochaines commandes
+          </label>
+
+        </div>
+        <div class="flex items-center mb-4">
+          <input type="checkbox" id="sameAsBilling" v-model="sameAsBilling" class="mr-2" />
           <label for="sameAsBilling" class="text-sm text-gray-700">
             Adresse de livraison identique à l'adresse de facturation
           </label>
@@ -67,7 +74,7 @@
             <p class="text-gray-700">Livraison gratuite</p>
           </div>
           <div class="flex justify-between font-semibold border-t pt-2">
-            <p class="text-gray-900">Total</p>
+            <p class="text-gray-900">Total TTC</p>
             <p class="text-gray-900">{{ totalPrice }}€</p>
           </div>
         </div>
@@ -102,27 +109,27 @@ import { useLoginStore } from '@/stores/loginStore';
 import router from '@/router';
 import FormFieldComponent from '@/components/FormFieldComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';
+import { useInvoicePDF } from "@/composables/useInvoicePDF";
+import { formatDate } from '@/utils/utils';
 
 const publishableKey = VITE_STRIPE_PUBLIC_KEY;
 const stripeLoaded = ref(false);
 const cardElement = ref(null);
 const elms = ref(null);
 const validationErrors = ref({})
-const serverError = ref(null)
+const addressAccount = ref(true);
 const isSubmitting = ref(false);
 const userLoaded = ref(null);
 const cartStore = useCartStore();
-const {isAuthenticated, token} = useLoginStore();
+const { isAuthenticated, token } = useLoginStore();
 const cartItems = computed(() => cartStore.cartItems);
 const totalPrice = computed(() => {
-  return `${cartStore.totalPrice.toLocaleString('fr-FR', {
+  return `${(cartStore.totalPrice * 1.2).toLocaleString('fr-FR', {
     style: 'currency',
     currency: 'EUR',
   })}`;
 });
-
-
-
+const { generatePDF } = useInvoicePDF();
 const elementsOptions = ref({});
 const cardOptions = ref({
   style: {
@@ -132,6 +139,15 @@ const cardOptions = ref({
     },
   },
 });
+
+const totalPriceWithoutTax = computed(() => {
+  return `${cartStore.totalPrice.toLocaleString('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  })}`;
+});
+
+
 
 // Checkbox state
 const sameAsBilling = ref(true);
@@ -179,6 +195,7 @@ const validationSchema = z.object({
 
 const formData = ref(Object.fromEntries(fields.map((field) => [field.id, ''])))
 
+
 onBeforeMount(async () => {
 
   if (isAuthenticated) {
@@ -189,6 +206,18 @@ onBeforeMount(async () => {
       });
 
       userLoaded.value = data;
+      data.address.zipCode = parseInt(data.address.zipCode);
+
+      Object.keys(formData.value).forEach((key, index) => {
+        if (index < 6) {
+          console.log(Object.keys(data.address)[index]);
+          formData.value[key] = data.address[Object.keys(data.address)[index]];
+        } else {
+          formData.value[key] = data.address[Object.keys(data.address)[index - 6]];
+        }
+      });
+
+
 
       await loadStripe(publishableKey);
 
@@ -197,6 +226,8 @@ onBeforeMount(async () => {
     } catch (error) {
       console.error("Erreur lors de la récupération du panier :", error);
     }
+  } else if (cartItems.value.length === 0) {
+    router.push("/produits");
   } else {
     router.push("/inscription-connexion/#connexion");
   }
@@ -256,17 +287,13 @@ const clearFieldError = (fieldId) => {
 }
 
 const handlePayment = async () => {
-  console.log('Payment started');
-
   try {
     mapToFormData();
 
     if (!validateForm() || isSubmitting.value) return
 
-    // isSubmitting.value = true
-    serverError.value = null
+    isSubmitting.value = true
 
-    console.log(formData.value);
     const result = await elms.value.instance.createToken(cardElement.value.stripeElement);
 
     if (result.error) {
@@ -277,7 +304,7 @@ const handlePayment = async () => {
 
     const paymentData = {
       token: result.token.id,
-      amount: totalPrice.value, // Ensure this is in the smallest unit of your currency
+      amount: cartStore.totalPrice * 1.2,
       currency: 'eur',
     };
 
@@ -300,23 +327,79 @@ const handlePayment = async () => {
       country: formData.value.shippingCountry,
     };
 
-    formData.value = { billingAddress, shippingAddress, ...userLoaded.value, ...paymentData, cartItems: cartItems.value};
-    console.log(formData.value);
+    formData.value = { billingAddress, shippingAddress, ...userLoaded.value, ...paymentData, cartItems: cartItems.value };
 
-    const response = await axios.post(`${VITE_API_ENDPOINT}/order/create`, formData.value,
+    addressAccount.value ? formData.value.addressAccount = true : formData.value.addressAccount = false;
+
+    const { data } = await axios.post(`${VITE_API_ENDPOINT}/order/create`, formData.value,
       { headers: { Authorization: `Bearer ${token}` } }
 
     );
-    console.log(response);
 
-    console.log('Payment token:', result.token);
     alert('Paiement réussi!');
-    return;
+
+    const fileName = data.invoiceNumber;
+    const nowDate = new Date();
+    const formattedDate = formatDate(nowDate);
+
+
+    const invoiceData = {
+      companyLogo: "path/to/logo.png",
+      creationDate: formattedDate,
+      invoiceId: fileName,
+      company: {
+        name: "GameMarket",
+        siret: "123456789",
+        address: "123 rue de la rue",
+        city: "Paris",
+        zipCode: "75000",
+      },
+      client: {
+        firstName: userLoaded.value.firstName,
+        lastName: userLoaded.value.lastName,
+        address: `${billingAddress.number} ${billingAddress.street}`,
+        city: billingAddress.city,
+        zipCode: billingAddress.zipCode,
+      },
+      items: cartItems.value.map((item) => ({
+        name: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        taxRate: 20,
+        totalWithoutTax: (item.price * item.quantity).toFixed(2),
+        totalWithTax: ((item.price * item.quantity) * 1.2).toFixed(2),
+      })),
+      totalWithoutTax: totalPriceWithoutTax.value,
+      totalTax: (cartStore.totalPrice * 1.2 - cartStore.totalPrice).toFixed(2),
+      totalWithTax: totalPrice.value,
+      notes: "Merci pour votre achat!",
+    };
+
+    const pdfBlob = await generatePDF(invoiceData);
+
+    const formDataInvoice = new FormData();
+
+    formDataInvoice.append("pdf", pdfBlob, "invoice.pdf");
+    formDataInvoice.append("email", userLoaded.value.email);
+    formDataInvoice.append("fileName", fileName);
+
+    await axios.post(`${VITE_API_ENDPOINT}/order/send/invoice`, formDataInvoice, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    cartStore.removeAll();
+    alert('Facture envoyée par email!');
     // Proceed with payment
   } catch (error) {
     console.error('Erreur:', error);
     alert('Une erreur est survenue: ' + error.message);
   }
+
+  isSubmitting.value = false;
+  router.push('/');
 };
 
 

@@ -10,7 +10,6 @@
       v-model="inputValue"
       @input="updateValue"
       @blur="validateForm"
-      @onchange="validateForm"
       :class="[
         'block w-full p-2.5 rounded-lg focus:ring-primary-600 focus:border-primary-600',
         {
@@ -27,32 +26,64 @@
 <script setup>
 import { ref, watch } from 'vue'
 
+// Props definition
 const props = defineProps({
-  modelValue: String,
-  label: String,
-  id: String,
+  modelValue: {
+    type: String,
+    default: '',
+  },
+  label: {
+    type: String,
+    required: true,
+  },
+  id: {
+    type: String,
+    required: true,
+  },
   type: {
     type: String,
-    default: 'text'
+    default: 'text',
   },
   cssClass: {
     type: String,
-    default: ''
+    default: '',
   },
   placeholder: {
     type: String,
-    default: 'Entrez valeur...'
+    default: 'Entrez valeur...',
   },
-  error: String // Error message prop from the form component
+  error: {
+    type: String,
+    default: '',
+  },
 })
 
-const emit = defineEmits(['update:modelValue, onBlurInput'])
-const inputValue = ref(props.modelValue || '')
+// Events emitted
+const emit = defineEmits(['update:modelValue', 'onBlurInput'])
 
+// Local input value bound to the prop
+const inputValue = ref(props.modelValue)
+
+// Watch for changes in the `modelValue` prop to update `inputValue`
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    inputValue.value = newValue
+  }
+)
+
+// Update the parent component when `inputValue` changes
 watch(inputValue, (newValue) => {
   emit('update:modelValue', newValue)
 })
 
-const updateValue = () => emit('update:modelValue', inputValue.value)
-const validateForm = (id) => emit('onBlurInput', id)
+// Emit the updated value on input
+const updateValue = () => {
+  emit('update:modelValue', inputValue.value)
+}
+
+// Emit the blur event with the field's id
+const validateForm = (id) => {
+  emit('onBlurInput', id)
+}
 </script>

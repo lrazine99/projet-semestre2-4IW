@@ -1,4 +1,5 @@
 <script setup>
+import { formatDate } from '@/utils/utils';
 import { saveAs } from 'file-saver'
 import { computed, ref } from 'vue'
 
@@ -134,6 +135,7 @@ const toggleAllSelection = () => {
     );
   }
 };
+const isValidDate = (value) => new Date(value) !== 'Invalid Date' && !isNaN(new Date(value));
 
 </script>
 <template>
@@ -189,7 +191,9 @@ const toggleAllSelection = () => {
             <td class="py-3 px-6">
               <input type="checkbox" :value="row._id" v-model="selectedRows" />
             </td>
-            <td v-for="column in columns" :key="column.key" class="py-3 px-6"><span>{{ row[column.key] }}</span></td>
+            <td v-for="column in columns" :key="column.key" class="py-3 px-6">
+              <span>{{ isValidDate(row[column.key]) ? formatDate(row[column.key]) : row[column.key] }}</span>
+            </td>
             <td class="py-3 px-6 flex space-x-1">
               <button v-for="action in actionsButtons" :key="action.key"
                 @click="$emit('action-click', action.handler, row._id)"
