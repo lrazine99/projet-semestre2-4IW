@@ -22,6 +22,7 @@ export const useCartStore = defineStore('cart', {
             headers: { Authorization: `Bearer ${token}` },
           });
     
+          console.log("responseee", response.data.items)
           if (response.data?.items) {
             this.cartItems = response.data.items;
           }
