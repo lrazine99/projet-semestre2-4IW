@@ -1,5 +1,5 @@
 <script setup>
-import { useDatatable } from '../composable/useTable'
+import { useDatatable } from '../composables/useTable'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import DeleteModal from "@/components/DeleteModalComponent.vue";

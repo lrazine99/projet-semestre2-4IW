@@ -89,8 +89,6 @@ const loginStore = useLoginStore();
 const cartStore = useCartStore();
 const cartItemCount = computed(() => cartStore.totalQuantity);
 
-console.log(loginStore.isAuthenticated);
-
 const logout = () => {
 
   loginStore.logout();
