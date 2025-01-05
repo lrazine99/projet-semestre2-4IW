@@ -83,7 +83,7 @@ router.post("/user/login", async (req: any, res: any) => {
         res
           .status(402)
           .json({ message: "compte non vérifié, un email a été envoyé" });
-          return;
+        return;
       }
 
       const generatedHash = SHA256(
@@ -98,6 +98,7 @@ router.post("/user/login", async (req: any, res: any) => {
           _id: userFound._id,
           email: userFound.email,
           token: userFound.token,
+          role: userFound.role, // Ajoute ici le rôle
         });
       } else {
         res

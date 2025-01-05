@@ -1,6 +1,6 @@
 <template>
 
-  <div class="bg-white shadow-lg rounded-lg overflow-hidden w-80 mx-auto cursor-pointer mb-8">
+  <div v-scroll-appear class="bg-white shadow-lg rounded-lg overflow-hidden w-80 mx-auto cursor-pointer mb-8">
     <router-link :to="{ name: 'Product', params: { sku } }">
       <div class="relative w-full h-96">
         <img :src="imageSrc" :alt="imageAlt" class="w-full h-full object-fill" />
@@ -113,7 +113,7 @@ const addToCart = async () => {
   }
 
   try {
-
+    
     cartStore.addItem({
       sku: props.sku,
       title: props.title,
@@ -122,11 +122,9 @@ const addToCart = async () => {
       quantity: quantity.value,
       stock: props.stock,
       edition: props.edition,
-      platform: props.platformName,
+      platform: props.platform,
     });
 
-
-    cartStore.syncCartWithBackend();
 
   } catch (error) {
     alert('Erreur lors de l’ajout au panier');

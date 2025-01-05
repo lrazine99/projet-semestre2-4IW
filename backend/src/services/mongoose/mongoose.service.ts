@@ -4,7 +4,9 @@ import {
   CartService,
   PlatformService,
   ProductService,
-  ResetPasswordService
+  ProductVariantService,
+  ResetPasswordService,
+  OrderService,
 } from "./models";
 
 export class MongooseService {
@@ -14,16 +16,20 @@ export class MongooseService {
   readonly userService: UserService;
   readonly platformService: PlatformService;
   readonly productService: ProductService;
+  readonly productVariantService: ProductVariantService;
   readonly resetPasswordService: ResetPasswordService;
   readonly cartService: CartService;
+  readonly orderService: OrderService;
 
   private constructor(mongoose: Mongoose) {
     this.mongoose = mongoose;
     this.userService = new UserService(this);
     this.platformService = new PlatformService(this);
     this.productService = new ProductService(this);
+    this.productVariantService = new ProductVariantService(this);
     this.resetPasswordService = new ResetPasswordService(this);
     this.cartService = new CartService(this);
+    this.orderService = new OrderService(this);
   }
 
   public static async get(): Promise<MongooseService> {

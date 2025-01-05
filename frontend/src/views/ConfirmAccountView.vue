@@ -16,6 +16,7 @@ import TitleComponent from '@/components/TitleComponent.vue';
 import FormResendConfirm from '@/components/forms/FormResendConfirm.vue';
 import AbortControllerManager from '@/controllers/AbortControllerManager';
 import { useLoginStore } from '@/stores/loginStore';
+import { VITE_API_ENDPOINT } from '@/utils/const';
 
 const showResendConfirmationForm = ref(false);
 const decoratedAbort = new AbortControllerManager();
@@ -25,7 +26,7 @@ const handleEmailConfirmation = async () => {
     try {
         const token = getTokenUrl();
 
-        const { data } = await axios.get(`http://localhost:8080/confirm-email/${token}`, {
+        const { data } = await axios.get(`${VITE_API_ENDPOINT}/user/confirm-email/${token}`, {
             signal: decoratedAbort.signal
         });
 
@@ -46,7 +47,7 @@ const handleEmailConfirmation = async () => {
 
 onBeforeMount(() => {
     if (loginStore.isAuthenticated) {
-        router.push('/product');
+        router.push('/produits');
     }
 
     handleEmailConfirmation();

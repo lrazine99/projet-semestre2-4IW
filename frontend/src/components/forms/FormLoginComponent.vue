@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-4 md:space-y-6 bg-white sm:p-8 w-[100%]">
+  <div class="transform transition-all hover:scale-105 p-6 space-y-4 md:space-y-6 bg-white sm:p-8 w-[100%]">
     <FormComponent :fields="loginFields" :validationSchema="loginSchema" :handleSubmit="handleLogin"
       submitButtonText="Connexion" />
     <a href="/demande-reinitialiser-mot-de-passe" class="text-sm text-primary-600 hover:underline">Mot de passe oublié
@@ -14,7 +14,7 @@ import FormComponent from '../FormComponent.vue';
 import axios from 'axios';
 import { useCartStore } from '@/stores/cartStore';
 import { useLoginStore } from '@/stores/loginStore';
-import { API_ENDPOINT } from '@/utils/const';
+import { VITE_API_ENDPOINT } from '@/utils/const';
 
 const router = useRouter();
 const loginStore = useLoginStore();
@@ -38,16 +38,15 @@ const loginSchema = z.object({
 
 const handleLogin = async (formData, signal) => {
   try {
-    const { data } = await axios.post(`${API_ENDPOINT}/user/login`, formData, { signal });
+    const { data } = await axios.post(`${VITE_API_ENDPOINT}/user/login`, formData, { signal });
 
-    loginStore.login(data?.token);
+    loginStore.login(data?.token, data?.role);
 
     const cartStore = useCartStore();
     await cartStore.syncCartWithBackend(loginStore.isAuthenticated);
+    await cartStore.loadCart();
 
-    window.dispatchEvent(new Event('auth-changed'));
-
-    router.push('/product');
+    router.push('/produits');
   } catch (error) {
     alert(error.response.data.message);
     throw error;

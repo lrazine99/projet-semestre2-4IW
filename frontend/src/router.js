@@ -1,20 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useLoginStore } from './stores/loginStore'
 
-import Home from './views/Home.vue'
-import NotFound from './views/NotFound.vue'
-import ProductList from './views/ProductList.vue'
-import Product from './views/Product.vue'
-import LoginRegister from './views/LoginRegister.vue'
-import MyAccount from './views/MyAccount.vue'
-import ResetPassword from './views/ResetPassword.vue'
-import RequestReset from './views/RequestReset.vue'
-import ConfirmAccount from './views/ConfirmAccount.vue'
-import Cart from './views/Cart.vue'
-import UsersAdmin from './views/UsersAdmin.vue'
-import ProductsAdmin from './views/ProductsAdmin.vue'
-import ProductsVariantAdmin from './views/ProductsVariantAdmin.vue'
-import Stats from './views/Stats.vue'
-
+const Home = () => import('./views/HomeView.vue')
+const NotFound = () => import('./views/NotFoundView.vue')
+const ProductList = () => import('./views/ProductListView.vue')
+const Product = () => import('./views/ProductView.vue')
+const LoginRegister = () => import('./views/LoginRegisterView.vue')
+const MyAccount = () => import('./views/MyAccountView.vue')
+const ResetPassword = () => import('./views/ResetPasswordView.vue')
+const RequestReset = () => import('./views/RequestResetView.vue')
+const ConfirmAccount = () => import('./views/ConfirmAccountView.vue')
+const Cart = () => import('./views/CartView.vue')
+const Order = () => import('./views/OrderView.vue')
+const UsersAdmin = () => import ('./views/UsersAdmin.vue')
+const ProductsAdmin = () => import ('./views/ProductsAdmin.vue')
+const ProductsVariantAdmin = () => import ('./views/ProductsVariantAdmin.vue')
+const Stats = () => import ('./views/Stats.vue')
 const routes = [
   {
     path: '/',
@@ -39,10 +40,14 @@ const routes = [
   {
     path: '/mon-compte',
     name: 'MyAccount',
-    component: MyAccount
+    component: MyAccount,
+    meta: { requiresAuth: true }
   },
-  { path: '/demande-reinitialiser-mot-de-passe', name: 'RequestReset', component: RequestReset },
-
+  {
+    path: '/demande-reinitialiser-mot-de-passe',
+    name: 'RequestReset',
+    component: RequestReset
+  },
   {
     path: '/reinitialiser-mot-de-passe/:token',
     name: 'ResetPassword',
@@ -60,19 +65,30 @@ const routes = [
     component: Cart
   },
   {
-    path: '/admin/users',
-    name: 'UsersAdmin',
-    component: UsersAdmin
+    path: '/commande',
+    name: 'Order',
+    component: Order
   },
   {
-    path: '/admin/products',
-    name: 'ProductsAdmin',
-    component: ProductsAdmin
-  },
-  {
-    path: '/admin/products/variant',
-    name: 'ProductsVariantAdmin',
-    component: ProductsVariantAdmin
+    path: '/admin',
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: 'users',
+        name: 'UsersAdmin',
+        component: UsersAdmin
+      },
+      {
+        path: 'products',
+        name: 'ProductsAdmin',
+        component: ProductsAdmin
+      },
+      {
+        path: 'products/variant',
+        name: 'ProductsVariantAdmin',
+        component: ProductsVariantAdmin
+      }
+    ]
   },
   {
     path: '/admin/stats',
@@ -86,7 +102,29 @@ const routes = [
   }
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const loginStore = useLoginStore()
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!loginStore.isLoggedIn) {
+      next({ name: from.name || 'Home', replace: true })
+      return
+    }
+
+    if (to.matched.some(record => record.meta.requiresAdmin)) {
+      if (!loginStore.isAdmin) {
+        next({ name: from.name || 'Home', replace: true })
+        return
+      }
+    }
+  }
+
+  next()
+})
+
+export default router

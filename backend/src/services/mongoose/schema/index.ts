@@ -7,3 +7,5 @@ export * from './resetPassword.schema';
 export * from './cartItem.schema';
 export * from './cart.schema';
 export * from './resetPassword.schema';
+export * from './order.schema';
+export * from './orderItem.schema';

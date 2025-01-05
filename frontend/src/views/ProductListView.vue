@@ -129,7 +129,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import CardProductComponent from '../components/CardProductComponent.vue';
-import { API_ENDPOINT } from '@/utils/const';
+import { VITE_API_ENDPOINT } from '@/utils/const';
 
 const router = useRouter();
 const route = useRoute();
@@ -273,9 +273,8 @@ watch(
 
 onMounted(async () => {
   try {
-    const { data: { productsFound, platforms : platfromsData } } = await axios.get(`${API_ENDPOINT}/product`);
-    console.log(platforms);
-
+    const { data: { productsFound, platforms : platfromsData } } = await axios.get(`${VITE_API_ENDPOINT}/product`);
+    
     processProducts(productsFound);
 
     genres.value = Array.from(new Set(allVariants.value.flatMap(product => product.genres)));
@@ -292,10 +291,6 @@ onMounted(async () => {
     displayedVariants.value = currentPageProducts.value;
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error);
-  }
-
-  for (const item of currentPageProducts.value) {
-    console.log(item);
   }
 
 });

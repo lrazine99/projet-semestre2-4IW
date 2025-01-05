@@ -7,5 +7,7 @@ export * from './resetPassword.interface';
 export * from './cart.interface';
 export * from './cartItem.interface';
 export * from './resetPassword.interface';
+export * from './order.interface';
+export * from './orderItems.interface';
 
 

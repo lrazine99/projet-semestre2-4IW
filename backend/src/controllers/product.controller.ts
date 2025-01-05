@@ -1,16 +1,18 @@
 import express, { Router, Request, Response, NextFunction } from "express";
-import { ProductService, PlatformService } from "../services/mongoose/models";
+import { ProductService, PlatformService,ProductVariantService } from "../services/mongoose/models";
 import { MongooseService } from "../services";
-import ProductVariant from "../services/mongoose/schema/productVariant.schema";
+/* import ProductVariant from "../services/mongoose/schema/productVariant.schema"; */
 import { Types } from 'mongoose';
 
 export class ProductController {
   private productService!: ProductService;
+  private productVariantService!: ProductVariantService;
   private platformService!: PlatformService;
 
   constructor() {
     MongooseService.get().then((mongooseService) => {
       this.productService = mongooseService.productService;
+      this.productVariantService = mongooseService.productVariantService;
       this.platformService = mongooseService.platformService;
     });
   }
@@ -18,7 +20,6 @@ export class ProductController {
   async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const platforms = await this.platformService.model.find();
-      console.log(platforms)
 
       const productsFound = await this.productService.model.find().populate({
         path: "variants.platform",
@@ -235,7 +236,7 @@ export class ProductController {
         product.variants = [];
       }
   
-      const newVariant = new ProductVariant({
+      const newVariant = {
         sku: this.generateRandomSKU(),
         platform,
         name,
@@ -245,12 +246,13 @@ export class ProductController {
         price,
         stock,
         barcode,
-      });
+      };
   
-      product.variants.push(newVariant);
+      const variantInstance = await this.productVariantService.model.create(newVariant);
+      product.variants.push(variantInstance);
       await product.save();
   
-      res.status(201).json({ message: "Variante ajoutée avec succès.", variant: newVariant });
+      res.status(201).json({ message: "Variante ajoutée avec succès.", variant: variantInstance });
     } catch (error) {
       next(error);
     }
