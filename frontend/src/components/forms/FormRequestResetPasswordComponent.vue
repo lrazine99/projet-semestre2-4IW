@@ -23,7 +23,7 @@ const loginSchema = z.object({
 const handleLogin = async (formData, signal) => {
   
   try {
-    await axios.post(`${VITE_API_ENDPOINT}/request-reset-password`, formData, {
+    await axios.post(`${VITE_API_ENDPOINT}/user/reset-password`, formData, {
       signal
     })
 
