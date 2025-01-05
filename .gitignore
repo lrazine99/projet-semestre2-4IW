@@ -19,8 +19,9 @@ backend/build/
 backend/tmp/
 
 # Environment files
-.env
-*.env
+frontend/.env
+backend/.env
+
 
 # Temporary files
 tmp/

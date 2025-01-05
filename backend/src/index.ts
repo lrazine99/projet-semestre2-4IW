@@ -44,10 +44,8 @@ const startServer = async () => {
 
     // @ts-ignore
     const PORT = process.env.SERVER_PORT || 8080;
-    // const PORT =  8080;
 
     app.listen(PORT, () => {
-      `App listening at <http://localhost>:${PORT} `;
     });
   } catch (error) {
     console.error("Failed to start server:", error);
