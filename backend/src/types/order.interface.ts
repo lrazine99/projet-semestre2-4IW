@@ -24,4 +24,5 @@ export interface IOrder extends Document {
   orderAt: Date;
   orderStatus: OrderStatus;
   paymentStatus: PaymentStatus;
+  invoiceNumber: String;
 }
