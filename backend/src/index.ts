@@ -4,12 +4,12 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
-import errorHandler from "./src/middlewares/errorHandler"; // Import the error handler middleware
-import { AuthController } from "./src/controllers/auth.controller";
-import { CartController } from "./src/controllers/cart.controller";
-import { ProductController } from "./src/controllers/product.controller";
-import { StatsController } from "./src/controllers/stats.controller";
-import { OrderController } from "./src/controllers/order.controller";
+import errorHandler from "./middlewares/errorHandler"; // Import the error handler middleware
+import { AuthController } from "./controllers/auth.controller";
+import { CartController } from "./controllers/cart.controller";
+import { ProductController } from "./controllers/product.controller";
+import { StatsController } from "./controllers/stats.controller";
+import { OrderController } from "./controllers/order.controller";
 
 const app = express();
 
