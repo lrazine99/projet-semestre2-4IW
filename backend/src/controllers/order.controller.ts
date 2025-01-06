@@ -165,6 +165,16 @@ export class OrderController {
     }
   }
 
+  async getOrders(req: Request, res: Response) {
+    try {
+        const orders = await this.orderService.model.find({}).exec();
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).send("Error fetching orders");
+    }
+  }
+
   buildRouter(): Router {
     const router = Router();
 
@@ -175,6 +185,7 @@ export class OrderController {
       upload.single("pdf"),
       this.sendInvoice.bind(this)
     );
+    router.get("/all", isAuthenticated, this.getOrders.bind(this));
     return router;
   }
 }

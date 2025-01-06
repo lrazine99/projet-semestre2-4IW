@@ -1,4 +1,5 @@
 <template>
+  <LoaderComponent :isVisible="isLoading"/>
     <div class="mx-8 mt-20">
         <TitleComponent titleText="Liste des produits" />
         <div class="flex justify-center mb-4">

@@ -1,4 +1,5 @@
 <template>
+  <LoaderComponent :isVisible="isLoading"/>
   <div class="mx-8 mt-20">
     <TitleComponent titleText="Liste des utilisateurs" />
     <div class="flex justify-center mb-4">
@@ -58,6 +59,7 @@ import DeleteModal from "@/components/DeleteModalComponent.vue";
 import TitleComponent from '@/components/TitleComponent.vue';
 import FormCreateUserComponent from '@/components/forms/FormCreateUserComponent.vue';
 import FormUpdateUserComponent from '@/components/forms/FormUpdateUserComponent.vue';
+import LoaderComponent from '@/components/LoaderComponent.vue';
 
 const showModalUser = ref(false);
 const showModalEditUser = ref(false);
