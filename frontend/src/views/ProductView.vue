@@ -1,6 +1,6 @@
 <template>
   <LoaderComponent :isVisible="loading" />
-  <div v-if="!loading" class="flex h-lvh w-full md:flex-row flex-col  p-4 justify-around ">
+  <div v-if="!loading" class="flex h-lvh w-full md:flex-row flex-col  mt-16  p-4 justify-around ">
     <div class=" w-96 md:w-[30%] h-100">
       <CarrousellComponent v-if="!loading"
         :images="product.images.map((image, index) => ({ src: image, alt: `${product.name} image numéro ${index + 1}` }))" />
@@ -37,7 +37,7 @@
       <div class="flex items-center px-4 py-2 border-t space-x-2">
         <button v-for="(platform, index) in getPlatforms()" :key="index" @click="handlePlatform(platform)"
           class="w-full flex items-center justify-center rounded-md bg-gray-100	 px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-gray focus:outline-none focus:ring-4 focus:ring-blue-300"
-          :class="platform === platformSelected ? 'bg-blue-400 ' : ''">
+          :class="platform === platformSelected ? 'bg-[rgb(138,221,238)]' : ''">
 
           {{ platform }}
         </button>
@@ -46,7 +46,7 @@
       <div class="flex items-center px-4 py-2 border-t space-x-2">
         <button v-for="(edition, index) in getEditions()" :key="index" @click="handleEdition(edition)"
           class="w-full flex items-center justify-center rounded-md bg-gray-100	 px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-gray focus:outline-none focus:ring-4 focus:ring-blue-300"
-          :class="edition === editionSelected ? 'bg-blue-400 ' : ''">
+          :class="edition === editionSelected ? 'bg-[rgb(138,221,238)]' : ''">
           {{ edition }}
         </button>
       </div>
@@ -84,6 +84,7 @@ const getEditions = () => {
   editions.push(product.value.edition);
   return [...new Set(editions)];
 };
+
 
 const getPlatforms = () => {
   const platforms = siblingsProducts.value.map(({ platform }) => platform);
@@ -149,7 +150,6 @@ const handleEdition = (edition) => {
 
 const handlePlatform = (platform) => {
   platformSelected.value = platform;
-  console.log(product.value.sku);
 
 };
 

@@ -8,6 +8,7 @@ import errorHandler from "./middlewares/errorHandler"; // Import the error handl
 import { AuthController } from "./controllers/auth.controller";
 import { CartController } from "./controllers/cart.controller";
 import { ProductController } from "./controllers/product.controller";
+import { StatsController } from "./controllers/stats.controller";
 import { OrderController } from "./controllers/order.controller";
 
 const app = express();
@@ -21,11 +22,13 @@ app.use(cors());
 const authController = new AuthController();
 const cartController = new CartController();
 const productController = new ProductController();
+const statsController = new StatsController();
 const orderController = new OrderController();
 
 app.use('/user', authController.buildRouter());
 app.use('/cart', cartController.buildRouter());
 app.use('/product', productController.buildRouter());
+app.use('/admin/stats', statsController.buildRouter());
 app.use('/order', orderController.buildRouter());
 
 app.get("/", (req: Request, res: Response) => {

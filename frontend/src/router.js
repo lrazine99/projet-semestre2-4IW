@@ -12,9 +12,10 @@ const RequestReset = () => import('./views/RequestResetView.vue')
 const ConfirmAccount = () => import('./views/ConfirmAccountView.vue')
 const Cart = () => import('./views/CartView.vue')
 const Order = () => import('./views/OrderView.vue')
-const UsersAdmin = () => import('./views/UsersAdminView.vue')
-const ProductsAdmin = () => import('./views/ProductsAdminView.vue')
-const ProductsVariantAdmin = () => import('./views/ProductsVariantAdminView.vue')
+const UsersAdmin = () => import ('./views/UsersAdminView.vue')
+const ProductsAdmin = () => import ('./views/ProductsAdminView.vue')
+const ProductsVariantAdmin = () => import ('./views/ProductsVariantAdminView.vue')
+const Stats = () => import ('./views/StatsView.vue')
 const OrdersAdmin = () => import('./views/OrdersAdminView.vue')
 
 const routes = [
@@ -95,6 +96,11 @@ const routes = [
         component: OrdersAdmin
       }
     ]
+  },
+  {
+    path: '/admin/stats',
+    name: 'Stats',
+    component: Stats
   },
   {
     path: '/:pathMatch(.*)*',
