@@ -13,7 +13,7 @@ const Cart = () => import('./views/CartView.vue')
 const Order = () => import('./views/OrderView.vue')
 const UsersAdmin = () => import('./views/UsersAdminView.vue')
 const ProductsAdmin = () => import('./views/ProductsAdminView2.vue')
-const ProductsVariantAdmin = () => import('./views/ProductsVariantAdminView.vue')
+const ProductsVariantAdmin = () => import('./views/ProductsVariantAdminView2.vue')
 
 const routes = [
   {

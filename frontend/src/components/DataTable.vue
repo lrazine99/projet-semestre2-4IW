@@ -189,8 +189,8 @@ const toggleAllSelection = () => {
             <td v-for="column in columns" :key="column.key" class="py-3 px-6"><span>{{ row[column.key] }}</span></td>
             <td class="py-3 px-6 flex space-x-1">
               <button v-for="action in actionsButtons" :key="action.key"
-                @click="$emit('action-click', action.handler, row._id)"
-                :class="`bg-${action.bgColor}-500 hover:bg-${action.bgColor}-700`"
+              @click="$emit('action-click', action.handler, row._id, row.variantId)"
+              :class="`bg-${action.bgColor}-500 hover:bg-${action.bgColor}-700`"
                 class="px-4 py-2 text-white  rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200">
                 {{ action.label }}
               </button>

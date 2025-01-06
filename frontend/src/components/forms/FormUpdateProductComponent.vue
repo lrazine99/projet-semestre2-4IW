@@ -40,7 +40,7 @@ const updateProductFields = [
 const updateProductSchema = z.object({
     name: z.string().min(1, 'Nom du produit requis'),
     description: z.string().min(1, 'Description requise'),
-    genres: z.string().min(1, 'Genres requis'),
+    genres: z.union([z.string().min(1, 'Genres requis'), z.array(z.string()).min(1, 'Genres requis')]),
     minAge: z.number().min(0, 'Âge minimum invalide').int('L\'âge doit être un nombre entier'),
     editor: z.string().min(1, 'Éditeur requis'),
 })
