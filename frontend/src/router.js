@@ -15,6 +15,7 @@ const Order = () => import('./views/OrderView.vue')
 const UsersAdmin = () => import('./views/UsersAdminView.vue')
 const ProductsAdmin = () => import('./views/ProductsAdminView.vue')
 const ProductsVariantAdmin = () => import('./views/ProductsVariantAdminView.vue')
+const OrdersAdmin = () => import('./views/OrdersAdminView.vue')
 
 const routes = [
   {
@@ -87,6 +88,11 @@ const routes = [
         path: 'products/variant',
         name: 'ProductsVariantAdmin',
         component: ProductsVariantAdmin
+      },
+      {
+        path: 'orders',
+        name: 'OrdersAdmin',
+        component: OrdersAdmin
       }
     ]
   },

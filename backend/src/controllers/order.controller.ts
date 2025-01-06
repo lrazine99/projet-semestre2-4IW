@@ -185,7 +185,7 @@ export class OrderController {
       upload.single("pdf"),
       this.sendInvoice.bind(this)
     );
-    router.get("/all", isAuthenticated, this.getOrders.bind(this));
+    router.get("/", isAuthenticated, this.getOrders.bind(this));
     return router;
   }
 }
