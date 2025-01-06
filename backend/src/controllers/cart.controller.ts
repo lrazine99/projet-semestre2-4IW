@@ -73,7 +73,7 @@ export class CartController {
         );
 
         if (existingItem) {
-          existingItem.quantity += item.quantity;
+          existingItem.quantity = item.quantity;
         } else {
           cart.items.push({ sku: item.sku, quantity: item.quantity });
         }

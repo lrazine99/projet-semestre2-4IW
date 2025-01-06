@@ -20,4 +20,6 @@ export const OrderSchema = new Schema<IOrder>({
   orderAt: { type: Date, required: true },
   orderStatus: { type: String, required: true },
   paymentStatus: { type: String, required: true },
+  invoiceNumber: { type: String, unique: true },
 });
+

@@ -293,10 +293,6 @@ onMounted(async () => {
     console.error('Erreur lors de la récupération des produits:', error);
   }
 
-  for (const item of currentPageProducts.value) {
-    console.log(item);
-  }
-
 });
 
 const toggleGenreFilter = () => {

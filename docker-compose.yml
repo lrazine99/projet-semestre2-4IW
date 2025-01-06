@@ -3,7 +3,7 @@ services:
     container_name: backend
     build:
       context: ./backend
-      target: dev
+      target: ${DOCKER_ENV:-dev}
     env_file:
       - ./backend/.env
     depends_on:
@@ -13,6 +13,16 @@ services:
       - /usr/app/node_modules
       - ./backend/nodemon.json:/app/nodemon.json
     environment:
+      - STRIPE_KEY=${STRIPE_KEY:-sk_test_51Mv1BEGk0I9TXycsuPiiXCBfdWpsvmdZl8w8GyZqsamQx1uK2rG6r4HDNA2EzRZcHW9SKJozQ8m2vVep85GqMfr600LovocVGK}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY:-c44325aac7fc17c406fb386d8a1c8c26-c02fd0ba-f01a3168}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN:-game-market-esgi-s2-4iw.world}
+      - MAILGUN_PUBLIC_VALIDATION_URL=${MAILGUN_PUBLIC_VALIDATION_URL:-https://api.mailgun.net/v4/address/validate}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://db:27017}
+      - MONGODB_USERNAME=${MONGODB_USERNAME:-root}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD:-Inghe@55}
+      - DATABASE_NAME=${DATABASE_NAME:-game-market}
+      - PROD_PASS=${PROD_PASS:-ed€94@dDdd}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_51Mv1BEGk0I9TXycsuPiiXCBfdWpsvmdZl8w8GyZqsamQx1uK2rG6r4HDNA2EzRZcHW9SKJozQ8m2vVep85GqMfr600LovocVGK}
       - SERVER_PORT=${SERVER_PORT:-3000}
       - CHOKIDAR_USEPOLLING=true
     ports:
@@ -27,14 +37,16 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: Inghe@55
+      MONGO_INITDB_DATABASE: game-market
+    volumes:
+      - ./mongo-data:/data/db
   frontend:
     container_name: frontend
     build:
       context: ./frontend
-      target: dev
+      target: ${DOCKER_ENV:-dev}
     volumes:
       - ./frontend:/app
-      - /app/node_modules
     ports:
       - "80:80"
     environment:

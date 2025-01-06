@@ -3,4 +3,5 @@ export * from "./cart.service";
 export * from "./resetPassword.service";
 export * from "./platform.service";
 export * from "./product.service";
+export * from "./productVariant.service";
 export * from "./order.service";

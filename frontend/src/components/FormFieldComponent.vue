@@ -52,6 +52,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 
+// Props definition
 const props = defineProps({
   modelValue: {
     type: [String, Number],
@@ -61,18 +62,18 @@ const props = defineProps({
   id: String,
   type: {
     type: String,
-    default: 'text'
+    default: 'text',
   },
   cssClass: {
     type: String,
-    default: ''
+    default: '',
   },
   placeholder: {
     type: String,
     default: 'Entrez valeur...'
   },
   error: String,
-  options: { 
+  options: {
     type: Array,
     default: () => []
   }

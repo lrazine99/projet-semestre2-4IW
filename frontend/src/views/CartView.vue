@@ -208,7 +208,8 @@ const decreaseQuantity = async (index) => {
 const destination = loginStore.isAuthenticated ? '/commande' : '/inscription-connexion/#connexion';
 
 onBeforeMount(async () => {
-  await cartStore.loadCart();
+/*   console.log("testest", cartStore.cartItems)
+ */  await cartStore.loadCart();
   cartItems.value = cartStore.cartItems
 });
 </script>

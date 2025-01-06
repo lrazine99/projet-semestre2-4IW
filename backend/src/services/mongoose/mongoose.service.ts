@@ -4,6 +4,7 @@ import {
   CartService,
   PlatformService,
   ProductService,
+  ProductVariantService,
   ResetPasswordService,
   OrderService,
 } from "./models";
@@ -15,6 +16,7 @@ export class MongooseService {
   readonly userService: UserService;
   readonly platformService: PlatformService;
   readonly productService: ProductService;
+  readonly productVariantService: ProductVariantService;
   readonly resetPasswordService: ResetPasswordService;
   readonly cartService: CartService;
   readonly orderService: OrderService;
@@ -24,6 +26,7 @@ export class MongooseService {
     this.userService = new UserService(this);
     this.platformService = new PlatformService(this);
     this.productService = new ProductService(this);
+    this.productVariantService = new ProductVariantService(this);
     this.resetPasswordService = new ResetPasswordService(this);
     this.cartService = new CartService(this);
     this.orderService = new OrderService(this);
@@ -47,6 +50,7 @@ export class MongooseService {
       authSource: "admin",
       dbName: process.env.DATABASE_NAME,
     });
+    
     return connection;
   }
 }
