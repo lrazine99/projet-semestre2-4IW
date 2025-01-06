@@ -1,5 +1,5 @@
 <template>
-  <div class="transform transition-all hover:scale-105 p-6 space-y-4 md:space-y-6 bg-white sm:p-8 w-[100%]">
+  <div class="transform transition-all hover:scale-105 p-6 mt-3 space-y-4 md:space-y-6 bg-white sm:p-8 ">
     <FormComponent :fields="loginFields" :validationSchema="loginSchema" :handleSubmit="handleLogin"
       submitButtonText="Connexion" />
     <a href="/demande-reinitialiser-mot-de-passe" class="text-sm text-primary-600 hover:underline">Mot de passe oublié

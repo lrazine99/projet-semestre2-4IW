@@ -50,11 +50,10 @@ const { fields, validationSchema, submitButtonText, handleSubmit, formData: init
     type: Object,
     default: () => ({})
   }
-})
-
+});
 
 const formData = ref({
-  ...Object.fromEntries(fields.map((field) => [field.id, ''])),
+  ...Object.fromEntries(fields.map((field) => [field.id, field?.val || ''])),
   ...initialFormData 
 });
 
@@ -106,8 +105,9 @@ const handleForm = async () => {
   try {
     await handleSubmit(formData.value, decoratedAbort.signal)
   } catch (error) {
-    console.log('Request canceled')
+    serverError.value = error.response.data.message
   } finally {
+    formData.value = Object.fromEntries(fields.map((field) => [field.id, '']))
     isSubmitting.value = false
   }
 }

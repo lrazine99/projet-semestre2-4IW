@@ -19,7 +19,7 @@
     </div>
 
     <LoaderComponent v-if="loading" />
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 ">
       <CardProductComponent v-for="variant in displayedVariants" :key="variant.sku" :sku="variant.sku"
         :title="variant.productName" :imageSrc="variant.images.length ? variant.images[0] : ''"
         :description="variant.description" :priceCurrent="variant.price" :platformName="variant.platform.name"

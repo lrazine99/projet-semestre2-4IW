@@ -62,8 +62,10 @@
 
       <!-- Add to Cart Button -->
       <div>
-        <button @click="addToCart"
-          class="w-full px-4 py-2 rounded-md bg-blue-500 text-white text-center text-lg font-medium hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300">
+        <button @click="addToCart" :disabled="product.stock < 1"
+        :class="product.stock < 1 ? 'bg-[rgb(115,170,224)]' : 'bg-primary hover:bg-blue-600'"
+
+          class="w-full px-4 py-2 rounded-md bg-blue-500 text-white text-center text-lg font-medium  focus:outline-none focus:ring-4 focus:ring-blue-300">
           Ajouter au panier
         </button>
       </div>

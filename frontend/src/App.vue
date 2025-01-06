@@ -5,6 +5,7 @@ import CookiePopUpComponent from './components/CookiePopUpComponent.vue'
 import { onMounted } from 'vue'
 import { initFlowbite } from 'flowbite'
 import 'vue3-toastify/dist/index.css';
+import ScrollToTop from './components/ScrollToTopComponent.vue';
 
 onMounted(() => {
   initFlowbite();
@@ -24,6 +25,8 @@ onMounted(() => {
         <router-view />
       </div>
       <FooterComponent />
+      <ScrollToTop />
+
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-slate-800	">
+  <footer class="bg-slate-800	h-[50%]">
     <div class="mx-auto w-full">
       <div class="grid grid-cols-1 gap-8 px-4 py-6 lg:py-8 md:grid-cols-3 justify-center">
         <div class="text-center">

@@ -1,7 +1,7 @@
 <template>
   <LoaderComponent :isVisible="!stripeLoaded" />
   <TitleComponent titleText="Commande" class="mt-4" />
-  <div class="p-6 w-full flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+  <div v-if="stripeLoaded" class="p-6 w-full flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
     <!-- Forms Section -->
     <div class="w-full md:w-2/3 space-y-6">
       <!-- Billing and Shipping Address -->
@@ -111,6 +111,7 @@ import FormFieldComponent from '@/components/FormFieldComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';
 import { useInvoicePDF } from "@/composables/useInvoicePDF";
 import { formatDate } from '@/utils/utils';
+import { toast } from 'vue3-toastify';
 
 const publishableKey = VITE_STRIPE_PUBLIC_KEY;
 const stripeLoaded = ref(false);
@@ -204,21 +205,24 @@ onBeforeMount(async () => {
       const { data } = await axios.get(`${VITE_API_ENDPOINT}/user/get-user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       userLoaded.value = data;
-      data.address.zipCode = parseInt(data.address.zipCode);
 
-      Object.keys(formData.value).forEach((key, index) => {
-        if (index < 6) {
-          console.log(Object.keys(data.address)[index]);
-          formData.value[key] = data.address[Object.keys(data.address)[index]];
-        } else {
-          formData.value[key] = data.address[Object.keys(data.address)[index - 6]];
-        }
-      });
+      if (data.address) {
 
+        data.address.zipCode = parseInt(data.address.zipCode);
 
+        Object.keys(formData.value).forEach((key, index) => {
+          if (index < 6) {
+            console.log(Object.keys(data.address)[index]);
+            formData.value[key] = data.address[Object.keys(data.address)[index]];
+          } else {
+            console.log(Object.keys(data.address)[index -6]);
 
+            formData.value[key] = data.address[Object.keys(data.address)[index - 6]];
+          }
+        });
+      }
+      
       await loadStripe(publishableKey);
 
       stripeLoaded.value = true;
@@ -299,6 +303,10 @@ const handlePayment = async () => {
     if (result.error) {
       console.error('Stripe error:', result.error.message);
       alert('Erreur lors de la génération du token Stripe.');
+
+      toast.error('Erreur lors de la génération du token Stripe.', {
+        autoClose: 1000,
+      });
       return;
     }
 
@@ -336,7 +344,9 @@ const handlePayment = async () => {
 
     );
 
-    alert('Paiement réussi!');
+    toast.success('Paiement réussi!', {
+      autoClose: 1000,
+    });
 
     const fileName = data.invoiceNumber;
     const nowDate = new Date();
@@ -391,11 +401,15 @@ const handlePayment = async () => {
     });
 
     cartStore.removeAll();
-    alert('Facture envoyée par email!');
+
+    toast.success('Paiement réussi!', {
+      autoClose: 1000,
+    });
     // Proceed with payment
   } catch (error) {
-    console.error('Erreur:', error);
-    alert('Une erreur est survenue: ' + error.message);
+    toast.error(`Une erreur est survenue: ${error.messge}`, {
+      autoClose: 1000,
+    });
   }
 
   isSubmitting.value = false;

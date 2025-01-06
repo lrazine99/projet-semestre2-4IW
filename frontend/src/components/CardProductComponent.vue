@@ -15,7 +15,7 @@
 
         <div class="flex items-center justify-between mt-4">
           <span class="text-lg font-bold text-black">{{ priceCurrent }} €</span>
-          <div class="flex items-center space-x-1">
+          <div class="flex items-center space-x-1" v-if="stock > 0">
             <button type="button" @click.stop.prevent="decreaseQuantity" :disabled="quantity <= 1"
               class="w-8 h-8 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center focus:ring-gray-100 focus:ring-2 focus:outline-none disabled:opacity-50">
               <svg class="w-4 h-4 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -31,12 +31,18 @@
               </svg>
             </button>
           </div>
+          <div v-else>
+            <p class="text-red-700 py-1.5 font-medium">
+              En rupture de stock
+            </p>
+          </div>
         </div>
       </div>
 
       <div class="flex items-center px-4 py-2 bg-gray-100 border-t space-x-2">
-        <button @click.stop.prevent="addToCart"
-          class="w-full flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondary focus:outline-none focus:ring-4 focus:ring-blue-300">
+        <button @click.stop.prevent="addToCart" :disabled="stock < 1"
+            :class="stock < 1 ? 'bg-[rgb(115,170,224)]' : 'bg-primary'"
+          class="w-full flex items-center justify-center rounded-md  px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondary focus:outline-none focus:ring-4 focus:ring-blue-300">
           Ajouter au panier
         </button>
       </div>
@@ -108,12 +114,11 @@ const closeModal = () => {
 const addToCart = async () => {
 
   if (quantity.value > props.stock) {
-    alert("Quantité demandée indisponible.");
     return;
   }
 
   try {
-    
+
     cartStore.addItem({
       sku: props.sku,
       title: props.title,
