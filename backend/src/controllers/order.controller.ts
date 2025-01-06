@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from "express";
+import  { Router, Request, Response } from "express";
 import {
   CartService,
   OrderService,
@@ -8,16 +8,9 @@ import {
 import { MongooseService } from "../services";
 import Stripe from "stripe";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
-import {
-  ICartItem,
-  IOrderItems,
-  IProductVariant,
-  OrderStatus,
-  PaymentStatus,
-} from "../types";
+import { PaymentStatus } from "../types";
 import { Mailer } from "../helpers/mailer";
 import fs from "fs";
-import formData from "form-data";
 import multer from "multer";
 import path from "path";
 
