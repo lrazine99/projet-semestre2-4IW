@@ -81,6 +81,7 @@ const platformSelected = ref('');
 
 const getEditions = () => {
   const editions = siblingsProducts.value.map(({ edition }) => edition);
+
   editions.push(product.value.edition);
   return [...new Set(editions)];
 };
@@ -146,10 +147,22 @@ const decreaseQuantity = () => {
 
 const handleEdition = (edition) => {
   editionSelected.value = edition;
+
+  product.value = siblingsProducts.value.find((item) => item.edition === edition && item.platform === platformSelected.value) || siblingsProducts.value.find((item) => item.edition === edition);
+
+
+  platformSelected.value = product.value.platform;
+  editionSelected.value = product.value.edition;
+
+
 };
 
 const handlePlatform = (platform) => {
-  platformSelected.value = platform;
+
+  product.value = siblingsProducts.value.find((item) => item.edition === editionSelected.value && item.platform === platform) || siblingsProducts.value.find((item) => item.platform === platform);
+
+  platformSelected.value = product.value.platform;
+  editionSelected.value = product.value.edition;
 
 };
 
@@ -160,17 +173,17 @@ onMounted(async () => {
     const { data: { productFound, platforms } } = await axios.get(`${VITE_API_ENDPOINT}/product/${sku}`);
 
     const variants = productFound.variants;
-    
+
     variants.forEach((variant) => {
       variant.description = productFound.description;
       variant.name = `${productFound.name} - ${variant.name}`;
       variant.platform = platforms.find((platform) => platform._id === variant.platform).name;
     });
-
     product.value = variants.find((item) => item.sku === sku);
     editionSelected.value = product.value.edition;
     platformSelected.value = product.value.platform;
     siblingsProducts.value = variants;
+    console.log(getEditions())
 
   } catch (error) {
     console.error(error);
