@@ -146,6 +146,7 @@ const variantSchema = z.object({
         .refine(val => val >= 0, 'Le stock doit être positif'),
     releaseDate: z.string().min(1, 'La date de sortie est requise'),
     barcode: z.string().min(1, 'Le code-barres est requis'),
+    images: z.string().min(1, 'Une image est requise'),
 });
 
 const fullSchema = z.object({
@@ -174,7 +175,7 @@ const variantFields = [
     { id: 'stock', label: 'Stock', type: 'number', placeholder: 'Entrez le stock' },
     { id: 'releaseDate', label: 'Date de sortie', type: 'date', placeholder: 'Entrez la date de sortie' },
     { id: 'barcode', label: 'Code-barres', type: 'text', placeholder: 'Entrez le code-barres' },
-    { id: 'image', label: 'URL de l\'image', type: 'text', placeholder: 'Entrez l\'URL de l\'image du variant' },  // Nouveau champ pour l'image
+    { id: 'images', label: 'URL de l\'image', type: 'text', placeholder: 'Entrez l\'URL de l\'image du variant' },
 ];
 
 const addVariant = () => {

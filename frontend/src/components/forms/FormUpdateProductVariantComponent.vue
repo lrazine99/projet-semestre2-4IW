@@ -3,9 +3,9 @@
         <FormComponent 
             :fields="createProductVariantFields" 
             :validationSchema="createProductVariantSchema" 
-            :handleSubmit="onSubmit"
+            :handleSubmit="handleSubmit"
+            :formData="formData"
             submitButtonText="Valider" 
-            class="grid grid-cols-2 gap-6"
         />
 
         <div v-if="generalError" class="text-red-600 text-sm mt-4">
@@ -17,22 +17,39 @@
 <script setup>
 import { z } from 'zod';
 import FormComponent from '../FormComponent.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { VITE_API_ENDPOINT } from '@/utils/const';
 
+const props = defineProps({
+    productId: {
+        type: String,
+        required: true
+    },
+    variantId: {
+        type: String,
+        required: true
+    },
+    initialValues: {
+        type: Object,
+        required: true
+    },
+    handleSubmit: {
+        type: Function,
+        required: true
+    }
+});
+
+const formData = ref(props.initialValues);
 const platforms = ref([]);
-const products = ref([]);
 const generalError = ref(''); 
 
+// S'assurer que les données sont mises à jour si initialValues change
+watch(() => props.initialValues, (newValues) => {
+  formData.value = { ...newValues };
+}, { deep: true });
+
 const createProductVariantFields = ref([
-    {
-        id: 'product',
-        label: 'Produit',
-        type: 'select',
-        placeholder: 'Sélectionnez un produit',
-        options: []
-    },
     { 
         id: 'platform', 
         label: 'Plateforme', 
@@ -46,11 +63,11 @@ const createProductVariantFields = ref([
     { id: 'stock', label: 'Stock', type: 'number', placeholder: 'Entrez le stock' },
     { id: 'releaseDate', label: 'Date de sortie', type: 'date', placeholder: 'Entrez la date de sortie' },
     { id: 'barcode', label: 'Code-barres', type: 'text', placeholder: 'Entrez le code-barres' },
-    { id: 'image', label: 'URL de l\'image', type: 'text', placeholder: 'Entrez l\'URL de l\'image du variant' }, 
+    { id: 'images', label: 'URL de l\'image', type: 'text', placeholder: 'Entrez l\'URL de l\'image du variant' }
+
 ]);
 
 const createProductVariantSchema = z.object({
-    product: z.string().min(1, 'Le produit est requis'),
     platform: z.string().min(1, 'La plateforme est requise'),
     name: z.string().min(1, 'Le nom est requis'),
     edition: z.string().min(1, 'L\'édition est requise'),
@@ -64,32 +81,9 @@ const createProductVariantSchema = z.object({
         .refine(val => val >= 0, 'Le stock doit être positif'),
     releaseDate: z.string().min(1, 'La date de sortie est requise'),
     barcode: z.string().min(1, 'Le code-barres est requis'),
+    images: z.string()
+        .transform(val => val ? [val] : [])
 });
-
-const fetchProducts = async () => {
-    try {
-        const response = await axios.get(`${VITE_API_ENDPOINT}/product`);
-        console.log('Response products:', response.data);
-        
-        if (Array.isArray(response.data.productsFound)) {
-            const mappedProducts = response.data.productsFound.map(product => ({
-                value: product._id,
-                label: product.name,
-            }));
-            console.log('Mapped products:', mappedProducts);
-            
-            const productField = createProductVariantFields.value.find(field => field.id === 'product');
-            if (productField) {
-                productField.options = mappedProducts;
-            }
-        } else {
-            generalError.value = "Les produits n'ont pas été trouvés dans la réponse de l'API.";
-        }
-    } catch (error) {
-        console.error('Erreur lors de la récupération des produits:', error);
-        generalError.value = "Erreur lors du chargement des produits";
-    }
-};
 
 const fetchPlatforms = async () => {
     try {
@@ -109,36 +103,7 @@ const fetchPlatforms = async () => {
     }
 };
 
-const onSubmit = async (formData) => {
-    try {
-        console.log('Form data received:', formData);
-
-        const variantData = {
-            platform: formData.platform,
-            name: formData.name,
-            edition: formData.edition,
-            price: Number(formData.price),
-            stock: Number(formData.stock),
-            releaseDate: formData.releaseDate,
-            barcode: formData.barcode,
-            images: formData.image ? [formData.image] : [] 
-        };
-
-        const response = await axios.post(
-            `${VITE_API_ENDPOINT}/product/${formData.product}/variant`,
-            variantData
-        );
-        if (response.status === 201) {
-            console.log('Variante créée avec succès:', response.data);
-        }
-    } catch (error) {
-        console.error('Erreur lors de la création de la variante:', error);
-        generalError.value = "Erreur lors de la création de la variante";
-    }
-};
-
 onMounted(() => {
-    fetchProducts();
     fetchPlatforms();
 });
 </script>

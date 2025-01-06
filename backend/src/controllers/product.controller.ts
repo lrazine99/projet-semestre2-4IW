@@ -192,7 +192,7 @@ export class ProductController {
   async updateVariant(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, variantId } = req.params;
-      const { platform, name, edition, price, stock, barcode } = req.body;
+      const { platform, name, edition, price, stock, images, barcode } = req.body;
 
       const product = await this.productService.model.findById(id);
 

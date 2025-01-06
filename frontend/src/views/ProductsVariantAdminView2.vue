@@ -43,17 +43,27 @@
     </ModalComponent>
 
     <ModalComponent
-      v-if="showModalEditProductVariant"
-      :visible="showModalEditProductVariant"
-      title="Modifier une variante"
-      @close="showModalEditProductVariant = false"
-    >
-      <FormUpdateProductVariantComponent
-        :handleSubmit="handleUpdateProductVariant"
-        :fields="productFields"
-        :initialValues="selectedProduct"
-      />
-    </ModalComponent>
+  v-if="showModalEditProductVariant"
+  :visible="showModalEditProductVariant"
+  title="Modifier une variante"
+  @close="showModalEditProductVariant = false"
+>
+  <FormUpdateProductVariantComponent
+    :handleSubmit="handleUpdateProductVariant"
+    :productId="selectedProductVariant.productId"
+    :variantId="selectedProductVariant._id"
+    :initialValues="{
+      platform: selectedProductVariant.platform,
+      name: selectedProductVariant.name,
+      edition: selectedProductVariant.edition,
+      price: selectedProductVariant.price,
+      stock: selectedProductVariant.stock,
+      releaseDate: selectedProductVariant.releaseDate,
+      barcode: selectedProductVariant.barcode,
+      images: selectedProductVariant.images?.[0] || ''
+    }"
+  />
+</ModalComponent>
   </div>
 </template>
 
@@ -66,6 +76,7 @@ import DeleteModal from '@/components/DeleteModalComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';
 import { VITE_API_ENDPOINT } from '@/utils/const';
 import FormCreateProductVariantComponent from '@/components/forms/FormCreateProductVariantComponent.vue';
+import FormUpdateProductVariantComponent from '@/components/forms/FormUpdateProductVariantComponent.vue';
 
 const showModalProductVariant = ref(false);
 const showModalEditProductVariant = ref(false);
@@ -233,6 +244,46 @@ const deleteFunction = async () => {
 const handleDeleteSelected = () => {
   if (itemsToDelete.value.length) {
     deleteFunction();
+  }
+};
+
+const handleUpdateProductVariant = async (variantData) => {
+  try {
+    const formattedVariantData = {
+      platform: variantData.platform,
+      name: variantData.name,
+      edition: variantData.edition,
+      price: Number(variantData.price),
+      stock: Number(variantData.stock),
+      releaseDate: variantData.releaseDate,
+      barcode: variantData.barcode,
+      images: variantData.images
+    };
+
+    const response = await axios.put(
+      `${VITE_API_ENDPOINT}/product/${selectedProductVariant.value.productId}/variant/${selectedProductVariant.value._id}`,
+      formattedVariantData
+    );
+
+    // Mettre à jour le produit qui contient la variante
+    const productIndex = rawProducts.value.findIndex(
+      product => product._id === selectedProductVariant.value.productId
+    );
+
+    if (productIndex !== -1) {
+      // Mettre à jour la variante spécifique dans le produit
+      rawProducts.value[productIndex].variants = rawProducts.value[productIndex].variants.map(
+        variant => variant._id === selectedProductVariant.value._id ? response.data.variant : variant
+      );
+      
+      // Mettre à jour la liste transformée
+      products.value = transformData(rawProducts.value, platforms.value);
+    }
+
+    showModalEditProductVariant.value = false;
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la variante:', error);
+    alert('Une erreur est survenue lors de la mise à jour de la variante.');
   }
 };
 </script>
