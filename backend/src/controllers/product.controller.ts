@@ -1,8 +1,12 @@
 import express, { Router, Request, Response, NextFunction } from "express";
-import { ProductService, PlatformService,ProductVariantService } from "../services/mongoose/models";
+import {
+  ProductService,
+  PlatformService,
+  ProductVariantService,
+} from "../services/mongoose/models";
 import { MongooseService } from "../services";
 /* import ProductVariant from "../services/mongoose/schema/productVariant.schema"; */
-import { Types } from 'mongoose';
+import { Types } from "mongoose";
 
 export class ProductController {
   private productService!: ProductService;
@@ -36,12 +40,16 @@ export class ProductController {
       const { name, description, genres, minAge, editor, variants } = req.body;
 
       if (!name || !description || !genres || !minAge || !editor) {
-        res.status(400).json({ message: "Tous les champs principaux sont requis." });
+        res
+          .status(400)
+          .json({ message: "Tous les champs principaux sont requis." });
         return;
       }
 
       if (!Array.isArray(genres) || genres.length === 0) {
-        res.status(400).json({ message: "Les genres doivent être un tableau non vide." });
+        res
+          .status(400)
+          .json({ message: "Les genres doivent être un tableau non vide." });
         return;
       }
 
@@ -80,7 +88,9 @@ export class ProductController {
       });
 
       const savedProduct = await newProduct.save();
-      res.status(201).json({ message: "Produit créé avec succès", product: savedProduct });
+      res
+        .status(201)
+        .json({ message: "Produit créé avec succès", product: savedProduct });
     } catch (error) {
       next(error);
     }
@@ -95,21 +105,25 @@ export class ProductController {
     }
   }
 
-  async getProductById(req: Request, res: Response, next: NextFunction) {
+  async getProductByVariantSku(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { id } = req.params;
+      const { sku } = req.params;
 
-      const product = await this.productService.model.findById(id).populate({
-        path: "variants.platform",
-        select: "name",
+      const platforms = await this.platformService.model.find();
+      const productFound = await this.productService.model.findOne({
+        "variants.sku": sku,
       });
 
-      if (!product) {
+      if (!productFound) {
         res.status(404).json({ message: "Produit introuvable." });
         return;
       }
 
-      res.status(200).json(product);
+      res.status(200).json({ productFound, platforms });
     } catch (error) {
       next(error);
     }
@@ -121,22 +135,31 @@ export class ProductController {
       const { genres, ...updateData } = req.body;
 
       if (typeof genres === "string") {
-        updateData.genres = genres.split(",").map((genre: string) => genre.trim());
+        updateData.genres = genres
+          .split(",")
+          .map((genre: string) => genre.trim());
       } else if (Array.isArray(genres)) {
         updateData.genres = genres;
       }
 
-      const updatedProduct = await this.productService.model.findByIdAndUpdate(id, updateData, {
-        new: true,
-        runValidators: true,
-      });
+      const updatedProduct = await this.productService.model.findByIdAndUpdate(
+        id,
+        updateData,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
       if (!updatedProduct) {
         res.status(404).json({ message: "Produit introuvable." });
         return;
       }
 
-      res.status(200).json({ message: "Produit mis à jour avec succès.", product: updatedProduct });
+      res.status(200).json({
+        message: "Produit mis à jour avec succès.",
+        product: updatedProduct,
+      });
     } catch (error) {
       next(error);
     }
@@ -176,7 +199,9 @@ export class ProductController {
 
       await product.save();
 
-      res.status(200).json({ message: "Variante supprimée avec succès.", product });
+      res
+        .status(200)
+        .json({ message: "Variante supprimée avec succès.", product });
     } catch (error) {
       next(error);
     }
@@ -194,7 +219,9 @@ export class ProductController {
         return;
       }
 
-      const variantIndex = product.variants.findIndex((v) => String(v._id) === variantId);
+      const variantIndex = product.variants.findIndex(
+        (v) => String(v._id) === variantId
+      );
 
       if (variantIndex === -1) {
         res.status(404).json({ message: "Variante introuvable." });
@@ -203,17 +230,17 @@ export class ProductController {
 
       product.variants[variantIndex] = {
         ...product.variants[variantIndex],
-        ...req.body, 
-        _id: product.variants[variantIndex]._id 
+        ...req.body,
+        _id: product.variants[variantIndex]._id,
       };
 
-      product.markModified('variants');
-      
+      product.markModified("variants");
+
       await product.save();
 
-      res.status(200).json({ 
-        message: "Variante mise à jour avec succès.", 
-        variant: product.variants[variantIndex] 
+      res.status(200).json({
+        message: "Variante mise à jour avec succès.",
+        variant: product.variants[variantIndex],
       });
     } catch (error) {
       next(error);
@@ -223,19 +250,28 @@ export class ProductController {
   async addVariant(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { platform, name, edition, images, releaseDate, price, stock, barcode } = req.body;
-  
+      const {
+        platform,
+        name,
+        edition,
+        images,
+        releaseDate,
+        price,
+        stock,
+        barcode,
+      } = req.body;
+
       const product = await this.productService.model.findById(id);
-  
+
       if (!product) {
         res.status(404).json({ message: "Produit introuvable." });
         return;
       }
-  
+
       if (!product.variants) {
         product.variants = [];
       }
-  
+
       const newVariant = {
         sku: this.generateRandomSKU(),
         platform,
@@ -247,17 +283,21 @@ export class ProductController {
         stock,
         barcode,
       };
-  
-      const variantInstance = await this.productVariantService.model.create(newVariant);
+
+      const variantInstance = await this.productVariantService.model.create(
+        newVariant
+      );
       product.variants.push(variantInstance);
       await product.save();
-  
-      res.status(201).json({ message: "Variante ajoutée avec succès.", variant: variantInstance });
+
+      res.status(201).json({
+        message: "Variante ajoutée avec succès.",
+        variant: variantInstance,
+      });
     } catch (error) {
       next(error);
     }
   }
-  
 
   generateRandomSKU(): string {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -274,7 +314,7 @@ export class ProductController {
     router.get("/", this.getProducts.bind(this));
     router.post("/", this.createProduct.bind(this));
     router.get("/platforms", this.getPlatforms.bind(this));
-    router.get("/:id?", this.getProductById.bind(this));
+    router.get("/:sku", this.getProductByVariantSku.bind(this));
     router.put("/:id", this.updateProduct.bind(this));
     router.delete("/:id", this.deleteProduct.bind(this));
     router.delete("/:id/variant/:variantId", this.deleteVariant.bind(this));

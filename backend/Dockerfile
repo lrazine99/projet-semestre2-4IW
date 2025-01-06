@@ -23,7 +23,7 @@ COPY . .
 
 ENV NODE_PATH=./build
 
-ENV NODE_ENV=production
+ENV SERVER_PORT=3000
 
 RUN npm run build
 

@@ -50,6 +50,7 @@ export class MongooseService {
       authSource: "admin",
       dbName: process.env.DATABASE_NAME,
     });
+    
     return connection;
   }
 }
