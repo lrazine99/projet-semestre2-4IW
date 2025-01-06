@@ -2,6 +2,12 @@
     <LoaderComponent :isVisible="isLoading" />
     <div class="mx-8 mt-20">
         <TitleComponent :titleText="`Détails de la commande ${order?.invoiceNumber || ''}`" />
+        <button @click="goBack" class="flex items-center text-blue-500 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour aux commandes
+        </button>
         <div class="flex justify-center mb-4">
             <button @click="showModalAddProductOrder = true"
                 class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
@@ -26,7 +32,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalComponent from '@/components/ModalComponent.vue';
@@ -38,6 +44,7 @@ import FormUpdateQuantityProductOrder from '@/components/forms/FormUpdateQuantit
 import FormAddProductOrder from '@/components/forms/FormAddProductOrder.vue';
 
 const route = useRoute();
+const router = useRouter();
 const orderId = route.params.id;
 const isLoading = ref(true);
 const products = ref([]);
@@ -49,6 +56,9 @@ const itemsToDelete = ref(null);
 const selectedProduct = ref(null);
 const totalPages = ref(0);
 
+const goBack = () => {
+  router.push({ name: 'OrdersAdmin' }); 
+};
 
 const productColumns = [
     { key: 'name', label: 'Nom du produit' },
