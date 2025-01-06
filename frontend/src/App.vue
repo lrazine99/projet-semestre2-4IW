@@ -4,10 +4,13 @@ import FooterComponent from './components/FooterComponent.vue'
 import CookiePopUpComponent from './components/CookiePopUpComponent.vue'
 import { onMounted } from 'vue'
 import { initFlowbite } from 'flowbite'
+import 'vue3-toastify/dist/index.css';
 
 onMounted(() => {
   initFlowbite();
 })
+
+
 </script>
 
 <template>
@@ -15,7 +18,7 @@ onMounted(() => {
 
     <div class="flex flex-col h-screen bg-gray-200">
       <HeaderComponent />
-
+      
       <div class="flex justify-center items-center flex-grow flex-col bg-gray-200">
         <CookiePopUpComponent />
         <router-view />
