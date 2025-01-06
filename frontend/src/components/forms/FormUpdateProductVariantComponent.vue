@@ -6,6 +6,7 @@
             :handleSubmit="handleSubmit"
             :formData="formData"
             submitButtonText="Valider" 
+            class="grid grid-cols-2 gap-6"
         />
 
         <div v-if="generalError" class="text-red-600 text-sm mt-4">
