@@ -1,4 +1,4 @@
-import  { Router, Request, Response } from "express";
+import { Router, Request, Response } from "express";
 import {
   CartService,
   OrderService,
@@ -73,7 +73,7 @@ export class OrderController {
           }
         );
       }
-
+      
       const charge = await stripe.charges.create({
         amount: Math.round(amount * 100), // Amount in the smallest currency unit
         currency,
@@ -83,17 +83,7 @@ export class OrderController {
 
       await this.cartService.model.updateOne({ userId }, { items: [] });
 
-      for (let item of cartItems) {
-        await this.productService.model.updateOne(
-          {
-            "variants.sku": item.sku,
-            $expr: { $gte: ["$variants.quantity", item.quantity] }, // Ensure stock is sufficient
-          },
-          {
-            $inc: { "variants.$.stock": -item.quantity },
-          }
-        );
-      }
+      this.orderService.handleStock(cartItems, userId);
 
       if (charge.status === "succeeded") {
         await this.orderService.model.updateOne(
@@ -107,7 +97,8 @@ export class OrderController {
 
       res.status(200).json({ invoiceNumber: order.invoiceNumber });
     } catch (error) {
-      console.error(error);
+      console.log("Error creating payment:", error);
+
       res.status(500).send("Error creating payment");
     }
   }
@@ -160,11 +151,28 @@ export class OrderController {
 
   async getOrders(req: Request, res: Response) {
     try {
-        const orders = await this.orderService.model.find({}).exec();
-        res.status(200).json(orders);
+      const orders = await this.orderService.model.find({}).exec();
+      res.status(200).json(orders);
     } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).send("Error fetching orders");
+    }
+  }
+
+  async getByUser(req: Request, res: Response) {
+    const userId = req.body.userId;
+    console.log("userId", userId);
+    try {
+      try {
+        const orders = await this.orderService.model.find({ buyer: userId });
+
+        res.status(200).json(orders);
+      } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Error fetching orders");
+      }
+    } catch (error) {
+      res.status(500).send("Error fetching orders");
     }
   }
 
@@ -178,6 +186,7 @@ export class OrderController {
       upload.single("pdf"),
       this.sendInvoice.bind(this)
     );
+    router.get("/getByUser", isAuthenticated, this.getByUser.bind(this));
     router.get("/all", isAuthenticated, this.getOrders.bind(this));
     return router;
   }

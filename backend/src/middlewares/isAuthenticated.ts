@@ -30,7 +30,7 @@ export const isAuthenticated = async (
   }
 
   try {
-    const user = await userService.model.findOne({ token: authToken });
+    const user = await userService.model.findOne({ token: authToken, isVerified: true });
 
     if (!user) {
       res.status(401).json({ message: "Utilisateur non trouvé" });

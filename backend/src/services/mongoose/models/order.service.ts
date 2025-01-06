@@ -34,7 +34,7 @@ export class OrderService {
       .toISOString()
       .replace(/[-:T.]/g, "")
       .slice(0, 12); // YYYYMMDDHHMM
-    const formattedIndex = String(orderCount + 1).padStart(6, "0"); 
+    const formattedIndex = String(orderCount + 1).padStart(6, "0");
     const invoiceNumber = `FR-${timestamp}-${formattedIndex}`;
 
     const order = await this.model.create({
@@ -56,5 +56,35 @@ export class OrderService {
     });
 
     return order;
+  }
+
+  async handleStock(cartItems: ICartItem[], userId: string): Promise<void> {
+    for (let item of cartItems) {
+      const product = await this.mongooseService.productService.model.findOne(
+        { "variants.sku": item.sku },
+        { "variants.$": 1 }
+      );
+
+      const variant = product?.variants[0];
+
+      if (product && variant && variant?.stock > 0) {
+        const quantityToSubtract = Math.min(variant.stock, item.quantity);
+
+        await this.mongooseService.productService.model.updateOne(
+          { "variants.sku": item.sku },
+          { $inc: { "variants.$.stock": -quantityToSubtract } }
+        );
+
+        await this.model.updateOne(
+          { "products.productSku": item.sku },
+          { $set: { "products.$.quantity": quantityToSubtract } }
+        );
+      } else if (product && variant && variant?.stock === 0) {
+        await this.model.updateOne(
+          { "products.productSku": item.sku },
+          { $pull: { products: { productSku: item.sku } } }
+        );
+      }
+    }
   }
 }
