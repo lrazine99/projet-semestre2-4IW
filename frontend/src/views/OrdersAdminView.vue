@@ -59,7 +59,9 @@ import DeleteModal from '@/components/DeleteModalComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import FormUpdateOrderComponent from '@/components/forms/FormUpdateOrderComponent.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const showModalOrder = ref(false);
 const showModalEditOrder = ref(false);
 const showDeleteModal = ref(false);
@@ -72,8 +74,8 @@ const totalPages = ref(0);
 
 const orderColumns = [
   { key: "invoiceNumber", label: "Numéro de la commande" },
-  { key: "buyer", label: "Email de l'acheteur" }, // Mise à jour du label
-  { key: "total", label: "Prix total" },
+  { key: "buyer", label: "Email de l'acheteur" },
+  /* { key: "total", label: "Prix total" }, */
   { key: "orderAt", label: "Date de la commande" },
   { key: "orderStatus", label: "Statut de la commande" },
   { key: "paymentStatus", label: "Statut du paiement" },
@@ -83,6 +85,7 @@ const orderColumns = [
 const actionsButtons = [
   { key: "edit", label: "Modifier", bgColor: 'blue', handler: 'editOrder' },
   { key: "delete", label: "Supprimer", bgColor: 'red', handler: 'deleteOrder' },
+  { key: "details", label: "Détails", bgColor: 'green', handler: 'detailOrder' },
 ];
 const statusTranslations = {
   orderStatus: {
@@ -132,9 +135,6 @@ onMounted(async () => {
 });
 
 
-
-
-
 const actionFunctions = {
   editOrder: (orderId) => {
   const orderToEdit = orders.value.find(order => order._id === orderId);
@@ -156,6 +156,10 @@ const actionFunctions = {
       selectedOrderId.value = orderId;
       itemsToDelete.value = [orderId];
       showDeleteModal.value = true;
+  },
+  // Mise à jour pour rediriger vers la page OrderDetailsAdmin
+  detailOrder: (orderId) => {
+    router.push({ name: 'OrderDetailsAdmin', params: { id: orderId } });
   }
 };
 
@@ -188,7 +192,7 @@ const handleUpdateOrder = async (orderData) => {
     const formattedOrderData = {
       invoiceNumber: orderData.invoiceNumber,
       buyer: orderData.buyer,
-      total: Number(orderData.total),
+      /* total: Number(orderData.total), */
       orderAt: orderData.orderAt,
       orderStatus: orderData.orderStatus,
       paymentStatus: orderData.paymentStatus 

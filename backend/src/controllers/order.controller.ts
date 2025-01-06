@@ -1,4 +1,4 @@
-import  { Router, Request, Response } from "express";
+import  { Router, Request, Response, NextFunction } from "express";
 import {
   CartService,
   OrderService,
@@ -13,6 +13,7 @@ import { Mailer } from "../helpers/mailer";
 import fs from "fs";
 import multer from "multer";
 import path from "path";
+import { IOrderItems } from "../types";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -215,6 +216,153 @@ export class OrderController {
     }
   }
 
+  async getOrderDetails(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { limit = 10, page = 1 } = req.query;
+  
+      const order = await this.orderService.model.findById(id).populate("products").exec();
+    
+      if (!order) {
+        res.status(404).json({ message: "Commande introuvable" });
+        return;
+      }
+  
+      const totalProducts = order.products.length;
+      const totalPages = Math.ceil(totalProducts / Number(limit));
+      const startIndex = (Number(page) - 1) * Number(limit);
+      const paginatedProducts = order.products.slice(startIndex, startIndex + Number(limit));
+  
+      res.status(200).json({
+        order,
+        products: paginatedProducts,
+        totalPages,
+        currentPage: Number(page),
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des détails de la commande:", error);
+      res.status(500).send("Erreur lors de la récupération des détails de la commande");
+    }
+  }
+  
+  
+  async deleteProductFromOrder(req: Request, res: Response) {
+    try {
+      const { orderId, sku } = req.params;
+  
+      const order = await this.orderService.model.findById(orderId).exec();
+  
+      if (!order) {
+        res.status(404).json({ message: "Commande introuvable." });
+        return;
+      }
+  
+      const updatedProducts = order.products.filter(
+        (product: any) => product.productSku !== sku
+      );
+  
+      if (updatedProducts.length === order.products.length) {
+        res.status(404).json({ message: "Produit introuvable dans la commande." });
+        return;
+      }
+  
+      order.products = updatedProducts;
+      await order.save();
+  
+      res.status(200).json({ 
+        message: "Produit supprimé avec succès de la commande.", 
+        order 
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression du produit:", error);
+      res.status(500).send("Erreur lors de la suppression du produit.");
+    }
+  }
+
+  async updateOrderProduct(req: Request, res: Response) {
+    try {
+      const { id, productSku } = req.params;
+      const { quantity } = req.body;
+  
+      const order = await this.orderService.model.findById(id);
+      if (!order) {
+        res.status(404).json({ message: "Commande introuvable." });
+        return;
+      }
+  
+      const productIndex = order.products.findIndex(p => p.productSku === productSku);
+      if (productIndex === -1) {
+        res.status(404).json({ message: "Produit introuvable dans la commande." });
+        return;
+      }
+  
+      order.products[productIndex].quantity = quantity;
+      order.markModified('products');
+      await order.save();
+  
+      res.status(200).json({
+        message: "Quantité mise à jour avec succès",
+        order
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Erreur lors de la mise à jour");
+    }
+  }
+
+  async addProductToOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { productSku, quantity } = req.body;
+   
+      const order = await this.orderService.model.findById(id);
+      if (!order) {
+        res.status(404).json({ message: "Commande introuvable." });
+        return;
+      }
+   
+      const product = await this.productService.model.findOne({
+        'variants.sku': productSku
+      });
+   
+      if (!product) {
+        res.status(404).json({ message: "Produit introuvable." });
+        return;
+      }
+   
+      const variant = product.variants.find(v => v.sku === productSku);
+      if (!variant) {
+        res.status(404).json({ message: "Variante introuvable." });
+        return;
+      }
+   
+      const newProduct: IOrderItems = {
+        productName: product.name,
+        productSku: variant.sku,
+        quantity: quantity,
+        productImage: variant.images?.[0] || '',
+        price: variant.price
+      } as IOrderItems;
+   
+      if (!order.products) {
+        order.products = [];
+      }
+   
+      order.products.push(newProduct);
+      order.markModified('products');
+      await order.save();
+   
+      res.status(201).json({
+        message: "Produit ajouté avec succès",
+        order,
+        productId: newProduct._id
+      });
+   
+    } catch (error) {
+      next(error);
+    }
+   }
+
   buildRouter(): Router {
     const router = Router();
 
@@ -226,8 +374,12 @@ export class OrderController {
       this.sendInvoice.bind(this)
     );
     router.get("/", /* isAuthenticated, */ this.getOrders.bind(this));
+    router.get("/:id/details", this.getOrderDetails.bind(this)); 
     router.put("/:id", this.updateOrder.bind(this));
     router.delete("/:id", this.deleteOrder.bind(this));
+    router.delete("/:orderId/product/:sku", this.deleteProductFromOrder.bind(this)); 
+    router.put("/:id/product/:productSku", this.updateOrderProduct.bind(this));
+    router.post("/:id/product", this.addProductToOrder.bind(this));
 
     return router;
   }
