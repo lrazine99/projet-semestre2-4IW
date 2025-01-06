@@ -90,7 +90,7 @@
           to="/admin/products" 
           class="block py-2 px-4 text-sm hover:bg-gray-100" 
           @click="closeDropdown">
-          Products
+          Produits
         </router-link>
       </li>
       <li>
@@ -98,7 +98,7 @@
           to="/admin/products/variant" 
           class="block py-2 px-4 text-sm hover:bg-gray-100" 
           @click="closeDropdown">
-          Variants
+          Variantes
         </router-link>
       </li>
       <li>
@@ -106,7 +106,7 @@
           to="/admin/users" 
           class="block py-2 px-4 text-sm hover:bg-gray-100" 
           @click="closeDropdown">
-          Users
+          Utilisateurs
         </router-link>
       </li>
       <li>

@@ -23,13 +23,18 @@ export class ProductController {
 
   async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
+      const { limit = 10 } = req.query;
       const platforms = await this.platformService.model.find();
 
       const productsFound = await this.productService.model.find().populate({
         path: "variants.platform",
         select: "name",
       });
-      res.status(200).json({ platforms, productsFound });
+  
+      const totalProducts = await this.productService.model.countDocuments();
+      const totalPages = Math.ceil(totalProducts / Number(limit));
+  
+      res.status(200).json({ platforms, productsFound, totalPages });
     } catch (error) {
       next(error);
     }
@@ -68,7 +73,8 @@ export class ProductController {
           variant.price == null ||
           variant.stock == null ||
           !variant.releaseDate ||
-          !variant.barcode
+          !variant.barcode ||
+          !variant.images
         ) {
           res.status(400).json({
             message:
@@ -76,6 +82,7 @@ export class ProductController {
           });
           return;
         }
+        variant.platform = Types.ObjectId.createFromHexString(variant.platform);
       }
 
       const newProduct = new this.productService.model({
@@ -210,7 +217,7 @@ export class ProductController {
   async updateVariant(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, variantId } = req.params;
-      const { platform, name, edition, price, stock, barcode } = req.body;
+      const { platform, name, edition, price, stock, images, barcode } = req.body;
 
       const product = await this.productService.model.findById(id);
 

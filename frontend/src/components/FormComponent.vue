@@ -29,7 +29,7 @@ import { ref, onUnmounted } from 'vue'
 import FormFieldComponent from './FormFieldComponent.vue'
 import AbortControllerManager from '../controllers/AbortControllerManager';
 
-const { fields, validationSchema, submitButtonText, handleSubmit } = defineProps({
+const { fields, validationSchema, submitButtonText, handleSubmit, formData: initialFormData } = defineProps({
   fields: {
     type: Array,
     required: true
@@ -46,10 +46,19 @@ const { fields, validationSchema, submitButtonText, handleSubmit } = defineProps
     type: Function,
     required: true
   },
-
+  formData: {
+    type: Object,
+    default: () => ({})
+  }
 })
 
-const formData = ref(Object.fromEntries(fields.map((field) => [field.id, ''])))
+
+const formData = ref({
+  ...Object.fromEntries(fields.map((field) => [field.id, ''])),
+  ...initialFormData 
+});
+
+
 const validationErrors = ref({})
 const serverError = ref(null)
 const isSubmitting = ref(false)

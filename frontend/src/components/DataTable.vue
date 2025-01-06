@@ -12,10 +12,6 @@ const { columns, dataAll, actionsButtons, totalPages } = defineProps({
     type: Array,
     required: true
   },
-  handleAddUser: {
-    type: Function,
-    required: true
-  },
   actionsButtons: {
     type: Array,
     required: true
@@ -25,8 +21,6 @@ const { columns, dataAll, actionsButtons, totalPages } = defineProps({
     required: true
   },
 })
-console.log(dataAll);
-
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -59,12 +53,15 @@ const filteredData = computed(() => {
     )
   }
 
-  if (sortColumn.value) {
+    if (sortColumn.value) {
     result.sort((a, b) => {
-      if (a[sortColumn.value] < b[sortColumn.value]) return sortOrder.value === 'asc' ? -1 : 1
-      if (a[sortColumn.value] > b[sortColumn.value]) return sortOrder.value === 'asc' ? 1 : -1
-      return 0
-    })
+      const valA = a[sortColumn.value]?.toString().toLowerCase();
+      const valB = b[sortColumn.value]?.toString().toLowerCase();
+
+      if (valA < valB) return sortOrder.value === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder.value === 'asc' ? 1 : -1;
+      return 0;
+    });
   }
 
   return result
@@ -135,7 +132,7 @@ const toggleAllSelection = () => {
     );
   }
 };
-const isValidDate = (value) => new Date(value) !== 'Invalid Date' && !isNaN(new Date(value));
+/* const isValidDate = (value) => new Date(value) !== 'Invalid Date' && !isNaN(new Date(value)); */
 
 </script>
 <template>
@@ -191,13 +188,14 @@ const isValidDate = (value) => new Date(value) !== 'Invalid Date' && !isNaN(new 
             <td class="py-3 px-6">
               <input type="checkbox" :value="row._id" v-model="selectedRows" />
             </td>
-            <td v-for="column in columns" :key="column.key" class="py-3 px-6">
+            <!-- <td v-for="column in columns" :key="column.key" class="py-3 px-6">
               <span>{{ isValidDate(row[column.key]) ? formatDate(row[column.key]) : row[column.key] }}</span>
-            </td>
+            </td> -->
+            <td v-for="column in columns" :key="column.key" class="py-3 px-6"><span>{{ row[column.key] }}</span></td>
             <td class="py-3 px-6 flex space-x-1">
               <button v-for="action in actionsButtons" :key="action.key"
-                @click="$emit('action-click', action.handler, row._id)"
-                :class="`bg-${action.bgColor}-500 hover:bg-${action.bgColor}-700`"
+              @click="$emit('action-click', action.handler, row._id, row.variantId)"
+              :class="`bg-${action.bgColor}-500 hover:bg-${action.bgColor}-700`"
                 class="px-4 py-2 text-white  rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-200">
                 {{ action.label }}
               </button>
