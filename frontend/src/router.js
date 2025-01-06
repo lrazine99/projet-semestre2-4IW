@@ -15,6 +15,7 @@ const Order = () => import('./views/OrderView.vue')
 const UsersAdmin = () => import ('./views/UsersAdminView.vue')
 const ProductsAdmin = () => import ('./views/ProductsAdminView.vue')
 const ProductsVariantAdmin = () => import ('./views/ProductsVariantAdminView.vue')
+const Stats = () => import ('./views/StatsView.vue')
 const routes = [
   {
     path: '/',
@@ -88,6 +89,11 @@ const routes = [
         component: ProductsVariantAdmin
       }
     ]
+  },
+  {
+    path: '/admin/stats',
+    name: 'Stats',
+    component: Stats
   },
   {
     path: '/:pathMatch(.*)*',
