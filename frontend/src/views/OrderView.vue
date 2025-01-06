@@ -206,17 +206,18 @@ onBeforeMount(async () => {
       });
 
       userLoaded.value = data;
-      data.address.zipCode = parseInt(data.address.zipCode);
+      if (data.address) {
+        data.address.zipCode = parseInt(data.address.zipCode);
 
-      Object.keys(formData.value).forEach((key, index) => {
-        if (index < 6) {
-          console.log(Object.keys(data.address)[index]);
-          formData.value[key] = data.address[Object.keys(data.address)[index]];
-        } else {
-          formData.value[key] = data.address[Object.keys(data.address)[index - 6]];
-        }
-      });
-
+        Object.keys(formData.value).forEach((key, index) => {
+          if (index < 6) {
+            console.log(Object.keys(data.address)[index]);
+            formData.value[key] = data.address[Object.keys(data.address)[index]];
+          } else {
+            formData.value[key] = data.address[Object.keys(data.address)[index - 6]];
+          }
+        });
+      }
 
 
       await loadStripe(publishableKey);

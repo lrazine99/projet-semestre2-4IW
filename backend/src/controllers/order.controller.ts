@@ -168,6 +168,53 @@ export class OrderController {
     }
   }
 
+  async updateOrder(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+
+      const updatedOrder = await this.orderService.model.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true }
+      );
+
+      if (!updatedOrder) {
+        res.status(404).json({ message: "Commande introuvable." });
+        return
+      }
+
+      res.status(200).json({ 
+        message: "Commande mise à jour avec succès.", 
+        order: updatedOrder 
+      });
+    } catch (error) {
+      console.error("Error updating order:", error);
+      res.status(500).send("Error updating order");
+    }
+  }
+
+  async deleteOrder(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const deletedOrder = await this.orderService.model.findByIdAndDelete(id);
+
+      if (!deletedOrder) {
+        res.status(404).json({ message: "Commande introuvable." });
+        return;
+      }
+
+      res.status(200).json({ 
+        message: "Commande supprimée avec succès.",
+        order: deletedOrder 
+      });
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      res.status(500).send("Error deleting order");
+    }
+  }
+
   buildRouter(): Router {
     const router = Router();
 
@@ -179,6 +226,9 @@ export class OrderController {
       this.sendInvoice.bind(this)
     );
     router.get("/", /* isAuthenticated, */ this.getOrders.bind(this));
+    router.put("/:id", this.updateOrder.bind(this));
+    router.delete("/:id", this.deleteOrder.bind(this));
+
     return router;
   }
 }
