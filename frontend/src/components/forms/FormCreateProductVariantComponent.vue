@@ -24,6 +24,8 @@ import { VITE_API_ENDPOINT } from '@/utils/const';
 const platforms = ref([]);
 const products = ref([]);
 const generalError = ref(''); 
+const emit = defineEmits(['variant-added']);
+
 
 const createProductVariantFields = ref([
     {
@@ -128,8 +130,11 @@ const onSubmit = async (formData) => {
             `${VITE_API_ENDPOINT}/product/${formData.product}/variant`,
             variantData
         );
+
         if (response.status === 201) {
             console.log('Variante créée avec succès:', response.data);
+            // Mettre à jour les données et fermer le modal
+            emit('variant-added', response.data);
         }
     } catch (error) {
         console.error('Erreur lors de la création de la variante:', error);
