@@ -84,17 +84,7 @@ export class OrderController {
 
       await this.cartService.model.updateOne({ userId }, { items: [] });
 
-      for (let item of cartItems) {
-        await this.productService.model.updateOne(
-          {
-            "variants.sku": item.sku,
-            $expr: { $gte: ["$variants.quantity", item.quantity] }, // Ensure stock is sufficient
-          },
-          {
-            $inc: { "variants.$.stock": -item.quantity },
-          }
-        );
-      }
+      this.orderService.handleStock(cartItems, userId);
 
       if (charge.status === "succeeded") {
         await this.orderService.model.updateOne(
@@ -108,7 +98,8 @@ export class OrderController {
 
       res.status(200).json({ invoiceNumber: order.invoiceNumber });
     } catch (error) {
-      console.error(error);
+      console.log("Error creating payment:", error);
+
       res.status(500).send("Error creating payment");
     }
   }
@@ -161,11 +152,28 @@ export class OrderController {
 
   async getOrders(req: Request, res: Response) {
     try {
-        const orders = await this.orderService.model.find({}).exec();
-        res.status(200).json(orders);
+      const orders = await this.orderService.model.find({}).exec();
+      res.status(200).json(orders);
     } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).send("Error fetching orders");
+    }
+  }
+
+  async getByUser(req: Request, res: Response) {
+    const userId = req.body.userId;
+    console.log("userId", userId);
+    try {
+      try {
+        const orders = await this.orderService.model.find({ buyer: userId });
+
+        res.status(200).json(orders);
+      } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Error fetching orders");
+      }
+    } catch (error) {
+      res.status(500).send("Error fetching orders");
     }
   }
 
@@ -185,9 +193,9 @@ export class OrderController {
         return
       }
 
-      res.status(200).json({ 
-        message: "Commande mise à jour avec succès.", 
-        order: updatedOrder 
+      res.status(200).json({
+        message: "Commande mise à jour avec succès.",
+        order: updatedOrder
       });
     } catch (error) {
       console.error("Error updating order:", error);
@@ -206,9 +214,9 @@ export class OrderController {
         return;
       }
 
-      res.status(200).json({ 
+      res.status(200).json({
         message: "Commande supprimée avec succès.",
-        order: deletedOrder 
+        order: deletedOrder
       });
     } catch (error) {
       console.error("Error deleting order:", error);
@@ -220,19 +228,19 @@ export class OrderController {
     try {
       const { id } = req.params;
       const { limit = 10, page = 1 } = req.query;
-  
+
       const order = await this.orderService.model.findById(id).populate("products").exec();
-    
+
       if (!order) {
         res.status(404).json({ message: "Commande introuvable" });
         return;
       }
-  
+
       const totalProducts = order.products.length;
       const totalPages = Math.ceil(totalProducts / Number(limit));
       const startIndex = (Number(page) - 1) * Number(limit);
       const paginatedProducts = order.products.slice(startIndex, startIndex + Number(limit));
-  
+
       res.status(200).json({
         order,
         products: paginatedProducts,
@@ -244,34 +252,34 @@ export class OrderController {
       res.status(500).send("Erreur lors de la récupération des détails de la commande");
     }
   }
-  
-  
+
+
   async deleteProductFromOrder(req: Request, res: Response) {
     try {
       const { orderId, sku } = req.params;
-  
+
       const order = await this.orderService.model.findById(orderId).exec();
-  
+
       if (!order) {
         res.status(404).json({ message: "Commande introuvable." });
         return;
       }
-  
+
       const updatedProducts = order.products.filter(
         (product: any) => product.productSku !== sku
       );
-  
+
       if (updatedProducts.length === order.products.length) {
         res.status(404).json({ message: "Produit introuvable dans la commande." });
         return;
       }
-  
+
       order.products = updatedProducts;
       await order.save();
-  
-      res.status(200).json({ 
-        message: "Produit supprimé avec succès de la commande.", 
-        order 
+
+      res.status(200).json({
+        message: "Produit supprimé avec succès de la commande.",
+        order
       });
     } catch (error) {
       console.error("Erreur lors de la suppression du produit:", error);
@@ -283,23 +291,23 @@ export class OrderController {
     try {
       const { id, productSku } = req.params;
       const { quantity } = req.body;
-  
+
       const order = await this.orderService.model.findById(id);
       if (!order) {
         res.status(404).json({ message: "Commande introuvable." });
         return;
       }
-  
+
       const productIndex = order.products.findIndex(p => p.productSku === productSku);
       if (productIndex === -1) {
         res.status(404).json({ message: "Produit introuvable dans la commande." });
         return;
       }
-  
+
       order.products[productIndex].quantity = quantity;
       order.markModified('products');
       await order.save();
-  
+
       res.status(200).json({
         message: "Quantité mise à jour avec succès",
         order
@@ -314,28 +322,28 @@ export class OrderController {
     try {
       const { id } = req.params;
       const { productSku, quantity } = req.body;
-   
+
       const order = await this.orderService.model.findById(id);
       if (!order) {
         res.status(404).json({ message: "Commande introuvable." });
         return;
       }
-   
+
       const product = await this.productService.model.findOne({
         'variants.sku': productSku
       });
-   
+
       if (!product) {
         res.status(404).json({ message: "Produit introuvable." });
         return;
       }
-   
+
       const variant = product.variants.find(v => v.sku === productSku);
       if (!variant) {
         res.status(404).json({ message: "Variante introuvable." });
         return;
       }
-   
+
       const newProduct: IOrderItems = {
         productName: product.name,
         productSku: variant.sku,
@@ -343,21 +351,21 @@ export class OrderController {
         productImage: variant.images?.[0] || '',
         price: variant.price
       } as IOrderItems;
-   
+
       if (!order.products) {
         order.products = [];
       }
-   
+
       order.products.push(newProduct);
       order.markModified('products');
       await order.save();
-   
+
       res.status(201).json({
         message: "Produit ajouté avec succès",
         order,
         productId: newProduct._id
       });
-   
+
     } catch (error) {
       next(error);
     }
@@ -430,11 +438,13 @@ export class OrderController {
       upload.single("pdf"),
       this.sendInvoice.bind(this)
     );
+    router.get("/getByUser", isAuthenticated, this.getByUser.bind(this));
+    router.get("/all", isAuthenticated, this.getOrders.bind(this));
     router.get("/", /* isAuthenticated, */ this.getOrders.bind(this));
-    router.get("/:id/details", this.getOrderDetails.bind(this)); 
+    router.get("/:id/details", this.getOrderDetails.bind(this));
     router.put("/:id", this.updateOrder.bind(this));
     router.delete("/:id", this.deleteOrder.bind(this));
-    router.delete("/:orderId/product/:sku", this.deleteProductFromOrder.bind(this)); 
+    router.delete("/:orderId/product/:sku", this.deleteProductFromOrder.bind(this));
     router.put("/:id/product/:productSku", this.updateOrderProduct.bind(this));
     router.post("/:id/product", this.addProductToOrder.bind(this));
     router.post("/", this.createOrderForUser.bind(this));

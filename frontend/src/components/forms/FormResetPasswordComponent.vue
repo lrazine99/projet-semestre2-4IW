@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-4 md:space-y-6 bg-white sm:p-8 mx-auto w-[30%] mt-6">
+  <div class="p-6 space-y-4 md:space-y-6 bg-white sm:p-8 mx-auto w-[80%] md:w-[60%] mt-6">
     <FormComponent :fields="loginFields" :validationSchema="loginSchema" :handleSubmit="handleLogin"
       submitButtonText="Envoyer" />
   </div>

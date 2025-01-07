@@ -42,11 +42,9 @@
 </template>
 
 <script setup>
+
 const { images } = defineProps({
     images: { type: Array, required: true },
 });
-
-console.log(images);
-
 
 </script>

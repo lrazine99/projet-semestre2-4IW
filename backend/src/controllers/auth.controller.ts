@@ -291,15 +291,27 @@ export class AuthController {
 
   async getUsers(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "desc" } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        search = "",
+        sortBy = "createdAt",
+        order = "desc",
+      } = req.query;
 
       const query = search
-        ? { $or: [{ firstName: { $regex: search, $options: "i" } }, { lastName: { $regex: search, $options: "i" } }] }
+        ? {
+            $or: [
+              { firstName: { $regex: search, $options: "i" } },
+              { lastName: { $regex: search, $options: "i" } },
+            ],
+          }
         : {};
 
-        const users = await this.userService.model.find(query, '-salt -token -hash')
-        .sort({ [sortBy as string]: order === "asc" ? 1 : -1 })
-        /*
+      const users = await this.userService.model
+        .find(query, "-salt -token -hash")
+        .sort({ [sortBy as string]: order === "asc" ? 1 : -1 });
+      /*
         .skip((Number(page) - 1) * Number(limit))
         .limit(Number(limit));*/
 
@@ -312,7 +324,9 @@ export class AuthController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs." });
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la récupération des utilisateurs." });
     }
   }
 
@@ -328,7 +342,9 @@ export class AuthController {
       const userExists = await this.userService.model.findOne({ email });
 
       if (userExists) {
-        res.status(409).json({ message: "Un utilisateur avec cet email existe déjà." });
+        res
+          .status(409)
+          .json({ message: "Un utilisateur avec cet email existe déjà." });
         return;
       }
 
@@ -349,7 +365,9 @@ export class AuthController {
       res.status(201).json({ message: "Utilisateur créé avec succès." });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erreur lors de la création de l'utilisateur." });
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la création de l'utilisateur." });
     }
   }
 
@@ -372,7 +390,9 @@ export class AuthController {
       res.status(200).json({ message: "Utilisateur mis à jour avec succès." });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur." });
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la mise à jour de l'utilisateur." });
     }
   }
 
@@ -392,7 +412,9 @@ export class AuthController {
       res.status(200).json({ message: "Utilisateur supprimé avec succès." });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur." });
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la suppression de l'utilisateur." });
     }
   }
 
@@ -410,31 +432,37 @@ export class AuthController {
       res.status(200).json({ message: "Utilisateurs supprimés avec succès." });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erreur lors de la suppression des utilisateurs." });
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la suppression des utilisateurs." });
     }
   }
 
   async addAdminUser(req: Request, res: Response) {
     try {
       const { firstName, lastName, email, role = "user" } = req.body;
-  
+
       if (!firstName || !lastName || !email) {
-        res.status(400).json({ message: "Tous les champs requis sont obligatoires." });
+        res
+          .status(400)
+          .json({ message: "Tous les champs requis sont obligatoires." });
         return;
       }
-  
+
       const userExists = await this.userService.model.findOne({ email });
-  
+
       if (userExists) {
-        res.status(409).json({ message: "Un utilisateur avec cet email existe déjà." });
+        res
+          .status(409)
+          .json({ message: "Un utilisateur avec cet email existe déjà." });
         return;
       }
-  
+
       const password = randomBytes(8).toString("hex");
       const token = uid2(16);
       const salt = uid2(12);
       const hash = SHA256(password + salt).toString();
-  
+
       const newUser = new this.userService.model({
         firstName,
         lastName,
@@ -445,9 +473,9 @@ export class AuthController {
         birthDate: new Date(),
         role,
       });
-  
+
       await newUser.save();
-  
+
       res.status(201).json({
         message: "Utilisateur ajouté avec succès.",
         user: { firstName, lastName, email, role },
@@ -455,13 +483,51 @@ export class AuthController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+      res
+        .status(500)
+        .json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+    }
+  }
+
+  async userEditAddress(req: Request, res: Response) {
+    const userId = req.body.userId;
+    const {
+      number,
+      street,
+      complement,
+      zipCode,
+      city,
+      country,
+    } = req.body;
+
+    const address = {
+      number,
+      street,
+      complement,
+      zipCode,
+      city,
+      country,
+    };
+
+    try {
+      await this.userService.model.updateOne(
+        { _id: userId },
+        {
+          address,
+        }
+      );
+
+      res.status(200).end();
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Erreur lors de la mise à jour de l'adresse." });
     }
   }
   // UserController.ts
   async getUserByEmail(req: Request, res: Response) {
     const { email } = req.params;  // On récupère l'email à partir des paramètres de l'URL
-    
+
     // Recherche de l'utilisateur dans la base de données par e-mail
     const user = await this.userService.model.findOne({ email });
 
@@ -482,12 +548,12 @@ export class AuthController {
 }
 
 
-  
+
 
   buildRouter(): Router {
     const router = Router();
 
-    router.get("/reset-password/:token", this.checkTokenReset.bind(this));
+    router.get("/check-token-reset/:token", this.checkTokenReset.bind(this));
     router.get("/get-user", isAuthenticated, this.getUser.bind(this));
     router.get("/confirm-email/:token", this.confirmEmail.bind(this));
     router.post("/send-confirmation", this.sendConfrmation.bind(this));
@@ -495,7 +561,11 @@ export class AuthController {
     router.post("/reset-password", this.requestResetPassword.bind(this));
     router.post("/login", this.userLogin.bind(this));
     router.post("/signup", this.userSignup.bind(this));
-
+    router.post(
+      "/update-address",
+      isAuthenticated,
+      this.userEditAddress.bind(this)
+    );
     router.get("/", this.getUsers.bind(this));
     router.post("/", this.createUser.bind(this));
     router.put("/:id", this.updateUser.bind(this));

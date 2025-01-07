@@ -1,5 +1,5 @@
 <template>
-  <div class="transform transition-all hover:scale-105 p-6 space-y-4 md:space-y-6 bg-white sm:p-8 w-[100%]">
+  <div class="transform transition-all hover:scale-105 p-6 mt-3 space-y-4 md:space-y-6 bg-white sm:p-8 ">
     <FormComponent :fields="loginFields" :validationSchema="loginSchema" :handleSubmit="handleLogin"
       submitButtonText="Connexion" />
     <a href="/demande-reinitialiser-mot-de-passe" class="text-sm text-primary-600 hover:underline">Mot de passe oublié
@@ -15,6 +15,7 @@ import axios from 'axios';
 import { useCartStore } from '@/stores/cartStore';
 import { useLoginStore } from '@/stores/loginStore';
 import { VITE_API_ENDPOINT } from '@/utils/const';
+import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const loginStore = useLoginStore();
@@ -48,7 +49,11 @@ const handleLogin = async (formData, signal) => {
 
     router.push('/produits');
   } catch (error) {
-    alert(error.response.data.message);
+    
+  toast(error.response.data.message, {
+    autoClose: 1000,
+  }); // ToastOptions
+
     throw error;
   }
 }

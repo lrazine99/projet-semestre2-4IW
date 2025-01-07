@@ -2,7 +2,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-16">
     <div class="flex items-start p-4">
       <div class="mr-4">
-        <img src="../assets/images/euro-256.ico" alt="Free Shipping Icon" class="h-16 w-16" />
+        <img src="../assets/images/euro-256.ico" alt="Free Shipping Icon" class="h-auto w-16" />
       </div>
       <div class="flex flex-col text-left">
         <h3 class="text-xl font-bold mb-1">{{ title1 }}</h3>
@@ -11,7 +11,7 @@
     </div>
     <div class="flex items-start p-4">
       <div class="mr-4">
-        <img src="../assets/images/online-support-256.ico" alt="Support 24/7 Icon" class="h-16 w-16" />
+        <img src="../assets/images/online-support-256.ico" alt="Support 24/7 Icon" class="h-auto w-16" />
       </div>
       <div class="flex flex-col text-left">
         <h3 class="text-xl font-bold mb-1">{{ title2 }}</h3>
@@ -20,7 +20,7 @@
     </div>
     <div class="flex items-start p-4">
       <div class="mr-4">
-        <img src="../assets/images/delivery-256.ico" alt="Fast Delivery" class="h-16 w-16" />
+        <img src="../assets/images/delivery-256.ico" alt="Fast Delivery" class="h-auto w-16" />
       </div>
       <div class="flex flex-col text-left">
         <h3 class="text-xl font-bold mb-1">{{ title3 }}</h3>
@@ -29,7 +29,7 @@
     </div>
     <div class="flex items-start p-4">
       <div class="mr-4">
-        <img src="../assets/images/joystick-256.ico" alt="All games" class="h-16 w-16" />
+        <img src="../assets/images/joystick-256.ico" alt="All games" class="h-auto w-16" />
       </div>
       <div class="flex flex-col text-left">
         <h3 class="text-xl font-bold mb-1">{{ title4 }}</h3>

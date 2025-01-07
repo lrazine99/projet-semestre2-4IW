@@ -101,7 +101,7 @@ const routes = [
         name: 'OrderDetailsAdmin',
         component: OrderDetailsAdmin,
       },
-      
+
     ]
   },
   {

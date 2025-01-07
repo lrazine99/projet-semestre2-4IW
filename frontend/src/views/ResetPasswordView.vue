@@ -18,6 +18,7 @@ import { VITE_API_ENDPOINT } from '@/utils/const';
 import axios from 'axios';
 import { onBeforeMount, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const emailUser = ref('');
@@ -35,8 +36,8 @@ onBeforeMount(async () => {
         emailUser.value = data.email;
         isLoading.value = false;
     } catch (error) {
+        toast('Token invalide', { type: 'error' });
         router.push('/404');
-        alert('Token invalide');
     }
 });
 
