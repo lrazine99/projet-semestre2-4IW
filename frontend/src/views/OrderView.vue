@@ -303,7 +303,9 @@ const handlePayment = async () => {
 
     if (result.error) {
       console.error('Stripe error:', result.error.message);
-      alert('Erreur lors de la génération du token Stripe.');
+      toast.error('Erreur lors de la génération du token Stripe.', {
+        autoClose: 1000,
+    });
 
       toast.error('Erreur lors de la génération du token Stripe.', {
         autoClose: 1000,
@@ -403,7 +405,7 @@ const handlePayment = async () => {
 
     cartStore.removeAll();
 
-    toast.success('Paiement réussi!', {
+    toast.success('Facture envoyée!', {
       autoClose: 1000,
       onClose: () => {
         router.push('/')

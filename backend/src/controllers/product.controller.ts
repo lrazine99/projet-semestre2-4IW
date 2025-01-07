@@ -7,6 +7,8 @@ import {
 import { MongooseService } from "../services";
 /* import ProductVariant from "../services/mongoose/schema/productVariant.schema"; */
 import { Types } from "mongoose";
+import { isAuthenticated } from "../middlewares/isAuthenticated";
+import { isAdmin } from "../middlewares/isAdmin";
 
 export class ProductController {
   private productService!: ProductService;
@@ -354,14 +356,14 @@ export class ProductController {
     const router = Router();
 
     router.get("/", this.getProducts.bind(this));
-    router.post("/", this.createProduct.bind(this));
+    router.post("/", isAuthenticated, isAdmin, this.createProduct.bind(this));
     router.get("/platforms", this.getPlatforms.bind(this));
     router.get("/:sku", this.getProductByVariantSku.bind(this));
-    router.put("/:id", this.updateProduct.bind(this));
-    router.delete("/:id", this.deleteProduct.bind(this));
-    router.delete("/:id/variant/:variantId", this.deleteVariant.bind(this));
-    router.put("/:id/variant/:variantId", this.updateVariant.bind(this));
-    router.post("/:id/variant", this.addVariant.bind(this));
+    router.put("/:id", isAuthenticated, isAdmin, this.updateProduct.bind(this));
+    router.delete("/:id", isAuthenticated, isAdmin, this.deleteProduct.bind(this));
+    router.delete("/:id/variant/:variantId", isAuthenticated, isAdmin, this.deleteVariant.bind(this));
+    router.put("/:id/variant/:variantId", isAuthenticated, isAdmin, this.updateVariant.bind(this));
+    router.post("/:id/variant", isAuthenticated, isAdmin, this.addVariant.bind(this));
     router.get("/variant/:sku", this.getProductOneVariantSku.bind(this));
 
     return router;

@@ -45,6 +45,8 @@ import DeleteModal from '@/components/DeleteModalComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';
 import FormCreateProductComponent from '@/components/forms/FormCreateProductComponent.vue';
 import FormUpdateProductComponent from '@/components/forms/FormUpdateProductComponent.vue';
+import { toast } from 'vue3-toastify';
+import { useLoginStore } from "@/stores/loginStore";
 
 const showModalProduct = ref(false);
 const showModalEditProduct = ref(false);
@@ -55,6 +57,8 @@ const selectedProduct = ref(null);
 const products = ref(null);
 const isLoading = ref(true);
 const totalPages = ref(0);
+const { token } = useLoginStore()
+
 
 const productColumns = [
   { key: "name", label: "Nom du produit" },
@@ -107,16 +111,22 @@ const handleDeleteSelected = async (rows) => {
 
 const deleteFunction = async () => {
   try {
-    const deletePromises = itemsToDelete.value.map(id => 
-      axios.delete(`${VITE_API_ENDPOINT}/product/${id}`)
-    );
+    const deletePromises = itemsToDelete.value.map(id =>
+  axios.delete(`${VITE_API_ENDPOINT}/product/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+);
     await Promise.all(deletePromises);
 
     products.value = products.value.filter(product => !itemsToDelete.value.includes(product._id));
     showDeleteModal.value = false;
   } catch (error) {
     console.error('Erreur lors de la suppression des produits :', error);
-    alert('Une erreur est survenue lors de la suppression des produits.');
+    toast.error('Une erreur est survenue lors de la suppression des produits.', {
+        autoClose: 1000,
+    });
   }
 };
 
@@ -140,12 +150,22 @@ const handleAddProduct = async (productData) => {
       })),
     };
 
-    const response = await axios.post(`${VITE_API_ENDPOINT}/product`, formattedProductData);
+    const response = await axios.post(
+      `${VITE_API_ENDPOINT}/product`,
+      formattedProductData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
     products.value.push(response.data.product);
     showModalProduct.value = false;
   } catch (error) {
     console.error('Erreur lors de l\'ajout du produit :', error);
-    alert('Une erreur est survenue lors de l\'ajout du produit.');
+    toast.success('Une erreur est survenue lors de l\'ajout du produit.', {
+        autoClose: 1000,
+    });
   }
 };
 
@@ -159,13 +179,23 @@ const handleUpdateProduct = async (productData) => {
       editor: productData.editor,
     };
 
-    const response = await axios.put(`${VITE_API_ENDPOINT}/product/${selectedProduct.value._id}`, formattedProductData);
+    const response = await axios.put(
+  `${VITE_API_ENDPOINT}/product/${selectedProduct.value._id}`,
+  formattedProductData,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }
+);
     const index = products.value.findIndex(product => product._id === selectedProduct.value._id);
     products.value[index] = response.data.product;
     showModalEditProduct.value = false;
   } catch (error) {
     console.error('Erreur lors de la mise à jour du produit :', error);
-    alert('Une erreur est survenue lors de la mise à jour du produit.');
+    toast.error('Une erreur est survenue lors de la mise à jour du produit.', {
+        autoClose: 1000,
+    });
   }
 };
 </script>

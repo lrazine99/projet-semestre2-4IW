@@ -11,6 +11,7 @@ import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
 import { VITE_API_ENDPOINT } from '@/utils/const'
+import { toast } from 'vue3-toastify';
 
 const loginFields = [
   { id: 'email', label: 'Email', type: 'email', placeholder: 'Entrez votre email' }
@@ -26,13 +27,15 @@ const handleLogin = async (formData, signal) => {
     await axios.post(`${VITE_API_ENDPOINT}/user/reset-password`, formData, {
       signal
     })
-
-    alert('Si un compte avec cet email existe, un email de réinitialisation de mot de passe vous sera envoyé')
-
+    
+    toast.success('Si un compte avec cet email existe, un email de réinitialisation de mot de passe vous sera envoyé', {
+        autoClose: 1000,
+    });
   } catch (error) {
     console.log(error);
-    
-    alert("Erreur lors de l'envoie")
+    toast.success('Erreur lors de l\'envoie', {
+        autoClose: 1000,
+    });
   }
 }
 </script>

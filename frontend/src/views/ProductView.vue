@@ -82,6 +82,7 @@ import { ref } from 'vue';
 import CarrousellComponent from '@/components/CarouselComponent.vue';
 import { useCartStore } from '@/stores/cartStore';
 import LoaderComponent from '@/components/LoaderComponent.vue';
+import { toast } from 'vue3-toastify';
 
 const quantity = ref(1);
 const route = useRoute();
@@ -111,12 +112,16 @@ const getPlatforms = () => {
 const addToCart = async () => {
 
   if (quantity.value > product.value?.stock) {
-    alert("Quantité demandée indisponible.");
+    toast.alert('Quantité demandée indisponible.', {
+        autoClose: 1000,
+    });
     return;
   }
 
   if (editionSelected.value === '' || platformSelected.value === '') {
-    alert("Veuillez sélectionner une édition et une plateforme.");
+    toast.error('Veuillez sélectionner une édition et une plateforme.', {
+        autoClose: 1000,
+    });
     return;
   }
 
@@ -139,7 +144,9 @@ const addToCart = async () => {
 
 
   } catch (error) {
-    alert('Erreur lors de l’ajout au panier');
+    toast.error('Erreur lors de l’ajout au panier', {
+        autoClose: 1000,
+    });
     console.error('Erreur ajout au panier:', error.response ? error.response.data : error.message);
   }
 };

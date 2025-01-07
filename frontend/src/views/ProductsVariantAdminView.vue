@@ -81,6 +81,8 @@ import TitleComponent from '@/components/TitleComponent.vue';
 import { VITE_API_ENDPOINT } from '@/utils/const';
 import FormCreateProductVariantComponent from '@/components/forms/FormCreateProductVariantComponent.vue';
 import FormUpdateProductVariantComponent from '@/components/forms/FormUpdateProductVariantComponent.vue';
+import { toast } from 'vue3-toastify';
+import { useLoginStore } from "@/stores/loginStore";
 
 const showModalProductVariant = ref(false);
 const showModalEditProductVariant = ref(false);
@@ -92,6 +94,7 @@ const isLoading = ref(true);
 const totalPages = ref(0);
 const rawProducts = ref([]);
 const platforms = ref([]); // Add platforms ref
+const { token } = useLoginStore()
 
 const productVariantColumns = [
   { key: 'productName', label: 'Nom du produit' },
@@ -225,7 +228,11 @@ const deleteFunction = async () => {
     const { productId, variantId } = itemsToDelete.value[0];
     console.log('Suppression de la variante:', variantId, 'du produit:', productId);
     
-    await axios.delete(`${VITE_API_ENDPOINT}/product/${productId}/variant/${variantId}`);
+    await axios.delete(`${VITE_API_ENDPOINT}/product/${productId}/variant/${variantId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     
     // Update both data references
     rawProducts.value = rawProducts.value.map(p => {
@@ -265,9 +272,14 @@ const handleUpdateProductVariant = async (variantData) => {
     };
 
     const response = await axios.put(
-      `${VITE_API_ENDPOINT}/product/${selectedProductVariant.value.productId}/variant/${selectedProductVariant.value._id}`,
-      formattedVariantData
-    );
+    `${VITE_API_ENDPOINT}/product/${selectedProductVariant.value.productId}/variant/${selectedProductVariant.value._id}`,
+    formattedVariantData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
 
     // Mettre à jour le produit qui contient la variante
     const productIndex = rawProducts.value.findIndex(
@@ -287,7 +299,9 @@ const handleUpdateProductVariant = async (variantData) => {
     showModalEditProductVariant.value = false;
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la variante:', error);
-    alert('Une erreur est survenue lors de la mise à jour de la variante.');
+    toast.error('Une erreur est survenue lors de la mise à jour de la variante.', {
+        autoClose: 1000,
+    });
   }
 };
 const onVariantAdded = (data) => {

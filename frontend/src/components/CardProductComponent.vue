@@ -71,6 +71,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
+import { toast } from 'vue3-toastify';
 
 
 const props = defineProps({
@@ -133,7 +134,9 @@ const addToCart = async () => {
 
 
   } catch (error) {
-    alert('Erreur lors de l’ajout au panier');
+    toast.error('Erreur lors de l\'ajout au panier', {
+          autoClose: 1000,
+      });
     console.error('Erreur ajout au panier:', error.response ? error.response.data : error.message);
   }
 };

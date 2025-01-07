@@ -14,6 +14,7 @@ import fs from "fs";
 import multer from "multer";
 import path from "path";
 import { IOrderItems } from "../types";
+import { isAdmin } from "../middlewares/isAdmin";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -440,14 +441,14 @@ export class OrderController {
     );
     router.get("/getByUser", isAuthenticated, this.getByUser.bind(this));
     router.get("/all", isAuthenticated, this.getOrders.bind(this));
-    router.get("/", /* isAuthenticated, */ this.getOrders.bind(this));
-    router.get("/:id/details", this.getOrderDetails.bind(this));
-    router.put("/:id", this.updateOrder.bind(this));
-    router.delete("/:id", this.deleteOrder.bind(this));
-    router.delete("/:orderId/product/:sku", this.deleteProductFromOrder.bind(this));
-    router.put("/:id/product/:productSku", this.updateOrderProduct.bind(this));
-    router.post("/:id/product", this.addProductToOrder.bind(this));
-    router.post("/", this.createOrderForUser.bind(this));
+    router.get("/", isAuthenticated, isAdmin, this.getOrders.bind(this));
+    router.get("/:id/details", isAuthenticated, isAdmin, this.getOrderDetails.bind(this));
+    router.put("/:id", isAuthenticated, isAdmin, this.updateOrder.bind(this));
+    router.delete("/:id", isAuthenticated, isAdmin, this.deleteOrder.bind(this));
+    router.delete("/:orderId/product/:sku", isAuthenticated, isAdmin, this.deleteProductFromOrder.bind(this));
+    router.put("/:id/product/:productSku", isAuthenticated, isAdmin, this.updateOrderProduct.bind(this));
+    router.post("/:id/product", isAuthenticated, isAdmin, this.addProductToOrder.bind(this));
+    router.post("/", isAuthenticated, isAdmin, this.createOrderForUser.bind(this));
 
     return router;
   }

@@ -10,6 +10,7 @@ import axios from 'axios'
 import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import { VITE_API_ENDPOINT } from '@/utils/const'
+import { toast } from 'vue3-toastify';
 
 const fields = [
   {
@@ -59,10 +60,13 @@ const handleSignUp = async (formData, signal) => {
       password
     }, { signal })
 
-
-    alert('Inscription réussie ! Un email de confirmation vous a été envoyé')
+    toast.success('Inscription réussie ! Un email de confirmation vous a été envoyé', {
+        autoClose: 1000,
+    });
   } catch (error) {
-    alert( error.response.data.message)
+    toast.error(error.response.data.message, {
+          autoClose: 1000,
+      });
     throw error;
   }
 }

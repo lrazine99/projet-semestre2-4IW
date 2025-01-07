@@ -20,11 +20,14 @@ import FormComponent from '../FormComponent.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { VITE_API_ENDPOINT } from '@/utils/const';
+import { useLoginStore } from "@/stores/loginStore";
+
 
 const platforms = ref([]);
 const products = ref([]);
 const generalError = ref(''); 
 const emit = defineEmits(['variant-added']);
+const { token } = useLoginStore()
 
 
 const createProductVariantFields = ref([
@@ -128,7 +131,12 @@ const onSubmit = async (formData) => {
 
         const response = await axios.post(
             `${VITE_API_ENDPOINT}/product/${formData.product}/variant`,
-            variantData
+            variantData,
+            {
+                headers: {
+                Authorization: `Bearer ${token}`
+                }
+            }
         );
 
         if (response.status === 201) {

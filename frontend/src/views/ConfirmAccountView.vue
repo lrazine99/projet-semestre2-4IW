@@ -17,6 +17,7 @@ import FormResendConfirm from '@/components/forms/FormResendConfirm.vue';
 import AbortControllerManager from '@/controllers/AbortControllerManager';
 import { useLoginStore } from '@/stores/loginStore';
 import { VITE_API_ENDPOINT } from '@/utils/const';
+import { toast } from 'vue3-toastify';
 
 const showResendConfirmationForm = ref(false);
 const decoratedAbort = new AbortControllerManager();
@@ -31,13 +32,16 @@ const handleEmailConfirmation = async () => {
         });
 
         loginStore.login(data.message.token);
-
-        alert('compte verifié');
+        toast.success('Compte verifié', {
+            autoClose: 1000,
+        });
 
         router.push('/login');
     } catch (error) {
         if (error.response && error.response.status === 400) {
-            alert('token invalid ou expiré');
+            toast.success('Token invalid ou expiré', {
+        autoClose: 1000,
+    });
 
         }
 

@@ -11,6 +11,7 @@ import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router';
 import { VITE_API_ENDPOINT } from '@/utils/const';
+import { toast } from 'vue3-toastify';
 
 const props = defineProps({
   emailUser: {
@@ -56,7 +57,9 @@ const handleLogin = async ({ password }, signal) => {
       signal
     })
 
-    alert('Modification du mot de passe réussie')
+    toast.success('Modification du mot de passe réussie', {
+        autoClose: 1000,
+    });
     router.push('/inscription-connexion/#connexion');
   } catch (error) {
     console.error('Login error:', error)

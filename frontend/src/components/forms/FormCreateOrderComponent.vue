@@ -101,6 +101,8 @@
   import { z } from 'zod';
   import axios from 'axios';
   import { VITE_API_ENDPOINT } from '@/utils/const';
+  import { toast } from 'vue3-toastify';
+  import { useLoginStore } from "@/stores/loginStore";
   
   // Schémas de validation
   const userSchema = z.object({
@@ -127,6 +129,7 @@
   const userError = ref('');
   const productErrors = ref([]);
   const generalError = ref('');
+  const { token } = useLoginStore()
   
   // Récupération des utilisateurs
   const fetchUsers = async () => {
@@ -259,14 +262,24 @@
       };
   
       // Envoi de la commande
-      const response = await axios.post(`${VITE_API_ENDPOINT}/order`, orderData);
+      const response = await axios.post(
+        `${VITE_API_ENDPOINT}/order`,
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       
       // Réinitialisation du formulaire
       selectedUserId.value = '';
       productForms.value = [];
       addProductForm();
       // Confirmation
-      alert('Commande créée avec succès');
+      toast.success('Commande crée avec succès', {
+          autoClose: 1000,
+      });
     } catch (error) {
       console.error('Erreur lors de la création de la commande:', error);
       generalError.value = 'Erreur lors de la création de la commande';
