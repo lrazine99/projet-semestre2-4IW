@@ -1,8 +1,8 @@
 <template>
   <div class=" mx-auto p-6 mt-16">
     <!-- Grille avec filtres et produits -->
-    <div class="flex md:flex-row flex-col">
-      <div class=" basis-1/4">
+    <div class="flex md:flex-row flex-col space-x-4">
+      <div class=" basis-1/5">
 
         <!-- Colonne de filtres -->
         <aside class=" bg-white shadow-lg rounded-lg p-6 border border-gray-200 sticky top-20 self-start">
@@ -102,8 +102,7 @@
 
 
 
-        <div class="flex flex-row flex-wrap justify-normal">
-
+        <div v-else class="grid grid-cols-1 min-[940px]:grid-cols-2  min-[1320px]:grid-cols-3  xl:gap-6">
           <!-- Card produits -->
           <CardProductComponent v-for="product in currentPageProducts" :key="product.sku" :sku="product.sku"
             :title="product.productName"

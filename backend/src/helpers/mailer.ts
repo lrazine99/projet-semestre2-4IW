@@ -21,9 +21,7 @@ export class Mailer {
     body: string,
     attachment: any = null
   ): Promise<Boolean> {
-    try {
-      console.log("Sending email to", attachment);
-      
+    try {      
       const { status } = await this.mg.messages.create(
         process.env.MAILGUN_DOMAIN,
         {
