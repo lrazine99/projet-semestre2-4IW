@@ -39,6 +39,7 @@ import { onMounted, ref } from 'vue';
 import DataTable from '@/components/DataTable.vue';
 import axios from 'axios';
 import { VITE_API_ENDPOINT } from '@/utils/const';
+import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalComponent from '@/components/ModalComponent.vue';
 import DeleteModal from '@/components/DeleteModalComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';

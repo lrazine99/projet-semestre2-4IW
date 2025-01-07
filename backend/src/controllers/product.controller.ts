@@ -315,6 +315,41 @@ export class ProductController {
     return sku;
   }
 
+  async getProductOneVariantSku(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sku } = req.params; 
+  
+      const platforms = await this.platformService.model.find();
+  
+      const productFound = await this.productService.model.findOne({
+        "variants.sku": sku,
+      });
+  
+      if (!productFound) {
+        res.status(404).json({ message: "Produit introuvable." });
+        return;
+      }
+  
+      const variant = productFound.variants.find((v: any) => v.sku === sku);
+  
+      if (!variant) {
+        res.status(404).json({ message: "Variante introuvable." });
+        return;
+      }
+  
+      res.status(200).json({
+        product: {
+          name: productFound.name,
+          variant,
+        },
+        platforms,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  
+
   buildRouter(): Router {
     const router = Router();
 
@@ -327,6 +362,7 @@ export class ProductController {
     router.delete("/:id/variant/:variantId", this.deleteVariant.bind(this));
     router.put("/:id/variant/:variantId", this.updateVariant.bind(this));
     router.post("/:id/variant", this.addVariant.bind(this));
+    router.get("/variant/:sku", this.getProductOneVariantSku.bind(this));
 
     return router;
   }

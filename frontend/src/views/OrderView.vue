@@ -205,6 +205,7 @@ onBeforeMount(async () => {
       const { data } = await axios.get(`${VITE_API_ENDPOINT}/user/get-user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       userLoaded.value = data;
 
       if (data.address) {
@@ -222,7 +223,7 @@ onBeforeMount(async () => {
           }
         });
       }
-      
+
       await loadStripe(publishableKey);
 
       stripeLoaded.value = true;

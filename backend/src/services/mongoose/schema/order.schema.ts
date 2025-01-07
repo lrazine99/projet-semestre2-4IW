@@ -15,8 +15,8 @@ export const OrderSchema = new Schema<IOrder>({
       message: "There must be at least one product in the order."
     }
   },
-  shippingAddress: { type: AddressSchema, required: true },
-  billingAddress: { type: AddressSchema, required: true },
+  shippingAddress: { type: AddressSchema, required: false },
+  billingAddress: { type: AddressSchema, required: false },
   orderAt: { type: Date, required: true },
   orderStatus: { type: String, required: true },
   paymentStatus: { type: String, required: true },

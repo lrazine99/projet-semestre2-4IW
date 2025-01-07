@@ -524,6 +524,31 @@ export class AuthController {
         .json({ message: "Erreur lors de la mise à jour de l'adresse." });
     }
   }
+  // UserController.ts
+  async getUserByEmail(req: Request, res: Response) {
+    const { email } = req.params;  // On récupère l'email à partir des paramètres de l'URL
+
+    // Recherche de l'utilisateur dans la base de données par e-mail
+    const user = await this.userService.model.findOne({ email });
+
+    if (user) {
+      // Si l'utilisateur est trouvé, on renvoie ses informations avec l'_id
+      res.status(200).send({
+        _id: user._id,  // Ajout de l'_id à la réponse
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        address: user.address,
+        birthDate: user.birthDate,
+      });
+    } else {
+      // Si l'utilisateur n'est pas trouvé, on renvoie une erreur 404
+      res.status(404).send({ message: "Utilisateur non trouvé" });
+    }
+}
+
+
+
 
   buildRouter(): Router {
     const router = Router();
@@ -547,6 +572,9 @@ export class AuthController {
     router.delete("/:id", this.deleteUser.bind(this));
     router.delete("/", this.bulkDeleteUsers.bind(this));
     router.post("/admin/add", this.addAdminUser.bind(this));
+
+    router.get("/:email", this.getUserByEmail.bind(this)); // Utilisation de GET et email comme paramètre d'URL
+
 
     return router;
   }

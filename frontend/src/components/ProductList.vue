@@ -48,12 +48,12 @@ const displayedVariants = computed(() => {
         (a, b) =>
           new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
       );
-      return variants.slice(0, 8);
+      return variants.slice(0, 9);
     case 'bestSellers':
-      return variants.slice(0, 8);
+      return variants.slice(0, 9);
     case 'cheapest':
       variants.sort((a, b) => a.price - b.price);
-      return variants.slice(0, 8);
+      return variants.slice(0, 9);
     default:
       return variants;
   }

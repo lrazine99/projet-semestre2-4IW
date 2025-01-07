@@ -16,6 +16,8 @@ const UsersAdmin = () => import ('./views/UsersAdminView.vue')
 const ProductsAdmin = () => import ('./views/ProductsAdminView.vue')
 const ProductsVariantAdmin = () => import ('./views/ProductsVariantAdminView.vue')
 const Stats = () => import ('./views/StatsView.vue')
+const OrdersAdmin = () => import('./views/OrdersAdminView.vue')
+const OrderDetailsAdmin = () => import('./views/OrderDetailsAdminView.vue')
 
 const routes = [
   {
@@ -90,6 +92,16 @@ const routes = [
         component: ProductsVariantAdmin
       },
       {
+        path: 'orders',
+        name: 'OrdersAdmin',
+        component: OrdersAdmin
+      },
+      {
+        path: '/orders/:id/details',
+        name: 'OrderDetailsAdmin',
+        component: OrderDetailsAdmin,
+      },
+      {
         path: 'stats',
         name: 'Stats',
         component: Stats
@@ -102,6 +114,7 @@ const routes = [
     component: NotFound
   }
 ]
+
 
 const router = createRouter({
   history: createWebHistory(),
