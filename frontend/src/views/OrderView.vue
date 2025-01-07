@@ -346,6 +346,7 @@ const handlePayment = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
 
     );
+    cartStore.removeAll();
 
     toast.success('Paiement réussi!', {
       autoClose: 1000,
