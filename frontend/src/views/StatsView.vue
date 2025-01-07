@@ -51,7 +51,9 @@
           <div>
             <p class="text-lg font-semibold text-gray-700">Chiffre d'affaires</p>
             <div class="flex items-center space-x-2">
-              <p class="text-2xl font-bold text-gray-800">{{ totalRevenueAmount }} €</p>
+              <p class="text-2xl font-bold text-gray-800">
+                {{ totalRevenueAmount !== undefined && totalRevenueAmount !== null ? totalRevenueAmount.toFixed(2) : '0.00' }} €
+              </p>
             </div>
           </div>
         </div>
