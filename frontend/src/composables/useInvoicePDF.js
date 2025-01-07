@@ -1,5 +1,5 @@
 // composables/useInvoicePDF.js
-// import { jsPDF } from 'jspdf/dist/jspdf.es.min.js'
+// import { jsPDF } from 'jspdf'
 
 export function useInvoicePDF() {
   const generatePDF = (invoiceData) => {

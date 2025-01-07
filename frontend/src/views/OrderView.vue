@@ -217,7 +217,7 @@ onBeforeMount(async () => {
             console.log(Object.keys(data.address)[index]);
             formData.value[key] = data.address[Object.keys(data.address)[index]];
           } else {
-            console.log(Object.keys(data.address)[index -6]);
+            console.log(Object.keys(data.address)[index - 6]);
 
             formData.value[key] = data.address[Object.keys(data.address)[index - 6]];
           }
@@ -405,16 +405,21 @@ const handlePayment = async () => {
 
     toast.success('Paiement réussi!', {
       autoClose: 1000,
+      onClose: () => {
+        router.push('/')
+      }
     });
     // Proceed with payment
   } catch (error) {
     toast.error(`Une erreur est survenue: ${error.messge}`, {
       autoClose: 1000,
+      onClose: () => {
+        router.push('/')
+      }
     });
   }
 
   isSubmitting.value = false;
-  router.push('/');
 };
 
 
