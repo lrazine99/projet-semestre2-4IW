@@ -34,14 +34,16 @@ const handleEmailConfirmation = async () => {
         loginStore.login(data.message.token);
         toast.success('Compte verifié', {
             autoClose: 1000,
-        });
 
-        router.push('/login');
+            onClose: () => {
+                router.push('/login');
+            }
+        });
     } catch (error) {
         if (error.response && error.response.status === 400) {
             toast.success('Token invalid ou expiré', {
-        autoClose: 1000,
-    });
+                autoClose: 1000,
+            });
 
         }
 

@@ -58,9 +58,11 @@ const handleLogin = async ({ password }, signal) => {
     })
 
     toast.success('Modification du mot de passe réussie', {
-        autoClose: 1000,
+      autoClose: 1000,
+      onClose: () => {
+        router.push('/inscription-connexion/#connexion');
+      }
     });
-    router.push('/inscription-connexion/#connexion');
   } catch (error) {
     console.error('Login error:', error)
   }
