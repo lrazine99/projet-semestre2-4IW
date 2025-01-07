@@ -14,14 +14,11 @@ export class StatsController {
   private orderService!: OrderService;
 
   constructor() {
-    this.initialize();
-  }
-
-  private async initialize() {
-    const mongooseService = await MongooseService.get();
-    this.userService = mongooseService.userService;
-    this.productService = mongooseService.productService;
-    this.orderService = mongooseService.orderService;
+    MongooseService.get().then((mongooseService) => {
+      this.userService = mongooseService.userService;
+      this.productService = mongooseService.productService;
+      this.orderService = mongooseService.orderService;
+    });
   }
 
   private async getNewUserStats(req: Request, res: Response) {
@@ -52,16 +49,16 @@ export class StatsController {
       const totalRevenue = await this.orderService.model.aggregate([
         {
           $group: {
-        _id: null,
-        total: { $sum: "$total" },
+            _id: null,
+            total: { $sum: "$total" },
           },
         },
       ]);
       const revenueByMonthArray = await this.orderService.model.aggregate([
         {
           $group: {
-        _id: { $month: "$orderAt" },
-        total: { $sum: "$total" },
+            _id: { $month: "$orderAt" },
+            total: { $sum: "$total" },
           },
         },
         {
@@ -70,32 +67,32 @@ export class StatsController {
       ]);
 
       const orderedRevenueByMonthArray = Array.from({ length: 12 }, (_, i) => {
-        const monthStat = revenueByMonthArray.find((stat) => stat._id === i + 1);
+        const monthStat = revenueByMonthArray.find(
+          (stat) => stat._id === i + 1
+        );
         return monthStat ? monthStat.total : 0;
       });
 
-      const totalRevenueAmount = totalRevenue.length > 0 ? totalRevenue[0].total : 0;
+      const totalRevenueAmount =
+        totalRevenue.length > 0 ? totalRevenue[0].total : 0;
 
       const totalOrdersByMonth = await this.orderService.model.aggregate([
         {
           $group: {
-        _id: { $month: "$orderAt" },
-        count: { $sum: 1 },
+            _id: { $month: "$orderAt" },
+            count: { $sum: 1 },
           },
         },
         {
           $sort: { _id: 1 },
         },
       ]);
-      
+
       // Ensure the array always starts from January
       const ordersByMonthArray = Array.from({ length: 12 }, (_, i) => {
-
         const monthStat = totalOrdersByMonth.find((stat) => stat._id === i + 1);
         return monthStat ? monthStat.count : 0;
       });
-
-
 
       const totalUsers = await this.userService.model.countDocuments();
 
@@ -105,7 +102,7 @@ export class StatsController {
         totalRevenueAmount,
         ordersByMonthArray,
         totalUsers,
-        revenueByMonthArray : orderedRevenueByMonthArray
+        revenueByMonthArray: orderedRevenueByMonthArray,
       };
 
       res.status(200).json(generalStats);
