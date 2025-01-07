@@ -61,6 +61,7 @@ import FormCreateUserComponent from '@/components/forms/FormCreateUserComponent.
 import FormUpdateUserComponent from '@/components/forms/FormUpdateUserComponent.vue';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import { toast } from 'vue3-toastify';
+import { useLoginStore } from "@/stores/loginStore";
 
 const showModalUser = ref(false);
 const showModalEditUser = ref(false);
@@ -71,6 +72,7 @@ const selectedUser = ref(null);
 const users = ref(null);
 const isLoading = ref(true);
 const totalPages = ref(0);
+const { token } = useLoginStore()
 
 const userColumns = [
   { key: "firstName", label: "Prénom" },
@@ -156,8 +158,12 @@ const handleDeleteSelected = async (rows) => {
 const deleteFunction = async () => {
   try {
     const deletePromises = itemsToDelete.value.map(id => 
-      axios.delete(`${VITE_API_ENDPOINT}/user/${id}`)
-    );
+    axios.delete(`${VITE_API_ENDPOINT}/user/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  );
     await Promise.all(deletePromises);
 
     users.value = users.value.filter(user => !itemsToDelete.value.includes(user._id));
@@ -172,7 +178,16 @@ const deleteFunction = async () => {
 
 const handleAddUser = async (formData, signal) => {
   try {
-    const response = await axios.post(`${VITE_API_ENDPOINT}/user/admin/add`, formData, { signal })
+    const response = await axios.post(
+  `${VITE_API_ENDPOINT}/user/admin/add`,
+  formData,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    signal
+  }
+);
 
     if (response.status === 201) {
       await axios.post(`${VITE_API_ENDPOINT}/user/reset-password`, {
@@ -205,7 +220,12 @@ const handleUpdateUser = async (userData) => {
 
     const response = await axios.put(
       `${VITE_API_ENDPOINT}/user/${selectedUser.value._id}`, 
-      formattedUserData
+      formattedUserData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
 
     // Recharger immédiatement les données
