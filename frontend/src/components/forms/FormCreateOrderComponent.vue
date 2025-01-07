@@ -238,7 +238,9 @@
         return {
           productSku: form.productVariant,
           quantity: form.quantity,
-          price: variant.price
+          price: variant.price,
+          productImage: variant.images[0],
+          productName: variant.name
         };
       }));
   
@@ -263,7 +265,6 @@
       selectedUserId.value = '';
       productForms.value = [];
       addProductForm();
-  
       // Confirmation
       alert('Commande créée avec succès');
     } catch (error) {
@@ -279,9 +280,3 @@
     addProductForm();
   });
   </script>
-  
-  <style scoped>
-  .border-red-500 {
-    border-color: red;
-  }
-  </style>
