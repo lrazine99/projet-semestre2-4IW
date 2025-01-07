@@ -9,6 +9,7 @@ import { IUser } from "../types/user.interface";
 import { ResetPasswordService } from "../services/mongoose/models/resetPassword.service";
 import { Mailer } from "../helpers/mailer";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
+import { isAdmin } from "../middlewares/isAdmin";
 
 export class AuthController {
   private userService!: UserService;
@@ -568,10 +569,10 @@ export class AuthController {
     );
     router.get("/", this.getUsers.bind(this));
     router.post("/", this.createUser.bind(this));
-    router.put("/:id", this.updateUser.bind(this));
-    router.delete("/:id", this.deleteUser.bind(this));
+    router.put("/:id", isAuthenticated, isAdmin, this.updateUser.bind(this));
+    router.delete("/:id", isAuthenticated, isAdmin, this.deleteUser.bind(this));
     router.delete("/", this.bulkDeleteUsers.bind(this));
-    router.post("/admin/add", this.addAdminUser.bind(this));
+    router.post("/admin/add", isAuthenticated, isAdmin, this.addAdminUser.bind(this));
 
     router.get("/:email", this.getUserByEmail.bind(this)); // Utilisation de GET et email comme paramètre d'URL
 
