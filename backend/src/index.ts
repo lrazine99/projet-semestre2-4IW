@@ -30,7 +30,7 @@ app.use('/cart', cartController.buildRouter());
 app.use('/product', productController.buildRouter());
 app.use('/admin/stats', statsController.buildRouter());
 app.use('/order', orderController.buildRouter());
-app.use('/stats', statsController.buildRouter());
+
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Hello from api server :" });
