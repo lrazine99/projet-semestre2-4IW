@@ -117,6 +117,14 @@
           Commandes
         </router-link>
       </li>
+      <li>
+        <router-link 
+          to="/admin/stats" 
+          class="block py-2 px-4 text-sm hover:bg-gray-100" 
+          @click="closeDropdown">
+          Stats
+        </router-link>
+      </li>
     </ul>
   </transition>
 </li>

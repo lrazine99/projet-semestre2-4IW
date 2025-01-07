@@ -18,6 +18,10 @@ const ProductsVariantAdmin = () => import ('./views/ProductsVariantAdminView.vue
 const Stats = () => import ('./views/StatsView.vue')
 const OrdersAdmin = () => import('./views/OrdersAdminView.vue')
 const OrderDetailsAdmin = () => import('./views/OrderDetailsAdminView.vue')
+const CGV = () => import('./views/CGVView.vue')
+const CGU = () => import('./views/CGUView.vue')
+const politiqueConfidentialite = () => import('./views/PolitiqueConfidentialiteView.vue')
+const mentionsLegales = () => import('./views/MentionsLegalesView.vue')
 
 const routes = [
   {
@@ -71,6 +75,26 @@ const routes = [
     path: '/commande',
     name: 'Order',
     component: Order
+  },
+  {
+    path: '/cgu',
+    name: 'cgu',
+    component: CGU
+  },
+  {
+    path: '/cgv',
+    name: 'cgv',
+    component: CGV
+  },
+  {
+    path: '/politique-confidentialite',
+    name: 'politiqueConfidentialite',
+    component: politiqueConfidentialite
+  },
+  {
+    path: '/mentions-legales',
+    name: 'mentionsLegales',
+    component: mentionsLegales
   },
   {
     path: '/admin',

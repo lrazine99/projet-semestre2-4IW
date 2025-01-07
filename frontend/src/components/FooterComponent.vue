@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-slate-800	h-[50%]">
+  <footer class="bg-slate-800 h-[50%]">
     <div class="mx-auto w-full">
       <div class="grid grid-cols-1 gap-8 px-4 py-6 lg:py-8 md:grid-cols-3 justify-center">
         <div class="text-center">
@@ -25,25 +25,19 @@
           <h2 class="mb-6 text-sm font-semibold text-white uppercase">Liens</h2>
           <ul class="text-white font-medium text-center">
             <li class="mb-4">
-              <LinkComponent
-                to=""
-              >
+              <router-link to="/contact" class="text-white">
                 Contact
-              </LinkComponent>
+              </router-link>
             </li>
             <li class="mb-4">
-              <LinkComponent
-                to=""
-              >
+              <router-link to="/faq" class="text-white">
                 FAQ
-              </LinkComponent>
+              </router-link>
             </li>
             <li class="mb-4">
-              <LinkComponent
-                to="product"
-              >
+              <router-link to="/product" class="text-white">
                 Produits
-              </LinkComponent>
+              </router-link>
             </li>
           </ul>
         </div>
@@ -51,32 +45,24 @@
           <h2 class="mb-6 text-sm font-semibold text-white uppercase">Mentions</h2>
           <ul class="font-medium text-center">
             <li class="mb-4">
-              <LinkComponent
-              to=""
-              >
-              Mentions Légales
-              </LinkComponent>
+              <router-link to="/mentions-legales" class="text-white">
+                Mentions Légales
+              </router-link>
             </li>
             <li class="mb-4">
-              <LinkComponent
-              to=""
-              >
-              Conditions générales de ventes (CGV)
-              </LinkComponent>
+              <router-link to="/cgv" class="text-white">
+                Conditions générales de ventes (CGV)
+              </router-link>
             </li>
             <li class="mb-4">
-              <LinkComponent
-              to=""
-              >
-              Conditions générales d'utilisations (CGU)
-              </LinkComponent>
+              <router-link to="/cgu" class="text-white">
+                Conditions générales d'utilisations (CGU)
+              </router-link>
             </li>
             <li class="mb-4">
-              <LinkComponent
-              to=""
-              >
-              Politique de Confidentialité
-              </LinkComponent> 
+              <router-link to="/politique-confidentialite" class="text-white">
+                Politique de Confidentialité
+              </router-link>
             </li>
           </ul>
         </div>
