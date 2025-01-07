@@ -1,8 +1,10 @@
 // composables/useInvoicePDF.js
-import { jsPDF } from 'jspdf'
+// import { jsPDF } from 'jspdf/dist/jspdf.es.min.js'
 
 export function useInvoicePDF() {
   const generatePDF = (invoiceData) => {
+    const { jsPDF } = window.jspdf  // Get jsPDF from window
+
     return new Promise((resolve, reject) => {
       const {
         companyLogo,
@@ -167,8 +169,7 @@ export function useInvoicePDF() {
       const pdf = new jsPDF('p', 'mm', 'a4')
       pdf.html(invoiceHTML, {
         callback: (doc) => {
-
-         // doc.save(fileName) // Download the PDF
+          // doc.save(fileName) // Download the PDF
           try {
             const pdfBlob = doc.output('blob')
             resolve(pdfBlob) // Resolve with the Blob
