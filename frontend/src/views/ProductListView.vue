@@ -166,11 +166,12 @@ const processProducts = (products) => {
   products.forEach(product => {
     product.variants.forEach((variant) => {
       allVariants.value.push({
+        ...variant,
         productName: product.name,
         description: product.description,
         category: product.category,
+        platform: platforms.value.find(platform => platform._id === variant.platform),
         genres: product.genres,
-        ...variant,
       });
     });
   });
@@ -280,6 +281,7 @@ watch(
 onMounted(async () => {
   try {
     const { data: { productsFound, platforms: platfromsData } } = await axios.get(`${VITE_API_ENDPOINT}/product`);
+    platforms.value = platfromsData;
 
     processProducts(productsFound);
 
