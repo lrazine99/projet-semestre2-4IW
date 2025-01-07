@@ -6,6 +6,7 @@ import router from './router'
 import { useLoginStore } from './stores/loginStore'
 import { useCartStore } from './stores/cartStore'
 import scrollAppearDirective from "./directives/scroll-appear.js";
+import 'primeicons/primeicons.css'
 
 const app = createApp(App)
 app.directive('scroll-appear', scrollAppearDirective);

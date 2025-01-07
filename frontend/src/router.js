@@ -88,13 +88,13 @@ const routes = [
         path: 'products/variant',
         name: 'ProductsVariantAdmin',
         component: ProductsVariantAdmin
-      }
+      },
+      {
+        path: 'stats',
+        name: 'Stats',
+        component: Stats
+      },
     ]
-  },
-  {
-    path: '/admin/stats',
-    name: 'Stats',
-    component: Stats
   },
   {
     path: '/:pathMatch(.*)*',
@@ -105,7 +105,11 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior() {
+    // Always scroll to the top of the page
+    return { top: 0 };
+  },
 })
 
 router.beforeEach((to, from, next) => {

@@ -48,7 +48,6 @@ onBeforeMount(async () => {
             Authorization: `Bearer ${token}`
         }
     });
-    console.log(data);
     
     
     orders.value = data;

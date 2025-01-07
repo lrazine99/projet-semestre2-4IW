@@ -41,9 +41,10 @@
 
       <div class="flex items-center px-4 py-2 bg-gray-100 border-t space-x-2">
         <button @click.stop.prevent="addToCart" :disabled="stock < 1"
-            :class="stock < 1 ? 'bg-[rgb(115,170,224)]' : 'bg-primary'"
+          :class="stock < 1 ? 'bg-[rgb(115,170,224)]' : 'bg-primary'"
           class="w-full flex items-center justify-center rounded-md  px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondary focus:outline-none focus:ring-4 focus:ring-blue-300">
-          Ajouter au panier
+          <i class="pi pi-cart-minus mr-2" style="font-size: 1.1rem"></i>
+          <span>Ajouter au panier</span>
         </button>
       </div>
 
