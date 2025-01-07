@@ -161,9 +161,9 @@ abstract class FixturesService {
 
     const users = [
       {
-        firstName: "Paul",
-        lastName: "Becue",
-        email: "paulbecue3105@gmail.com",
+        firstName: "Louafi",
+        lastName: "Razine",
+        email: "louafi.style@gmail.com",
         address: {
           number: 10,
           street: "rue des Lilas",
