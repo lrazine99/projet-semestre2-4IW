@@ -3,7 +3,7 @@
   <div class="mx-8 mt-20">
       <TitleComponent titleText="Liste des commandes" />
       <div class="flex justify-center mb-4">
-          <button @click="showModalOrder = true" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+          <button @click="showModalAddOrder = true" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
               Créer une commande
           </button>
       </div>
@@ -27,8 +27,8 @@
       />
 
       <ModalComponent 
-          v-if="showModalOrder" 
-          :visible="showModalOrder" 
+          v-if="showModalAddOrder" 
+          :visible="showModalAddOrder" 
           title="Créer une commande" 
           @close="showModalOrder = false"
       >
@@ -59,10 +59,11 @@ import DeleteModal from '@/components/DeleteModalComponent.vue';
 import TitleComponent from '@/components/TitleComponent.vue';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import FormUpdateOrderComponent from '@/components/forms/FormUpdateOrderComponent.vue';
+import FormCreateOrderComponent from '@/components/forms/FormCreateOrderComponent.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const showModalOrder = ref(false);
+const showModalAddOrder = ref(false);
 const showModalEditOrder = ref(false);
 const showDeleteModal = ref(false);
 const itemsToDelete = ref([]);

@@ -363,6 +363,63 @@ export class OrderController {
     }
    }
 
+
+   async createOrderForUser(req: Request, res: Response) {
+    try {
+      const {
+        buyer,
+        total,
+        products,
+        orderStatus = "PENDING",
+        paymentStatus = "PAID",
+      } = req.body;
+
+      const user = await this.userService.model.findById(buyer);
+      if (!user) {
+        res.status(404).json({ message: "Utilisateur introuvable." });
+        return;
+      }
+
+      for (const product of products) {
+        const productExists = await this.productService.model.findOne({
+          "variants.sku": product.productSku,
+        });
+        if (!productExists) {
+          res.status(404).json({ message: `Produit ${product.productSku} introuvable.` });
+          return;
+        }
+      }
+
+      const orderCount = await this.orderService.model.countDocuments();
+      const invoiceNumber = `FR-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${(
+        orderCount + 1
+      )
+        .toString()
+        .padStart(6, "0")}`;
+
+      const order = await this.orderService.model.create({
+        buyer,
+        total,
+        products,
+        orderAt: new Date(),
+        orderStatus,
+        paymentStatus,
+        invoiceNumber,
+      });
+
+      res.status(201).json({
+        message: "Commande créée avec succès.",
+        order,
+      });
+      return;
+    } catch (error) {
+      console.error("Erreur lors de la création de la commande:", error);
+      res.status(500).json({ message: "Erreur interne du serveur." });
+    }
+  }
+
+
+
   buildRouter(): Router {
     const router = Router();
 
@@ -380,6 +437,7 @@ export class OrderController {
     router.delete("/:orderId/product/:sku", this.deleteProductFromOrder.bind(this)); 
     router.put("/:id/product/:productSku", this.updateOrderProduct.bind(this));
     router.post("/:id/product", this.addProductToOrder.bind(this));
+    router.post("/", this.createOrderForUser.bind(this));
 
     return router;
   }
