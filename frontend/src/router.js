@@ -101,13 +101,12 @@ const routes = [
         name: 'OrderDetailsAdmin',
         component: OrderDetailsAdmin,
       },
-
+      {
+        path: 'stats',
+        name: 'Stats',
+        component: Stats
+      },
     ]
-  },
-  {
-    path: '/admin/stats',
-    name: 'Stats',
-    component: Stats
   },
   {
     path: '/:pathMatch(.*)*',
@@ -115,6 +114,7 @@ const routes = [
     component: NotFound
   }
 ]
+
 
 const router = createRouter({
   history: createWebHistory(),
