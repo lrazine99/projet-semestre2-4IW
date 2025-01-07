@@ -61,6 +61,8 @@ import LoaderComponent from '@/components/LoaderComponent.vue';
 import FormUpdateOrderComponent from '@/components/forms/FormUpdateOrderComponent.vue';
 import FormCreateOrderComponent from '@/components/forms/FormCreateOrderComponent.vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
+import { useLoginStore } from "@/stores/loginStore";
 
 const router = useRouter();
 const showModalAddOrder = ref(false);
@@ -104,11 +106,21 @@ const statusTranslations = {
 
 const translateStatus = (key, value) => statusTranslations[key]?.[value] || value;
 
+const { token } = useLoginStore()
+
 onMounted(async () => {
   try {
     const [ordersResponse, usersResponse] = await Promise.all([
-      axios.get(`${VITE_API_ENDPOINT}/order`),
-      axios.get(`${VITE_API_ENDPOINT}/user`)
+      axios.get(`${VITE_API_ENDPOINT}/order`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }),
+      axios.get(`${VITE_API_ENDPOINT}/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
     ]);
 
     console.log('Réponse utilisateurs :', usersResponse.data);
@@ -175,16 +187,22 @@ const handleDeleteSelected = async (rows) => {
 
 const deleteFunction = async () => {
   try {
-      const deletePromises = itemsToDelete.value.map(id => 
-          axios.delete(`${VITE_API_ENDPOINT}/order/${id}`)
-      );
+    const deletePromises = itemsToDelete.value.map(id => 
+      axios.delete(`${VITE_API_ENDPOINT}/order/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+    );
       await Promise.all(deletePromises);
 
       orders.value = orders.value.filter(order => !itemsToDelete.value.includes(order._id));
       showDeleteModal.value = false;
   } catch (error) {
       console.error('Erreur lors de la suppression des commandes :', error);
-      alert('Une erreur est survenue lors de la suppression des commandes.');
+      toast.success('Une erreur est survenue lors de la suppression des commandes.', {
+        autoClose: 1000,
+    });
   }
 };
 
@@ -200,9 +218,14 @@ const handleUpdateOrder = async (orderData) => {
     };
 
     const response = await axios.put(
-      `${VITE_API_ENDPOINT}/order/${selectedOrder.value._id}`,
-      formattedOrderData
-    );
+    `${VITE_API_ENDPOINT}/order/${selectedOrder.value._id}`,
+    formattedOrderData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
 
     orders.value = orders.value.map(order =>
       order._id === selectedOrder.value._id
@@ -217,7 +240,9 @@ const handleUpdateOrder = async (orderData) => {
     showModalEditOrder.value = false;
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la commande :', error);
-    alert('Une erreur est survenue lors de la mise à jour de la commande.');
+    toast.success('Une erreur est survenue lors de la mise à jour de la commande.', {
+        autoClose: 1000,
+    });
   }
 };
 

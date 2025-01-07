@@ -172,7 +172,7 @@ abstract class FixturesService {
           city: "Paris",
           country: "France",
         },
-        role: "user",
+        role: "admin",
         birthDate: new Date("2024-12-31"),
         token: "J3M5-TyCKjbgH8-b",
         hash: "Ok29HXvmHUP6ZS5TT5317E4WBMsMd8gRRQUsreekH2E=",

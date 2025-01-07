@@ -10,6 +10,7 @@ import { z } from 'zod'
 import FormComponent from '../FormComponent.vue'
 import axios from 'axios'
 import { VITE_API_ENDPOINT } from '@/utils/const'
+import { toast } from 'vue3-toastify';
 
 const loginFields = [
     { id: 'email', label: 'Email', type: 'email', placeholder: 'Entrez votre email' }
@@ -26,12 +27,15 @@ const handleLogin = async (formData, signal) => {
             signal
         })
 
-        alert('Si un compte avec cet email existe, un email de confirmation sera envoyé')
-
+        toast.success('Si un compte avec cet email existe, un email de confirmation sera envoyé', {
+        autoClose: 1000,
+    });
     } catch (error) {
         console.log(error);
 
-        alert("Compte déja vérifié ou email incorrect")
+        toast.error('Compte déja vérifié ou email incorrect', {
+        autoClose: 1000,
+    });
     }
 }
 </script>

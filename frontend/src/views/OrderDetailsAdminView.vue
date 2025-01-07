@@ -42,6 +42,9 @@ import DeleteModal from "@/components/DeleteModalComponent.vue";
 import { VITE_API_ENDPOINT } from '@/utils/const';
 import FormUpdateQuantityProductOrder from '@/components/forms/FormUpdateQuantityProductOrder.vue';
 import FormAddProductOrder from '@/components/forms/FormAddProductOrder.vue';
+import { toast } from 'vue3-toastify';
+import { useLoginStore } from "@/stores/loginStore";
+
 
 const route = useRoute();
 const router = useRouter();
@@ -55,6 +58,7 @@ const showModalAddProductOrder = ref(false);
 const itemsToDelete = ref(null);
 const selectedProduct = ref(null);
 const totalPages = ref(0);
+const { token } = useLoginStore()
 
 const goBack = () => {
   router.push({ name: 'OrdersAdmin' }); 
@@ -94,7 +98,9 @@ const deleteFunction = async () => {
         showDeleteModal.value = false;
     } catch (error) {
         console.error("Erreur lors de la suppression du produit :", error);
-        alert("Une erreur est survenue lors de la suppression du produit.");
+        toast.error('Une erreur est survenue lors de la suppression du produit.', {
+        autoClose: 1000,
+    });
     }
 };
 
@@ -122,7 +128,11 @@ const getVariantDetails = async (productSku) => {
 
 onMounted(async () => {
     try {
-        const response = await axios.get(`${VITE_API_ENDPOINT}/order/${orderId}/details`);
+        const response = await axios.get(`${VITE_API_ENDPOINT}/order/${orderId}/details`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         console.log("OrderResponse", response);
         order.value = response.data;
 
@@ -150,8 +160,13 @@ const handleUpdateQuantity = async (formData) => {
     try {
         const parsedQuantity = parseInt(formData.quantity);
         const response = await axios.put(
-            `${VITE_API_ENDPOINT}/order/${orderId}/product/${selectedProduct.value.productSku}`,
-            { quantity: parsedQuantity }
+        `${VITE_API_ENDPOINT}/order/${orderId}/product/${selectedProduct.value.productSku}`,
+        { quantity: parsedQuantity },
+        {
+            headers: {
+            Authorization: `Bearer ${token}`
+            }
+        }
         );
 
         products.value = products.value.map(product =>
@@ -163,17 +178,24 @@ const handleUpdateQuantity = async (formData) => {
         showModalEditQuantity.value = false;
     } catch (error) {
         console.error('Erreur lors de la mise à jour de la quantité:', error);
-        alert('Une erreur est survenue lors de la mise à jour.');
+        toast.error('Une erreur est survenue lors de la mise à jour.', {
+        autoClose: 1000,
+    });
     }
 };
 const handleAddProduct = async (formData) => {
     try {
         const response = await axios.post(
-            `${VITE_API_ENDPOINT}/order/${orderId}/product`,
-            {
-                productSku: formData.productVariant,
-                quantity: formData.quantity
+        `${VITE_API_ENDPOINT}/order/${orderId}/product`,
+        {
+            productSku: formData.productVariant,
+            quantity: formData.quantity
+        },
+        {
+            headers: {
+            Authorization: `Bearer ${token}`
             }
+        }
         );
 
         const newProduct = await getVariantDetails(formData.productVariant);
@@ -190,7 +212,9 @@ const handleAddProduct = async (formData) => {
         showModalAddProductOrder.value = false;
     } catch (error) {
         console.error('Erreur lors de l\'ajout du produit:', error);
-        alert('Une erreur est survenue lors de l\'ajout.');
+        toast.error('Une erreur est survenue lors de l\'ajout.', {
+        autoClose: 1000,
+    });
     }
 };
 </script>

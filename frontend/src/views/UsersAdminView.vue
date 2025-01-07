@@ -60,6 +60,7 @@ import TitleComponent from '@/components/TitleComponent.vue';
 import FormCreateUserComponent from '@/components/forms/FormCreateUserComponent.vue';
 import FormUpdateUserComponent from '@/components/forms/FormUpdateUserComponent.vue';
 import LoaderComponent from '@/components/LoaderComponent.vue';
+import { toast } from 'vue3-toastify';
 
 const showModalUser = ref(false);
 const showModalEditUser = ref(false);
@@ -92,7 +93,9 @@ onMounted(async () => {
     totalPages.value = response.data.totalPages;
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs :", error);
-    alert(error.response?.data?.message || "Une erreur est survenue lors de la récupération des utilisateurs.");
+    toast.error(error.response?.data?.message || "Une erreur est survenue lors de la récupération des utilisateurs.", {
+        autoClose: 1000,
+    });
   }
   isLoading.value = false;
 });
@@ -121,14 +124,22 @@ const actionFunctions = {
       })
 
       if (response.ok) {
-        alert('E-mail de réinitialisation envoyé avec succès.')
+        toast.success('E-mail de réinitialisation envoyé avec succès.', {
+        autoClose: 1000,
+    });
       } else {
-        console.error("Erreur lors de l'envoi de l'e-mail.")
-        alert('Une erreur est survenue, veuillez réessayer.')
+        toast.error('Erreur lors de l\'envoi de l\'e-mail.', {
+        autoClose: 1000,
+    });
+        toast.error('Une erreur est survenue, veuillez réessayer.', {
+        autoClose: 1000,
+    });
       }
     } catch (error) {
       console.error('Erreur réseau:', error)
-      alert("Erreur réseau, impossible d'envoyer l'e-mail.")
+      toast.error('Erreur réseau, impossible d\'envoyer l\'e-mail.', {
+        autoClose: 1000,
+    });
     }
   }
 }
@@ -153,7 +164,9 @@ const deleteFunction = async () => {
     showDeleteModal.value = false;
   } catch (error) {
     console.error('Erreur lors de la suppression des utilisateurs :', error);
-    alert('Une erreur est survenue lors de la suppression des utilisateurs.');
+    toast.error('Une erreur est survenue lors de la suppression des utilisateurs.', {
+        autoClose: 1000,
+    });
   }
 };
 
@@ -165,14 +178,18 @@ const handleAddUser = async (formData, signal) => {
       await axios.post(`${VITE_API_ENDPOINT}/user/reset-password`, {
         email: formData.email
       })
-      alert('Utilisateur ajouté et email envoyé avec succès !')
+      toast.success('Utilisateur ajouté et email envoyé avec succès !', {
+        autoClose: 1000,
+    });
     }
 
     users.value.unshift(response.data.user);
     showModalUser.value = false
   } catch (error) {
     console.error("Erreur lors de l'ajout :", error)
-    alert(error.response?.data?.message || "Une erreur est survenue lors de l'ajout.")
+    toast.error(error.response?.data?.message || "Une erreur est survenue lors de l'ajout.", {
+        autoClose: 1000,
+    });
   }
 }
 
@@ -198,7 +215,9 @@ const handleUpdateUser = async (userData) => {
     showModalEditUser.value = false;
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
-    alert('Une erreur est survenue lors de la mise à jour de l\'utilisateur.');
+    toast.error('Une erreur est survenue lors de la mise à jour de l\'utilisateur.', {
+        autoClose: 1000,
+    });
   }
 };
 </script>
