@@ -75,7 +75,6 @@ export class AuthController {
         res.status(400).json({ message: "Données manquante" });
       }
     } catch (error) {
-      console.log(error);
       res.status(400).json({ message: "Erreur veuillez réessayer" });
     }
   }
