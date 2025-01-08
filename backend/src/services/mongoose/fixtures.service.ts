@@ -1,6 +1,5 @@
 import { MongooseService } from "./mongoose.service";
 import { IPlatform } from "../../types";
-import { exit } from "process";
 
 abstract class FixturesService {
   static async loadPlatforms() {
@@ -146,11 +145,11 @@ abstract class FixturesService {
     try {
       await Product.insertMany(games);
 
-       console.log("Games inserted successfully");
+      console.log("Games inserted successfully");
     } catch (error) {
-       console.error("Error inserting games:", error);
+      console.error("Error inserting games:", error);
     }
-    return
+    return;
   }
 
   static async loadUsers() {
@@ -474,7 +473,7 @@ abstract class FixturesService {
         isVerified: false,
         confirmationToken: "randomConfirmationToken432",
         confirmationTokenExpires: new Date(Date.now() + 3600000),
-      }
+      },
     ];
 
     try {
@@ -486,9 +485,9 @@ abstract class FixturesService {
   }
 }
 
-(async () => {
+export const loadFixtures = async () => {
   await FixturesService.loadPlatforms();
   await FixturesService.loadProducts();
   await FixturesService.loadUsers();
-  exit;
-})();
+  return;
+};
